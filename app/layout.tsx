@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Student 22-732-044",
+  title: "sopra-fs25-group_06-Glich-Poker",
   description: "sopra-fs25-template-client",
 };
 
