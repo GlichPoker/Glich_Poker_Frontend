@@ -3,12 +3,13 @@ import "@ant-design/v5-patch-for-react-19";
 import { useRouter } from "next/navigation";
 import { Button, Modal } from "antd";
 import React, { useState } from 'react';
-import Login from "./login/page";
-
+import LoginForm from "./login/LoginForm";
+import RegisterForm from "./register/RegisterForm";
 
 export default function Home() {
   const router = useRouter();
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [showLoginView, setShowLoginView] = useState(true);
 
   const showModal = () => {
     setIsModalVisible(true);
@@ -16,6 +17,11 @@ export default function Home() {
 
   const handleCancel = () => {
     setIsModalVisible(false);
+    setShowLoginView(true); // Reset to login view when modal closes
+  };
+
+  const toggleView = () => {
+    setShowLoginView(!showLoginView);
   };
 
   return (
@@ -32,16 +38,19 @@ export default function Home() {
         </Button>
       </div>
 
-
       <Modal
         className="modal-container"
-        title="login"
+        title={showLoginView ? "Login" : "Register"}
         open={isModalVisible}
         onCancel={handleCancel}
         footer={null}
         width={500}
       >
-        <Login />
+        {showLoginView ? (
+          <LoginForm onSwitchView={toggleView} />
+        ) : (
+          <RegisterForm onSwitchView={toggleView} />
+        )}
       </Modal>
     </div>
   );
