@@ -40,10 +40,10 @@ const Login: React.FC = () => {
       }
 
       // Navigate to the user overview
-      router.push("/users");
+      router.push("/lobbylist");
     } catch (error) {
       if (error instanceof Error) {
-        alert(`AHHHHHHHH Something went wrong during the login:\n${error.message}`);
+        alert(`Something went wrong during the login:\n${error.message}`);
       } else {
         console.error("An unknown error occurred during login.");
       }
@@ -51,7 +51,7 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="login-container">
+    <div className="center-container">
       <Form
         form={form}
         name="login"
@@ -70,22 +70,23 @@ const Login: React.FC = () => {
         <Form.Item
           name="password"
           label="Password"
-          rules = {[{ required: true, message: "Please input your password!" }]}
-          >
+          rules={[{ required: true, message: "Please input your password!" }]}
+        >
           <Input.Password placeholder="Enter password" />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit" className="login-button">
+          <Button
+            type="primary" className="main-btn" danger htmlType="submit" >
             Login
           </Button>
         </Form.Item>
         <Form.Item>
-          <Button type="default" htmlType="button" className="register-button" onClick={() => router.push("/register")}>
-            Register
+          <Button className="!text-white" type="link" htmlType="button" onClick={() => router.push("/register")}>
+            No account yet?
           </Button>
         </Form.Item>
       </Form>
-      
+
     </div>
   );
 };

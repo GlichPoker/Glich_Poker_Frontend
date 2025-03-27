@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -41,28 +43,12 @@ a {
   }
 }
 
-.login-container {
+.center-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: rgb(41, 44, 59);
-}
-
-.login-button {
-  width: 100%;
-}
-
-.register-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  background-color: rgb(41, 44, 59);
-}
-
-.register-button {
-  width: 100%;
+  background-color: rgba(23, 23, 23, 255);
 }
 
 .card-container {
@@ -70,5 +56,25 @@ a {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: rgb(41, 44, 59);
+  background-color: rgba(23, 23, 23, 255);
+}
+
+.main-btn {
+  @apply w-full !px-10 !py-6 !bg-red-800;
+}
+
+.main-btn:hover {
+  @apply !bg-red-900;
+}
+
+.ant-modal-content {
+  background-color: rgba(23, 23, 23, 255) !important;
+}
+
+.ant-modal-title {
+  background-color: rgba(23, 23, 23, 255) !important;
+}
+
+.ant-modal-close {
+  color: white !important;
 }

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"; // use NextJS router for navigation
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message } from "antd";
 import "@ant-design/v5-patch-for-react-19"; //!put into every page for react19 to work
 // Optionally, you can import a CSS module or file for additional styling:
 // import styles from "@/styles/page.module.css";
@@ -44,18 +44,25 @@ const Register: React.FC = () => {
       }
 
       // Navigate to the user overview
-      router.push("/users");
-    } catch (error) {
+      message.success("Welcome to Glich Poker!");
+      router.push("/lobbylist");
+    } catch (error: unknown) {
+      // error가 Error 인스턴스인지 확인
       if (error instanceof Error) {
-        alert(`Something went wrong during the registering:\n${error.message}`);
+        if (error.message.includes("409")) {
+          // 409 상태 코드 처리
+          message.error("The username is already taken");
+        } else {
+          message.error(`Something went wrong during registration:\n${error.message}`);
+        }
       } else {
-        console.error("An unknown error occurred during login.");
+        message.error("An unknown error occurred.");
       }
     }
   };
 
   return (
-    <div className="register-container">
+    <div className="center-container">
       <Form
         form={form}
         name="register"
@@ -74,8 +81,8 @@ const Register: React.FC = () => {
         <Form.Item
           name="password"
           label="Password"
-          rules = {[{ required: true, message: "Please input your password!" }]}
-          >
+          rules={[{ required: true, message: "Please input your password!" }]}
+        >
           <Input.Password placeholder="Enter password" />
         </Form.Item>
         <Form.Item
@@ -97,17 +104,16 @@ const Register: React.FC = () => {
           <Input.Password placeholder="Enter password again" />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit" className="register-button">
+          <Button type="primary" htmlType="submit" className="main-btn">
             Register
           </Button>
         </Form.Item>
         <Form.Item>
-          <Button type="default" htmlType="button" className="register-button" onClick={() => router.push("/login")}>
+          <Button type="default" danger htmlType="button" className="w-full" onClick={() => router.push("/login")}>
             Go back to Login
           </Button>
         </Form.Item>
       </Form>
-      
     </div>
   );
 };
