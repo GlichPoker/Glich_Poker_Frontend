@@ -47,7 +47,6 @@ a {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
   background-color: rgba(23, 23, 23, 255);
 }
 
@@ -60,11 +59,15 @@ a {
 }
 
 .main-btn {
-  @apply w-full !px-10 !py-6 !bg-red-800;
+  width: 100%;
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+  padding-top: 1.5rem;
+  background-color: #7f1d1d;
 }
 
 .main-btn:hover {
-  @apply !bg-red-900;
+  background-color: #7f1d1d !important; /* Equivalent to bg-red-900 */
 }
 
 .ant-modal-content {
@@ -77,4 +80,53 @@ a {
 
 .ant-modal-close {
   color: white !important;
+}
+
+/* Header hover effects */
+.ant-dropdown-trigger:hover {
+  opacity: 0.8;
+}
+
+/* Sticky header styles */
+.ant-layout-header.fixed {
+  transition: box-shadow 0.3s ease;
+}
+
+/* Button hover effects */
+.ant-btn-primary:hover {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+/* Leaderboard table styles */
+.leaderboard-table .ant-table-thead > tr > th {
+  background-color: #1f2937;
+  color: white;
+}
+
+.leaderboard-table .ant-table-tbody > tr.ant-table-row:hover > td {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .ant-layout-content {
+    padding-top: 64px;
+  }
+}
+
+.ant-layout-footer {
+  background-color: #1f2937 !important; /* dark gray background */
+  color: white !important;
+  padding: 1rem 0;
+  text-align: center;
+}
+
+.ant-layout-footer a {
+  color: #93c5fd; /* light blue for links */
+  text-decoration: none;
+}
+
+.ant-layout-footer a:hover {
+  text-decoration: underline;
 }
