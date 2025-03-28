@@ -26,7 +26,7 @@ export default function Home() {
 
   return (
     <div className="relative w-full h-screen bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/images/main.jpg')" }}>
-      <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50 translate-y-30">
+      <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50">
         <h1 className="text-6xl font-bold text-white">GLICH POKER</h1>
         <p className="text-red-400 italic mt-4">Play with the Devil!</p>
         <Button
