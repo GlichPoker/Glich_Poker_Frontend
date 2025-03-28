@@ -29,13 +29,25 @@ const LoginForm = ({ onSwitchView }: LoginFormProps) => {
     try {
       const response = await apiService.post<User>("/users/login", values);
       if (response.token) {
+        // Set token in both the hook state and directly in localStorage for immediate availability
         setToken(response.token);
-        router.push("/lobbylist");
+        localStorage.setItem("token", response.token); // Explicitly set in localStorage
+        
+        // Store user data in localStorage for use in the main page
+        localStorage.setItem("user", JSON.stringify(response));
+        
+        message.success(`Welcome back, ${response.username || 'User'}!`);
+        
+        // Small delay to ensure state is updated before navigation
+        setTimeout(() => {
+          router.push("/mainpage");
+        }, 100);
       }
     } catch (error) {
         if (error instanceof Error) {
-          alert(`Something went wrong during the login:\n${error.message}`);
+          message.error(`Login failed: ${error.message}`);
         } else {
+          message.error("An unknown error occurred during login.");
           console.error("An unknown error occurred during login.");
         }
     } finally {

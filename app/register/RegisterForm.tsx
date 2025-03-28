@@ -5,6 +5,7 @@ import { useApi } from "@/hooks/useApi";
 import { User } from "@/types/user";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import "@ant-design/v5-patch-for-react-19";
+import { useState } from "react";
 
 // Form value interfaces
 interface RegisterFormValues {
@@ -22,34 +23,47 @@ const RegisterForm = ({ onSwitchView }: RegisterFormProps) => {
   const router = useRouter();
   const apiService = useApi();
   const [form] = Form.useForm();
+  const [isLoading, setIsLoading] = useState(false);
   
   const { set: setToken } = useLocalStorage<string>("token", "");
   
   const handleRegistration = async (values: RegisterFormValues) => {
+    setIsLoading(true);
+    
     try {
       // Call the API service and let it handle JSON serialization and error handling
       const { username, password } = values;
       const payload = { username, password };
-      
       const response = await apiService.post<User>("/users", payload);
 
-      // Use the useLocalStorage hook that returned a setter function (setToken in line 41) to store the token if available
-      if (response.token) {
+      // Use the useLocalStorage hook that returned a setter function to store the token if available
+      if (response.token) { 
+        // Set token in localStorage
         setToken(response.token);
+        
+        // Store user data in localStorage for use in the main page
+        localStorage.setItem("user", JSON.stringify(response));
       }
-      // Navigate to the user overview
+      
+      // Navigate to the dashboard instead of lobbylist
       message.success("Welcome to Glich Poker!");
-      router.push("/lobbylist");
+      
+      // Small delay to ensure state is updated before navigation
+      setTimeout(() => {
+        router.push("/mainpage");
+      }, 100);
     } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes("409")) {
           message.error("The username is already taken");
         } else {
-          message.error(`Something went wrong during registration:\n${error.message}`);
+          message.error(`Registration failed: ${error.message}`);
         }
       } else {
         message.error("An unknown error occurred.");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
   
@@ -96,7 +110,12 @@ const RegisterForm = ({ onSwitchView }: RegisterFormProps) => {
           <Input.Password placeholder="Enter password again" />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit" className="main-btn">
+          <Button 
+            type="primary" 
+            htmlType="submit" 
+            className="main-btn"
+            loading={isLoading}
+          >
             Register
           </Button>
         </Form.Item>
