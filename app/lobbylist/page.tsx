@@ -9,4 +9,4 @@ export default function Lobbylist() {
     return (
         <h1>This is a lobby list page</h1>
     );
-}
+}//TODO: Lobbyoverlay with all the joinable lobbies
