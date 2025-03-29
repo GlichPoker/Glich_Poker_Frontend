@@ -16,40 +16,38 @@ interface LoginFormProps {
   onSwitchView: () => void;
 }
 
-const LoginForm = ({ onSwitchView }: LoginFormProps) => {
+const Login = ({ onSwitchView }: LoginFormProps) => {
   const router = useRouter();
   const apiService = useApi();
   const [form] = Form.useForm();
+
+  // useLocalStorage로 token과 user 상태 관리
   const { set: setToken } = useLocalStorage<string>("token", "");
+  const { set: setUser } = useLocalStorage<User>("user", {} as User);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const handleLogin = async (values: LoginFormValues) => {
     setIsLoading(true);
-    
+
     try {
       const response = await apiService.post<User>("/users/login", values);
       if (response.token) {
-        // Set token in both the hook state and directly in localStorage for immediate availability
+        // Set token and user data in localStorage using useLocalStorage hook
         setToken(response.token);
-        localStorage.setItem("token", response.token); // Explicitly set in localStorage
-        
-        // Store user data in localStorage for use in the main page
-        localStorage.setItem("user", JSON.stringify(response));
-        
+        setUser(response); // Save user data using useLocalStorage hook
+
+        // You don't need to manually call localStorage.setItem() anymore
         message.success(`Welcome back, ${response.username || 'User'}!`);
-        
-        // Small delay to ensure state is updated before navigation
-        setTimeout(() => {
-          router.push("/mainpage");
-        }, 100);
+        router.push("/main");
       }
     } catch (error) {
-        if (error instanceof Error) {
-          message.error(`Login failed: ${error.message}`);
-        } else {
-          message.error("An unknown error occurred during login.");
-          console.error("An unknown error occurred during login.");
-        }
+      if (error instanceof Error) {
+        message.error("Invalid username or password");
+        console.log(error.message)
+      } else {
+        message.error("An unknown error occurred during login.");
+        console.error("An unknown error occurred during login.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -80,10 +78,10 @@ const LoginForm = ({ onSwitchView }: LoginFormProps) => {
           <Input.Password placeholder="Enter password" />
         </Form.Item>
         <Form.Item>
-          <Button 
-            type="primary" 
-            className="main-btn" 
-            danger 
+          <Button
+            type="primary"
+            className="home-btn"
+            danger
             htmlType="submit"
             loading={isLoading}
           >
@@ -100,4 +98,4 @@ const LoginForm = ({ onSwitchView }: LoginFormProps) => {
   );
 };
 
-export default LoginForm;
+export default Login;

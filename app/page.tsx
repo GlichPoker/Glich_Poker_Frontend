@@ -3,8 +3,8 @@ import "@ant-design/v5-patch-for-react-19";
 import { useRouter } from "next/navigation";
 import { Button, Modal } from "antd";
 import React, { useState } from 'react';
-import LoginForm from "./login/LoginForm";
-import RegisterForm from "./register/RegisterForm";
+import Login from "@/login/page";
+import Register from "@/register/page";
 
 export default function Home() {
   const router = useRouter();
@@ -25,12 +25,13 @@ export default function Home() {
   };
 
   return (
-    <div className="relative w-full h-screen bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/images/main.jpg')" }}>
-      <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/50">
+
+    <div className="relative w-full h-screen bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/images/home.jpg')" }}>
+      <div className="absolute inset-0 flex flex-col items-center justify-center translate-y-30 bg-black/0">
         <h1 className="text-6xl font-bold text-white">GLICH POKER</h1>
         <p className="text-red-400 italic mt-4">Play with the Devil!</p>
         <Button
-          className="max-w-xs main-btn !mt-10"
+          className="home-btn max-w-xs main-btn !mt-10 !text-lg !text-bold"
           type="primary"
           onClick={showModal}
         >
@@ -47,9 +48,9 @@ export default function Home() {
         width={500}
       >
         {showLoginView ? (
-          <LoginForm onSwitchView={toggleView} />
+          <Login onSwitchView={toggleView} />
         ) : (
-          <RegisterForm onSwitchView={toggleView} />
+          <Register onSwitchView={toggleView} />
         )}
       </Modal>
     </div>

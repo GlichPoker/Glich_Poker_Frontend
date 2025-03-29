@@ -16,6 +16,7 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
+  @apply bg-zinc-900 text-white;
 }
 
 body {
@@ -34,7 +35,7 @@ body {
 
 a {
   color: inherit;
-  text-decoration: none;
+  /* text-decoration: none; */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -58,16 +59,12 @@ a {
   background-color: rgba(23, 23, 23, 255);
 }
 
-.main-btn {
-  width: 100%;
-  padding-left: 2.5rem;
-  padding-right: 2.5rem;
-  padding-top: 1.5rem;
-  background-color: #7f1d1d;
+.home-btn {
+  @apply w-full !px-10 !py-6 !bg-red-800;
 }
 
-.main-btn:hover {
-  background-color: #7f1d1d !important; /* Equivalent to bg-red-900 */
+.home-btn:hover {
+  @apply !bg-red-900;
 }
 
 .ant-modal-content {
@@ -99,12 +96,12 @@ a {
 }
 
 /* Leaderboard table styles */
-.leaderboard-table .ant-table-thead > tr > th {
+.leaderboard-table .ant-table-thead>tr>th {
   background-color: #1f2937;
   color: white;
 }
 
-.leaderboard-table .ant-table-tbody > tr.ant-table-row:hover > td {
+.leaderboard-table .ant-table-tbody>tr.ant-table-row:hover>td {
   background-color: rgba(255, 255, 255, 0.08);
 }
 
@@ -116,14 +113,16 @@ a {
 }
 
 .ant-layout-footer {
-  background-color: #1f2937 !important; /* dark gray background */
+  background-color: #1f2937 !important;
+  /* dark gray background */
   color: white !important;
   padding: 1rem 0;
   text-align: center;
 }
 
 .ant-layout-footer a {
-  color: #93c5fd; /* light blue for links */
+  color: #93c5fd;
+  /* light blue for links */
   text-decoration: none;
 }
 
