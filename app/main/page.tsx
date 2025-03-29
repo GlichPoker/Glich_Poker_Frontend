@@ -4,9 +4,11 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { UserOutlined, BellOutlined, LogoutOutlined } from "@ant-design/icons";
 import { Button, message } from "antd";
-import Leaderboard from "@/components/main/leaderboard/leaderboard";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
+
+import Leaderboard from "@/components/main/leaderboard/leaderboard";
+import LobbyList from "@/components/main/lobbyList";
 
 const Main: React.FC = () => {
     const router = useRouter();
@@ -109,9 +111,9 @@ const Main: React.FC = () => {
                     </div>
 
                     {/* right side - leader board, lobby list */}
-                    <div className="col-span-2 !mr-5">
+                    <div className="col-span-2 !mr-5 !gap-5">
                         <Leaderboard />
-                        <div className="text-white">lobby list</div>
+                        <LobbyList />
                     </div>
                 </div>
             </main>
