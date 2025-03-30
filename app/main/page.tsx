@@ -119,7 +119,7 @@ const Main: React.FC = () => {
             </main>
 
             <footer className="text-center bg-[#181818] text-gray-600 py-4">
-                <p>© {new Date().getFullYear()} Glich Poker. All Rights Reserved.</p>
+                <p>Glich Poker. All Rights Reserved.</p>
             </footer>
         </>
     );

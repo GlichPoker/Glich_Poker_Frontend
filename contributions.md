@@ -22,8 +22,8 @@ Note: If a team member fails to show continuous progress after using their Joker
 
 | **Student**      | **Date**  | **Link to Commit**          | **Description**                     | **Relevance**                          |
 |-------------------|-----------|-----------------------------|-------------------------------------|-----------------------------------------|
-| **[@githubUser1]** | [date]    | [Link to Commit 1]          | [Brief description of the task]     | [Why this contribution is relevant]     |
-|                   | [date]    | [Link to Commit 2]          | [Brief description of the task]     | [Why this contribution is relevant]     |
+| **[@RealBlueSwan]** | [28.03.2025]    | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/afcd47fb1f7cf04f1540c29444bb148f29bd2bd2]          | [Global and (fake)Friend(currently no endpoint) leaderboard #28 #29]     | [Implementation of basic functionalities]     |
+|                   | [28.03.2025]    | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/98407a565b3ccd8cd01af57c96bd28ea86ed905c]          | [Basic UI components for home and main page #7 #8 also some bugfixing]     | [basic user overview for mainpage, arden333 refined and made it way prettier<3>, thanks]     |
 | **[@githubUser2]** | [date]    | [Link to Commit 1]          | [Brief description of the task]     | [Why this contribution is relevant]     |
 |                   | [date]    | [Link to Commit 2]          | [Brief description of the task]     | [Why this contribution is relevant]     |
 | **[@githubUser3]** | [date]    | [Link to Commit 1]          | [Brief description of the task]     | [Why this contribution is relevant]     |
