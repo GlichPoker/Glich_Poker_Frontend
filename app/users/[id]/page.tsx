@@ -69,7 +69,7 @@ const Profile: React.FC = () => {
       }
       
       // Add a listener for incoming messages
-      const messageListener = (data: any) => {
+      const messageListener = (data: unknown) => {
         setLatestMessage(JSON.stringify(data));
       };
       

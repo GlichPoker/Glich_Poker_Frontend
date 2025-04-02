@@ -1,10 +1,10 @@
 class WebSocketService {
     private socket: WebSocket | null = null;
-    private listeners: ((data: any) => void)[] = [];
+    private listeners: ((data: unknown) => void)[] = [];
 
     constructor() {}
 
-    public connect(gameID: String){
+    public connect(gameID: string){
         this.socket = new WebSocket(`ws://localhost:8080/ws?gameID=${gameID}`);
 
         // Fix: Use arrow function to maintain 'this' context
@@ -19,11 +19,11 @@ class WebSocketService {
         };
     }
 
-    public addListener(listener: (data: any) => void) {
+    public addListener(listener: (data: unknown) => void) {
         this.listeners.push(listener);
     }
 
-    public removeListener(listener: (data: any) => void) {
+    public removeListener(listener: (data: unknown) => void) {
         this.listeners = this.listeners.filter((l) => l !== listener);
     }
 
