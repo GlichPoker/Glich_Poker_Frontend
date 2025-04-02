@@ -18,7 +18,7 @@ Note: If a team member fails to show continuous progress after using their Joker
 
 ---
 
-## Contributions Week 1 - [Begin Date] to [End Date]
+## Contributions Week 1 - [27.03.25] to [02.04.25]
 
 | **Student**      | **Date**  | **Link to Commit**          | **Description**                     | **Relevance**                          |
 |-------------------|-----------|-----------------------------|-------------------------------------|-----------------------------------------|
@@ -33,7 +33,7 @@ Note: If a team member fails to show continuous progress after using their Joker
 
 ---
 
-## Contributions Week 2 - [Begin Date] to [End Date]
+## Contributions Week 2 - [03.04.25] to [09.03.25]
 
 
 | **Student**      | **Date**  | **Link to Commit**          | **Description**                     | **Relevance**                          |
