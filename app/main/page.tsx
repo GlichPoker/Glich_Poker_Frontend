@@ -103,7 +103,7 @@ const Main: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 h-150 bg-[#181818]">
+                <div className="grid grid-cols-3 gap-4 h-150 min-h-screen bg-[#181818]">
                     {/* left side - friends' online status, text chat */}
                     <div className="flex-col bg-amber-300">
                         <div>friends' online status</div>
@@ -111,9 +111,11 @@ const Main: React.FC = () => {
                     </div>
 
                     {/* right side - leader board, lobby list */}
-                    <div className="col-span-2 !mr-5 !gap-5">
+                    <div className="col-span-2 !mr-5 bg-[#181818]">
                         <Leaderboard />
-                        <LobbyList />
+                        <div className="!mt-10 bg-[#181818]">
+                            <LobbyList />
+                        </div>
                     </div>
                 </div>
             </main>
