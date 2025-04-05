@@ -1,124 +1,58 @@
 "use client"; // For components that need React hooks and browser APIs, SSR (server side rendering) has to be disabled. Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
 import "@ant-design/v5-patch-for-react-19";
 import { useRouter } from "next/navigation";
-import { Button } from "antd";
+import { Button, Modal } from "antd";
+import React, { useState } from 'react';
+import Login from "@/login/page";
+import Register from "@/register/page";
 
 export default function Home() {
   const router = useRouter();
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [showLoginView, setShowLoginView] = useState(true);
+
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    setShowLoginView(true); // Reset to login view when modal closes
+  };
+
+  const toggleView = () => {
+    setShowLoginView(!showLoginView);
+  };
+
   return (
-    <div className={"register-container"} style={{
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '16px',
-      alignItems: 'center',
-    }}>
-      <Button type="default" htmlType="button" className="login-button" style={{width:'300px'}} onClick={() => router.push("/login")}>
-        Login
-      </Button>
-      <Button type="default" htmlType="button" className="register-button" style={{width:'300px'}} onClick={() => router.push("/register")}>
-        Register
-      </Button>
+
+    <div className="relative w-full h-screen bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/images/home.jpg')" }}>
+      <div className="absolute inset-0 flex flex-col items-center justify-center translate-y-30 bg-black/0">
+        <h1 className="text-6xl font-bold text-white">GLICH POKER</h1>
+        <p className="text-red-400 italic mt-4">Play with the Devil!</p>
+        <Button
+          className="home-btn max-w-xs main-btn !mt-10 !text-lg !text-bold"
+          type="primary"
+          onClick={showModal}
+        >
+          Enter
+        </Button>
+      </div>
+
+      <Modal
+        className="modal-container"
+        title={showLoginView ? "Login" : "Register"}
+        open={isModalVisible}
+        onCancel={handleCancel}
+        footer={null}
+        width={500}
+      >
+        {showLoginView ? (
+          <Login onSwitchView={toggleView} />
+        ) : (
+          <Register onSwitchView={toggleView} />
+        )}
+      </Modal>
     </div>
-
-
-    /*
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            <code>app/page.tsx</code> is the landing page for your application, currently being displayed.
-          </li>
-          <li>
-            <code>app/login/page.tsx</code> is the login page for users.
-          </li>
-          <li>
-            <code>app/users/page.tsx</code> is the dashboard that shows an overview of all users, fetched from the server.
-          </li>
-          <li>
-            <code>app/users/[id]/page.tsx</code> is a slug page that shows info of a particular user. Since each user has its own id, each user has its own infopage, dynamically with the use of slugs.
-          </li>
-          <li>
-            To test, modify the current page <code>app/page.tsx</code> and save to see your changes instantly.
-          </li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <Button
-            type="primary" // as defined in the ConfigProvider in [layout.tsx](./layout.tsx), all primary antd elements are colored #22426b, with buttons #75bd9d as override
-            color="red" // if a single/specific antd component needs yet a different color, it can be explicitly overridden in the component as shown here
-            variant="solid" // read more about the antd button and its options here: https://ant.design/components/button
-            onClick={() =>
-              globalThis.open(
-                "https://vercel.com/new",
-                "_blank",
-                "noopener,noreferrer",
-              )}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Deploy now
-          </Button>
-          <Button
-            type="default"
-            variant="solid"
-            onClick={() =>
-              globalThis.open(
-                "https://nextjs.org/docs",
-                "_blank",
-                "noopener,noreferrer",
-              )}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </Button>
-          <Button
-            type="primary"
-            variant="solid"
-            onClick={() => router.push("/login")}
-          >
-            Go to login
-          </Button>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <Button
-          type="link"
-          icon={<BookOutlined />}
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn
-        </Button>
-        <Button
-          type="link"
-          icon={<CodeOutlined />}
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Examples
-        </Button>
-        <Button
-          type="link"
-          icon={<GlobalOutlined />}
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Go to nextjs.org →
-        </Button>
-      </footer>
-    </div>
-    */
   );
 }
