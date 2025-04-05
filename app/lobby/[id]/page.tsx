@@ -1,15 +1,17 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { message, Button } from "antd";
 import "@ant-design/v5-patch-for-react-19";
+import Vote from "../../components/game/voting/vote";
 
 const LobbyPage = () => {
     const params = useParams();
     const router = useRouter();
     const lobbyId = params.id;
     const messageDisplayed = useRef(false);
+    const [showVoteOverlay, setShowVoteOverlay] = useState(false);
 
     // Use a ref to track if message has been shown
     useEffect(() => {
@@ -24,9 +26,22 @@ const LobbyPage = () => {
             {/* nav bar - exit button*/}
             <nav className="flex flex-row h-14 justify-between items-center bg-[#181818]">
                 <div className="flex flex-row justify-end w-[95%] h-[40px] ">
+                    <Button 
+                        type="link" 
+                        className="!text-gray-500 !font-bold"
+                        onClick={() => setShowVoteOverlay(true)}
+                    >
+                        Vote
+                    </Button>
                     <Button type="link" className="!text-gray-500 !font-bold" onClick={() => router.push("/main")}>Exit</Button>
                 </div>
             </nav>
+            {/* voting overlay */}
+            <Vote 
+                isVisible={showVoteOverlay} 
+                onClose={() => setShowVoteOverlay(false)} 
+                lobbyId={lobbyId as string}
+            />
             <div className="bg-[url('/images/poker-table.jpg')] bg-cover bg-center relative">
                 <div className="flex flex-row w-full h-auto">
                     {/* left - other player 1,2 */}
