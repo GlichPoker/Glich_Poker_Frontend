@@ -1,7 +1,7 @@
 class WebSocketService {
     private socket: WebSocket | null = null;
     private listeners: ((data: unknown) => void)[] = [];
-    private messageQueue: string[] = [];  // 메시지 대기열
+    private messageQueue: string[] = [];
 
     constructor() { }
 

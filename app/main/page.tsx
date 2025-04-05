@@ -6,7 +6,7 @@ import { UserOutlined, BellOutlined, LogoutOutlined } from "@ant-design/icons";
 import { Button, message } from "antd";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
-import { webSocketService } from "@/utils/websocket";  // 웹소켓 서비스 가져오기
+import { webSocketService } from "@/utils/websocket";
 
 import Leaderboard from "@/components/main/leaderboard/leaderboard";
 import LobbyList from "@/components/main/lobbyList";
