@@ -39,6 +39,7 @@ export default function RootLayout({
 
               // Alias Token
               colorBgContainer: "#16181D",
+              colorBgElevated: "#2a2a2a", // Set dropdown menu background to dark grey
             },
             // if a component type needs special styling, setting here will override default options set in token
             components: {
