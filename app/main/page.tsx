@@ -56,7 +56,6 @@ const Main: React.FC = () => {
 
     const handleLogout = () => {
         if (user && user.username) {
-
             webSocketService.sendLogoutMessage(user.username);
         }
 
@@ -69,10 +68,9 @@ const Main: React.FC = () => {
     };
 
     return (
-        <>
+        <div className="flex flex-col min-h-screen bg-[#181818]">
             {/* nav bar */}
             <nav className="flex flex-row h-14 justify-between items-center bg-[#181818]">
-
                 <div className="flex flex-row !w-60 justify-start items-center gap-x-4 !ml-5 text-white text-xl font-bold"> Glich Poker</div>
 
                 <div className="flex flex-row justify-end w-[90%] h-[40px] bg-[#181818] gap-x-4 !mr-5">
@@ -89,51 +87,51 @@ const Main: React.FC = () => {
                 </div>
             </nav>
 
-            <main>
-                {/* play section */}
-                <div
-                    className="flex flex-row h-50 justify-center items-center bg-[#181818] text-white bg-[url('/images/main.jpg')] bg-cover bg-center relative"
-                >
-                    <div className="absolute inset-0 bg-black opacity-70"></div>
-                    <div className="flex flex-row h-16 text-white justify-evenly w-full z-10">
-                        <Button
-                            type="primary"
-                            onClick={() => {
-                                router.push("/main/game-rule");
-                            }}
-                        >
-                            Game rule
-                        </Button>
-                        <Button type="primary">
-                            Create a Lobby
-                        </Button>
+            {/* play section */}
+            <div
+                className="flex flex-row h-50 justify-center items-center bg-[#181818] text-white bg-[url('/images/main.jpg')] bg-cover bg-center relative"
+            >
+                <div className="absolute inset-0 bg-black opacity-70"></div>
+                <div className="flex flex-row h-16 text-white justify-evenly w-full z-10">
+                    <Button
+                        type="primary"
+                        onClick={() => {
+                            router.push("/main/game-rule");
+                        }}
+                    >
+                        Game rule
+                    </Button>
+                    <Button type="primary">
+                        Create a Lobby
+                    </Button>
+                </div>
+            </div>
+
+            {/* main content - grows to fill available space */}
+            <div className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#181818]">
+                {/* left side - friends' online status, text chat */}
+                <div className="flex flex-col md:col-span-1 px-3">
+                    <div className="text-white">(TODO)friends' online status
+                    </div>
+                    <div className="flex justify-center h-[300px] border border-zinc-700">
+                        <Chat />
                     </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 h-150 min-h-screen bg-[#181818]">
-                    {/* left side - friends' online status, text chat */}
-                    <div className="flex-col">
-                        <div className="text-white">(TODO)friends' online status
-                        </div>
-                        <div className="flex justify-center !ml-3 !h-[300px] border border-zinc-700">
-                            <Chat />
-                        </div>
-                    </div>
-
-                    {/* right side - leader board, lobby list */}
-                    <div className="col-span-2 !mr-5 bg-[#181818]">
-                        <Leaderboard />
-                        <div className="!mt-10 bg-[#181818]">
-                            <LobbyList />
-                        </div>
+                {/* right side - leader board, lobby list */}
+                <div className="md:col-span-2 px-3 md:pr-5 bg-[#181818]">
+                    <Leaderboard />
+                    <div className="!mt-10 bg-[#181818]">
+                        <LobbyList />
                     </div>
                 </div>
-            </main>
+            </div>
 
-            <footer className="text-center bg-[#181818] text-gray-600 py-4">
+            {/* footer - always stays at bottom */}
+            <footer className="text-center bg-[#181818] text-gray-600 py-4 mt-auto">
                 <p>Glich Poker. All Rights Reserved.</p>
             </footer>
-        </>
+        </div>
     );
 };
 
