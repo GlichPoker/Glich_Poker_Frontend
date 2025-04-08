@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import { UserOutlined, BellOutlined, LogoutOutlined } from "@ant-design/icons";
 import { Button, message } from "antd";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { User } from "@/types/user";
 
 import Leaderboard from "@/components/main/leaderboard/leaderboard";
 import LobbyList from "@/components/main/lobbyList";
