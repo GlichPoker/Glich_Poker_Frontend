@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Table, Avatar, Spin } from "antd";
 import { UserOutlined, TrophyOutlined } from "@ant-design/icons";
 import { useApi } from "@/hooks/useApi";
+import { User } from "@/types/user";
 import "@ant-design/v5-patch-for-react-19";
 
 interface LeaderboardUser {
@@ -21,15 +22,17 @@ const GlobalLeaderboard: React.FC = () => {
         const fetchLeaderboardData = async () => {
             try {
                 // Fetch users from API
-                const users = await apiService.get<any[]>("/users");
+                const users = await apiService.get<User[]>("/users"); // Use User[] instead of any[]
 
                 // For now, we'll add a random score to each user since the backend doesn't have a scoring system yet
-                const leaderboardUsers = users.map((user, index) => ({
-                    id: user.id,
-                    username: user.username,
-                    score: Math.floor(Math.random() * 1000), // TODO: Currently only random score for demonstration
-                    rank: index + 1,
-                }));
+                const leaderboardUsers = users
+                    .filter((user) => user.id !== null && user.username !== null) // Ensure id and username are non-null
+                    .map((user, index) => ({
+                        id: user.id as string,
+                        username: user.username as string,
+                        score: Math.floor(Math.random() * 1000), // TODO: Currently only random score for demonstration
+                        rank: index + 1,
+                    }));
 
                 // Sort by score (highest first)
                 leaderboardUsers.sort((a, b) => b.score - a.score);

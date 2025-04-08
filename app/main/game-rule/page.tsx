@@ -14,7 +14,7 @@ const GameRule: React.FC = () => {
             message.error("Please log in first.");
             router.replace("/login");
         }
-    }, []);
+    }, [router]);
 
     if (!localStorage.getItem("token")) {
         return null;

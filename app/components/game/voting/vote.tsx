@@ -3,16 +3,16 @@
 import { useState } from "react";
 import { Button, Modal, Select, Typography, message, Divider } from "antd";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { Option } = Select;
 
 interface VoteProps {
   isVisible: boolean;
   onClose: () => void;
-  lobbyId: string;
+  /*lobbyId: string; TODO: add when implemented...*/
 }
 
-const Vote: React.FC<VoteProps> = ({ isVisible, onClose, lobbyId }) => {
+const Vote: React.FC<VoteProps> = ({ isVisible, onClose, /*lobbyId*/ }) => {
   const [voteType, setVoteType] = useState<string>("kick");
   const [selectedPlayer, setSelectedPlayer] = useState<string>("");
   const [selectedMap, setSelectedMap] = useState<string>("classic");

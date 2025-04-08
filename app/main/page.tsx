@@ -12,8 +12,7 @@ import LobbyList from "@/components/main/lobbyList";
 
 const Main: React.FC = () => {
     const router = useRouter();
-    const { value: token, clear: clearToken } = useLocalStorage<string>("token", "");
-    const [user, setUser] = useState<User | null>(null);
+    const { clear: clearToken } = useLocalStorage<string>("token", "");
     const [isLoading, setIsLoading] = useState(true);
 
     // Check authentication status
@@ -31,8 +30,7 @@ const Main: React.FC = () => {
         const userDataString = localStorage.getItem("user");
         if (userDataString) {
             try {
-                const userData = JSON.parse(userDataString) as User;
-                setUser(userData); // Set user data
+                JSON.parse(userDataString); // Parse user data
             } catch (error) {
                 console.error("Failed to parse user data:", error);
                 message.error("Error loading user data");
@@ -106,7 +104,7 @@ const Main: React.FC = () => {
                 <div className="grid grid-cols-3 gap-4 h-150 min-h-screen bg-[#181818]">
                     {/* left side - friends' online status, text chat */}
                     <div className="flex-col bg-amber-300">
-                        <div>friends' online status</div>
+                        <div>friends online status</div>
                         <div>text chat</div>
                     </div>
 
