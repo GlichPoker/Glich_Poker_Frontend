@@ -14,7 +14,7 @@ import Chat from "@/components/main/chat";
 
 const Main: React.FC = () => {
     const router = useRouter();
-    const { value: token, clear: clearToken } = useLocalStorage<string>("token", "");
+    const { clear: clearToken } = useLocalStorage<string>("token", "");
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -111,7 +111,7 @@ const Main: React.FC = () => {
             <div className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#181818]">
                 {/* left side - friends' online status, text chat */}
                 <div className="flex flex-col md:col-span-1 px-3">
-                    <div className="text-white">(TODO)friends' online status
+                    <div className="text-white">(TODO)friends online status
                     </div>
                     <div className="flex justify-center h-[300px] border border-zinc-700">
                         <Chat />

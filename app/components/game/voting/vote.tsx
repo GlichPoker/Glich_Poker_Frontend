@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button, Modal, Select, Typography, message, Divider } from "antd";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { Option } = Select;
 
 interface VoteProps {
   isVisible: boolean;
   onClose: () => void;
-  lobbyId: string;
+  lobbyId?: string;
 }
 
 const Vote: React.FC<VoteProps> = ({ isVisible, onClose, lobbyId }) => {
@@ -18,6 +18,16 @@ const Vote: React.FC<VoteProps> = ({ isVisible, onClose, lobbyId }) => {
   const [selectedMap, setSelectedMap] = useState<string>("classic");
   const [selectedRule, setSelectedRule] = useState<string>("");
   const [isGamePaused, setIsGamePaused] = useState<boolean>(false);
+  
+  // For future implementation: use lobbyId to fetch lobby-specific data
+  useEffect(() => {
+    if (lobbyId && isVisible) {
+      // This will prevent the unused variable warning
+      // In a real implementation, you would use the lobbyId to fetch 
+      // data specific to this lobby, such as current players
+      console.log(`Opened voting in lobby: ${lobbyId}`);
+    }
+  }, [lobbyId, isVisible]);
   
   // TODO: Gather real data. currently: Mock player data - in a real app, these would come from a backend
   const players = [

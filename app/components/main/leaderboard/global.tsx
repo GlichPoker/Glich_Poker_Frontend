@@ -4,6 +4,7 @@ import { Table, Avatar, Spin } from "antd";
 import { UserOutlined, TrophyOutlined } from "@ant-design/icons";
 import { useApi } from "@/hooks/useApi";
 import "@ant-design/v5-patch-for-react-19";
+import { User } from "@/types/user";
 
 interface LeaderboardUser {
     id: string;
@@ -21,12 +22,12 @@ const GlobalLeaderboard: React.FC = () => {
         const fetchLeaderboardData = async () => {
             try {
                 // Fetch users from API
-                const users = await apiService.get<any[]>("/users");
+                const users = await apiService.get<User[]>("/users");
 
                 // For now, we'll add a random score to each user since the backend doesn't have a scoring system yet
                 const leaderboardUsers = users.map((user, index) => ({
-                    id: user.id,
-                    username: user.username,
+                    id: user.id || `user-${index}`,
+                    username: user.username || `User ${index}`,
                     score: Math.floor(Math.random() * 1000), // TODO: Currently only random score for demonstration
                     rank: index + 1,
                 }));

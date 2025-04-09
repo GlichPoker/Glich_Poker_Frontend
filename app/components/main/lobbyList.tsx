@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { Card, Button } from "antd";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 const { Meta } = Card;
