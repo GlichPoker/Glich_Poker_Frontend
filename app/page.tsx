@@ -1,6 +1,6 @@
 "use client"; // For components that need React hooks and browser APIs, SSR (server side rendering) has to be disabled. Read more here: https://nextjs.org/docs/pages/building-your-application/rendering/server-side-rendering
 import "@ant-design/v5-patch-for-react-19";
-import { Button, Modal, Form, Input, message } from "antd";
+import { Button, Modal, Form, Input, message, App } from "antd";
 import React, { useState } from 'react';
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
@@ -43,7 +43,6 @@ export default function Home() {
         setToken(response.token);
         setUser(response); // Save user data using useLocalStorage hook
 
-        message.success(`Welcome back, ${response.username || 'User'}!`);
         router.push("/main");
       }
     } catch (error) {
@@ -75,7 +74,6 @@ export default function Home() {
         localStorage.setItem("user", JSON.stringify(response));
       }
 
-      message.success("Welcome to Glich Poker!");
       router.push("/main");
 
     } catch (error) {
@@ -94,130 +92,132 @@ export default function Home() {
   };
 
   return (
-    <div className="relative w-full h-screen bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/images/home.jpg')" }}>
-      <div className="absolute inset-0 flex flex-col items-center justify-center translate-y-30 bg-black/0">
-        <h1 className="text-6xl font-bold text-white">GLICH POKER</h1>
-        <p className="text-red-400 italic mt-4">Play with the Devil!</p>
-        <Button
-          className="home-btn max-w-xs main-btn !mt-10 !text-lg !text-bold"
-          type="primary"
-          onClick={showModal}
-        >
-          Enter
-        </Button>
-      </div>
+    <App>
+      <div className="relative w-full h-screen bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/images/home.jpg')" }}>
+        <div className="absolute inset-0 flex flex-col items-center justify-center translate-y-30 bg-black/0">
+          <h1 className="text-6xl font-bold text-white">GLICH POKER</h1>
+          <p className="text-red-400 italic mt-4">Play with the Devil!</p>
+          <Button
+            className="home-btn max-w-xs main-btn !mt-10 !text-lg !text-bold"
+            type="primary"
+            onClick={showModal}
+          >
+            Enter
+          </Button>
+        </div>
 
-      <Modal
-        className="modal-container"
-        title={showLoginView ? "Login" : "Register"}
-        open={isModalVisible}
-        onCancel={handleCancel}
-        footer={null}
-        width={500}
-      >
-        {showLoginView ? (
-          <div className="center-container">
-            <Form
-              form={form}
-              name="login"
-              size="large"
-              variant="outlined"
-              onFinish={handleLogin}
-              layout="vertical"
-            >
-              <Form.Item
-                name="username"
-                label="Username"
-                rules={[{ required: true, message: "Please input your username!" }]}
+        <Modal
+          className="modal-container"
+          title={showLoginView ? "Login" : "Register"}
+          open={isModalVisible}
+          onCancel={handleCancel}
+          footer={null}
+          width={500}
+        >
+          {showLoginView ? (
+            <div className="center-container">
+              <Form
+                form={form}
+                name="login"
+                size="large"
+                variant="outlined"
+                onFinish={handleLogin}
+                layout="vertical"
               >
-                <Input placeholder="Enter username" />
-              </Form.Item>
-              <Form.Item
-                name="password"
-                label="Password"
-                rules={[{ required: true, message: "Please input your password!" }]}
-              >
-                <Input.Password placeholder="Enter password" />
-              </Form.Item>
-              <Form.Item>
-                <Button
-                  type="primary"
-                  className="home-btn"
-                  danger
-                  htmlType="submit"
-                  loading={isLoading}
+                <Form.Item
+                  name="username"
+                  label="Username"
+                  rules={[{ required: true, message: "Please input your username!" }]}
                 >
-                  Login
-                </Button>
-              </Form.Item>
-              <Form.Item>
-                <Button className="!text-white" type="link" htmlType="button" onClick={toggleView}>
-                  No account yet?
-                </Button>
-              </Form.Item>
-            </Form>
-          </div>
-        ) : (
-          <div className="center-container">
-            <Form
-              form={form}
-              name="register"
-              size="large"
-              variant="outlined"
-              onFinish={handleRegistration}
-              layout="vertical"
-            >
-              <Form.Item
-                name="username"
-                label="Username"
-                rules={[{ required: true, message: "Please input your username!" }]}
+                  <Input placeholder="Enter username" />
+                </Form.Item>
+                <Form.Item
+                  name="password"
+                  label="Password"
+                  rules={[{ required: true, message: "Please input your password!" }]}
+                >
+                  <Input.Password placeholder="Enter password" />
+                </Form.Item>
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    className="home-btn"
+                    danger
+                    htmlType="submit"
+                    loading={isLoading}
+                  >
+                    Login
+                  </Button>
+                </Form.Item>
+                <Form.Item>
+                  <Button className="!text-white" type="link" htmlType="button" onClick={toggleView}>
+                    No account yet?
+                  </Button>
+                </Form.Item>
+              </Form>
+            </div>
+          ) : (
+            <div className="center-container">
+              <Form
+                form={form}
+                name="register"
+                size="large"
+                variant="outlined"
+                onFinish={handleRegistration}
+                layout="vertical"
               >
-                <Input placeholder="Enter username" />
-              </Form.Item>
-              <Form.Item
-                name="password"
-                label="Password"
-                rules={[{ required: true, message: "Please input your password!" }]}
-              >
-                <Input.Password placeholder="Enter password" />
-              </Form.Item>
-              <Form.Item
-                name="confirmPassword"
-                label="Confirm Password"
-                dependencies={['password']}
-                rules={[
-                  { required: true, message: "Please confirm your password!" },
-                  ({ getFieldValue }) => ({
-                    validator(_, value) {
-                      if (!value || getFieldValue('password') === value) {
-                        return Promise.resolve();
+                <Form.Item
+                  name="username"
+                  label="Username"
+                  rules={[{ required: true, message: "Please input your username!" }]}
+                >
+                  <Input placeholder="Enter username" />
+                </Form.Item>
+                <Form.Item
+                  name="password"
+                  label="Password"
+                  rules={[{ required: true, message: "Please input your password!" }]}
+                >
+                  <Input.Password placeholder="Enter password" />
+                </Form.Item>
+                <Form.Item
+                  name="confirmPassword"
+                  label="Confirm Password"
+                  dependencies={['password']}
+                  rules={[
+                    { required: true, message: "Please confirm your password!" },
+                    ({ getFieldValue }) => ({
+                      validator(_, value) {
+                        if (!value || getFieldValue('password') === value) {
+                          return Promise.resolve();
+                        }
+                        return Promise.reject(new Error("The two passwords do not match!"));
                       }
-                      return Promise.reject(new Error("The two passwords do not match!"));
-                    }
-                  })
-                ]}
-              >
-                <Input.Password placeholder="Enter password again" />
-              </Form.Item>
-              <Form.Item>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  className="home-btn"
-                  loading={isLoading}
+                    })
+                  ]}
                 >
-                  Register
-                </Button>
-              </Form.Item>
-              <Form.Item>
-                <Button type="default" danger htmlType="button" className="w-full" onClick={toggleView}>
-                  Go back to Login
-                </Button>
-              </Form.Item>
-            </Form>
-          </div>
-        )}
-      </Modal>
-    </div>
+                  <Input.Password placeholder="Enter password again" />
+                </Form.Item>
+                <Form.Item>
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    className="home-btn"
+                    loading={isLoading}
+                  >
+                    Register
+                  </Button>
+                </Form.Item>
+                <Form.Item>
+                  <Button type="default" danger htmlType="button" className="w-full" onClick={toggleView}>
+                    Go back to Login
+                  </Button>
+                </Form.Item>
+              </Form>
+            </div>
+          )}
+        </Modal>
+      </div>
+    </App>
   );
 }
