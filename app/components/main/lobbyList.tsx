@@ -14,11 +14,11 @@ const dummyLobbies = [
 ];
 
 const imgList = [
-    { id: "1", weather: "sunny", src: "/images/sunny.jpg" },
+    { id: "1", weather: "sunny", src: "/images/lobby/sunny.jpg" },
     { id: "2", weather: "rain", src: "https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png" },
     { id: "3", weather: "snow", src: "https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png" },
     { id: "4", weather: "windy", src: "https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png" },
-    { id: "5", weather: "cloudy", src: "/images/cloudy.jpg" }
+    { id: "5", weather: "cloudy", src: "/images/lobby/cloudy.jpg" }
 ];
 
 // Todo: need to revised after applying weather API

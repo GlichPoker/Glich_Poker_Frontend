@@ -27,7 +27,7 @@ const GameRule: React.FC = () => {
                 {/* title and back to main button */}
                 <section>
                     <div className="h-20 flex justify-between items-center">
-                        <h1 className="text-red-800 text-3xl font-bold">Glich Poker Game Rules</h1>
+                        <h1 className="text-red-800 text-3xl font-bold">Glitch Poker Game Rules</h1>
                         <Button type="primary" onClick={() => router.push("/main")}>Back to Main Page</Button>
                     </div>
 

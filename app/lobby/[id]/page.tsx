@@ -26,8 +26,8 @@ const LobbyPage = () => {
             {/* nav bar - exit button*/}
             <nav className="flex flex-row h-14 justify-between items-center bg-[#181818]">
                 <div className="flex flex-row justify-end w-[95%] h-[40px] ">
-                    <Button 
-                        type="link" 
+                    <Button
+                        type="link"
                         className="!text-gray-500 !font-bold"
                         onClick={() => setShowVoteOverlay(true)}
                     >
@@ -37,9 +37,9 @@ const LobbyPage = () => {
                 </div>
             </nav>
             {/* voting overlay */}
-            <Vote 
-                isVisible={showVoteOverlay} 
-                onClose={() => setShowVoteOverlay(false)} 
+            <Vote
+                isVisible={showVoteOverlay}
+                onClose={() => setShowVoteOverlay(false)}
                 lobbyId={lobbyId as string}
             />
             <div className="bg-[url('/images/poker-table.jpg')] bg-cover bg-center relative">
@@ -52,7 +52,7 @@ const LobbyPage = () => {
 
 
                     {/* center - board */}
-                    <div className="flex flex-col items-center w-[33.33%] bg-blue-300">
+                    <div className="flex flex-col items-center w-[33.33%] border border-blue-500 text-white">
                         <section>board</section>
                     </div>
 
@@ -63,8 +63,8 @@ const LobbyPage = () => {
                     </div>
                 </div>
                 {/* my play */}
-                <div className="flex flex-row w-full h-70 bg-blue-500">
-                    logged-in player
+                <div className="flex flex-row w-full h-70 border border-blue-500 text-white">
+                    <section>logged-in player</section>
                 </div>
                 {/* my play */}
                 <div className="flex flex-row w-full h-auto justify-evenly ">
