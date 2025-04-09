@@ -14,7 +14,7 @@ export default function Home() {
   const { set: setToken } = useLocalStorage<string>("token", "");
   const { set: setUser } = useLocalStorage<User>("user", {} as User);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [showLoginView, setShowLoginView] = useState(true);
 
@@ -39,10 +39,8 @@ export default function Home() {
     try {
       const response = await apiService.post<User>("/users/login", values);
       if (response.token) {
-        // Set token and user data in localStorage using useLocalStorage hook
         setToken(response.token);
-        setUser(response); // Save user data using useLocalStorage hook
-
+        setUser(response);
         router.push("/main");
       }
     } catch (error) {
@@ -67,10 +65,7 @@ export default function Home() {
       const response = await apiService.post<User>("/users", payload);
 
       if (response.token) {
-        // Set token in localStorage
         setToken(response.token);
-
-        // Store user data in localStorage for use in the main page
         localStorage.setItem("user", JSON.stringify(response));
       }
 
