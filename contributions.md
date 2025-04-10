@@ -44,8 +44,8 @@ Note: If a team member fails to show continuous progress after using their Joker
 |                   | [date]    | [Link to Commit 2]          | [Brief description of the task]     | [Why this contribution is relevant]     |
 | **[@githubUser3]** | [date]    | [Link to Commit 1]          | [Brief description of the task]     | [Why this contribution is relevant]     |
 |                   | [date]    | [Link to Commit 2]          | [Brief description of the task]     | [Why this contribution is relevant]     |
-| **[@githubUser4]** | [date]    | [Link to Commit 1]          | [Brief description of the task]     | [Why this contribution is relevant]     |
-|                   | [date]    | [Link to Commit 2]          | [Brief description of the task]     | [Why this contribution is relevant]     |
+| **[@RealBlueSwan]** | [10.04.25]    | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/7c4bf4862a1994fa4d52c18db8c428333718b019]          | [Friendlist, profilecards, friendrequests]     | [In order to play with friends and for private lobbies]     |
+|                   | [05.04.25]    | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/fe421f4d0c26294f0bbf2cebaae5e88b5a8d441a]          | [Voting overlay]     | [Kicking players from lobby, change maptype, pause resume]     |
 
 ---
 
