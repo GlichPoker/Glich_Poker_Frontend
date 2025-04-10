@@ -33,15 +33,15 @@ Note: If a team member fails to show continuous progress after using their Joker
 
 ---
 
-## Contributions Week 2 - [03.04.25] to [09.03.25]
+## Contributions Week 2 - [03.04.25] to [09.04.25]
 
 
 | **Student**         | **Date**   | **Link to Commit**          | **Description**                                              | **Relevance**                                                                                       |
 |---------------------|------------|-----------------------------|--------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
 | **[@githubUser1]**  | [date]     | [Link to Commit 1]          | [Brief description of the task]                              | [Why this contribution is relevant]                                                                 |
 |                     | [date]     | [Link to Commit 2]          | [Brief description of the task]                              | [Why this contribution is relevant]                                                                 |
-| **[@githubUser2]**  | [date]     | [Link to Commit 1]          | [Brief description of the task]                              | [Why this contribution is relevant]                                                                 |
-|                     | [date]     | [Link to Commit 2]          | [Brief description of the task]                              | [Why this contribution is relevant]                                                                 |
+| **[@arden333]**  | [05.04.025]     | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/8dbb6a2bcf76e128ab03e5eb33c9a93e91709e76]          | [Implement text chat in the lobby]                              | [Users can chat their friends before playing a game]                                                                 |
+|                     | [10.04.25]     | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/3fda84e8164340e998137cd74f7495e9257d5eb7]          | [Add creating the new game lobby fuction]                              | [Users can create their game room with custom settings to play]                                                                 |
 | **[@BeCre11how]**   | [03.04.25] | [https://github.com/GlichPoker/Glich_Poker_Backend/commit/74895b1cbe67b96d452929b529b2071407d72ff9]          | [Add Postgres DB local]                                      | [actually persist data and not just for sessions]                                                   |
 |                     | [03.04.25] | [https://github.com/GlichPoker/Glich_Poker_Backend/commit/2dc4c051d5e8302972bb6de5fc3fba3df8f3c121]          | [Add entities, extend controller methods, adjust some logic] | [Frontend can use friend endpoints now and try to test the app with actual data which is persisted] |
 | **[@RealBlueSwan]** | [10.04.25] | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/7c4bf4862a1994fa4d52c18db8c428333718b019]          | [Friendlist, profilecards, friendrequests]                   | [In order to play with friends and for private lobbies]                                             |
