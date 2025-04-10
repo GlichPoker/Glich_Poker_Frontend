@@ -10,11 +10,13 @@ import { useParams, useRouter } from "next/navigation"; // use NextJS router for
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
-import { Button, Form, Card } from "antd";
+import { Button, Form, Card, Input } from "antd";
 import "@ant-design/v5-patch-for-react-19"; //!put into every page for react19 to work
 import React, { useEffect, useState } from "react";
 // Optionally, you can import a CSS module or file for additional styling:
 //import styles from "@/styles/page.module.css";
+import { webSocketService } from "@/utils/websocket"; // Import your WebSocket service
+
 
 /*
 interface FormFieldProps {
@@ -38,9 +40,10 @@ const Profile: React.FC = () => {
   const params = useParams();
   const [user, setUser] = useState<User | null>(null);
   const { value: token } = useLocalStorage<string>("token", "");
+  const [latestMessage, setLatestMessage] = useState<string>("No messages yet");
 
   useEffect(() => {
-    //TODO: If necessary check for token to initiate a redirect
+    
 
     const fetchUser = async () => {
       try{
@@ -56,6 +59,30 @@ const Profile: React.FC = () => {
     fetchUser();
   }, [params.id, apiService, token, router]);
 
+  useEffect(() => {
+    if (user) {
+      // Connect to WebSocket with user ID as game ID (you might want to use a different ID)
+      if (user && user.id) {
+        webSocketService.connect("test"); //! this needs the game ID instead of test once we have the game ID
+      } else {
+        console.error("Cannot connect: user ID is not available");
+      }
+      
+      // Add a listener for incoming messages
+      const messageListener = (data: unknown) => {
+        setLatestMessage(JSON.stringify(data));
+      };
+      
+      // Add our listener to the WebSocketService
+      webSocketService.addListener(messageListener);
+      
+      // Cleanup function to remove listener when component unmounts
+      return () => {
+        webSocketService.removeListener(messageListener);
+      };
+    }
+  }, [user]);
+
   if (!user) return <div>User not found</div>;
 
   return (
@@ -66,6 +93,14 @@ const Profile: React.FC = () => {
           <p><strong>Birthdate: </strong> {user.birthDate}</p>
           <p><strong>Status: </strong> {user.status}</p>
           <p><strong>Account creation date: </strong> {user.creationDate}</p>
+        </Card>
+
+        <Card title="Latest Server Message" style={{ marginTop: '16px' }}>
+          <Input.TextArea 
+            value={latestMessage} 
+            readOnly 
+            autoSize={{ minRows: 2, maxRows: 6 }}
+          />
         </Card>
 
         <Button type="default" htmlType="button" className="userdata-form" onClick={() => router.push(`/users/${user.id}/edit`)}>

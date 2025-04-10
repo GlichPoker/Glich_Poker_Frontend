@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Table, Avatar, Spin } from "antd";
 import { UserOutlined, TrophyOutlined } from "@ant-design/icons";
 import { useApi } from "@/hooks/useApi";
+import { User } from "@/types/user";
 import "@ant-design/v5-patch-for-react-19";
 import { User } from "@/types/user";
 

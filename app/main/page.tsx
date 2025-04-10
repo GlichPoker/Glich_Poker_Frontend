@@ -33,8 +33,7 @@ const Main: React.FC = () => {
         const userDataString = localStorage.getItem("user");
         if (userDataString) {
             try {
-                const userData = JSON.parse(userDataString) as User;
-                setUser(userData); // Set user data
+                JSON.parse(userDataString); // Parse user data
             } catch (error) {
                 console.error("Failed to parse user data:", error);
                 message.error("Error loading user data");
