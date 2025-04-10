@@ -12,7 +12,7 @@ interface VoteProps {
   lobbyId?: string;
 }
 
-const Vote: React.FC<VoteProps> = ({ isVisible, onClose, /*lobbyId*/ }) => {
+const Vote: React.FC<VoteProps> = ({ isVisible, onClose, lobbyId }) => {
   const [voteType, setVoteType] = useState<string>("kick");
   const [selectedPlayer, setSelectedPlayer] = useState<string>("");
   const [selectedMap, setSelectedMap] = useState<string>("classic");

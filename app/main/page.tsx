@@ -2,8 +2,8 @@
 import "@ant-design/v5-patch-for-react-19";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { UserOutlined, BellOutlined, LogoutOutlined } from "@ant-design/icons";
-import { Button, message } from "antd";
+import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
+import { Button, message, Popover, App } from "antd";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
 import { webSocketService } from "@/utils/websocket";
@@ -11,12 +11,17 @@ import { webSocketService } from "@/utils/websocket";
 import Leaderboard from "@/components/main/leaderboard/leaderboard";
 import LobbyList from "@/components/main/lobbyList";
 import Chat from "@/components/main/chat";
+import FriendsStatus from "@/components/main/friendsStatus";
+import FriendRequestsNotification from "@/components/friends/FriendRequestsNotification";
+import UserProfileCard from "@/components/friends/UserProfileCard";
 
-const Main: React.FC = () => {
+const MainContent: React.FC = () => {
     const router = useRouter();
     const { clear: clearToken } = useLocalStorage<string>("token", "");
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [profileVisible, setProfileVisible] = useState(false);
+    const { message } = App.useApp();
 
     // Check authentication status
     useEffect(() => {
@@ -33,7 +38,8 @@ const Main: React.FC = () => {
         const userDataString = localStorage.getItem("user");
         if (userDataString) {
             try {
-                JSON.parse(userDataString); // Parse user data
+                const userData = JSON.parse(userDataString); // Parse user data
+                setUser(userData);
             } catch (error) {
                 console.error("Failed to parse user data:", error);
                 message.error("Error loading user data");
@@ -46,7 +52,7 @@ const Main: React.FC = () => {
 
         // Set loading state to false after the token check is done
         setIsLoading(false);
-    }, [router]);
+    }, [router, message]);
 
     // Render nothing or a loading spinner until the token check is done
     if (isLoading) {
@@ -66,6 +72,10 @@ const Main: React.FC = () => {
         router.push("/"); // Redirect to login page
     };
 
+    const handleProfileClick = () => {
+        setProfileVisible(!profileVisible);
+    };
+
     return (
         <div className="flex flex-col min-h-screen bg-[#181818]">
             {/* nav bar */}
@@ -74,13 +84,25 @@ const Main: React.FC = () => {
 
                 <div className="flex flex-row justify-end w-[90%] h-[40px] bg-[#181818] gap-x-4 !mr-5">
                     <div className="flex items-center !text-gray-400 font-bold">30,000 chips</div> {/* the amount of chips */}
-                    <BellOutlined className="!text-gray-400 !text-[24px]" />
-                    <UserOutlined
-                        className="!text-gray-400 !text-[24px]"
-                        onClick={() => router.push("/users")}
-                    />
+                    
+                    <FriendRequestsNotification />
+                    
+                    <Popover
+                        content={user && <UserProfileCard user={user} onClose={() => setProfileVisible(false)} />}
+                        title="My Profile"
+                        trigger="click"
+                        open={profileVisible}
+                        onOpenChange={setProfileVisible}
+                        placement="bottomRight"
+                    >
+                        <UserOutlined
+                            className="!text-gray-400 !text-[24px] cursor-pointer"
+                            onClick={handleProfileClick}
+                        />
+                    </Popover>
+                    
                     <LogoutOutlined
-                        className="!text-gray-400 !text-[24px]"
+                        className="!text-gray-400 !text-[24px] cursor-pointer"
                         onClick={handleLogout}
                     />
                 </div>
@@ -109,9 +131,8 @@ const Main: React.FC = () => {
             {/* main content - grows to fill available space */}
             <div className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#181818]">
                 {/* left side - friends' online status, text chat */}
-                <div className="flex flex-col md:col-span-1 px-3">
-                    <div className="text-white">(TODO)friends online status
-                    </div>
+                <div className="flex flex-col md:col-span-1 px-3 gap-4">
+                    <FriendsStatus />
                     <div className="flex justify-center h-[300px] border border-zinc-700">
                         <Chat />
                     </div>
@@ -131,6 +152,15 @@ const Main: React.FC = () => {
                 <p>Glitch Poker. All Rights Reserved.</p>
             </footer>
         </div>
+    );
+};
+
+// Wrap with Ant Design App component to provide context to all child components
+const Main: React.FC = () => {
+    return (
+        <App>
+            <MainContent />
+        </App>
     );
 };
 

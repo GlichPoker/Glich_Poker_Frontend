@@ -1,34 +1,59 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Table, Avatar, Spin } from "antd";
-import { UserOutlined, TrophyOutlined } from "@ant-design/icons";
+import { Table, Spin, Button, Popover, App } from "antd";
+import { UserOutlined, TrophyOutlined, UserAddOutlined } from "@ant-design/icons";
 import { useApi } from "@/hooks/useApi";
+import { useFriends } from "@/hooks/useFriends";
 import { User } from "@/types/user";
 import "@ant-design/v5-patch-for-react-19";
-import { User } from "@/types/user";
+import UserProfileCard from "@/components/friends/UserProfileCard";
 
-interface LeaderboardUser {
-    id: string;
-    username: string;
-    score: number; // This will need to be added to the User type or fetched from a different endpoint
+interface LeaderboardUser extends User {
+    score: number; 
     rank: number;
 }
 
 const GlobalLeaderboard: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [leaderboardData, setLeaderboardData] = useState<LeaderboardUser[]>([]);
+    const [selectedUser, setSelectedUser] = useState<LeaderboardUser | null>(null);
     const apiService = useApi();
+    const { 
+        friends, 
+        availableUsers, 
+        pendingRequests, 
+        addFriend,
+        refreshFriendsData
+    } = useFriends();
+    const { message } = App.useApp();
+
+    // Get current user from localStorage
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
 
     useEffect(() => {
+        // Get current user
+        try {
+            const userDataString = localStorage.getItem("user");
+            if (userDataString) {
+                const userData = JSON.parse(userDataString);
+                setCurrentUser(userData);
+            }
+        } catch (error) {
+            console.error("Error parsing user data:", error);
+        }
+
+        // Fetch leaderboard data
         const fetchLeaderboardData = async () => {
             try {
                 // Fetch users from API
                 const users = await apiService.get<User[]>("/users");
+                
+                // Refresh friends data to know relationships
+                await refreshFriendsData();
 
                 // For now, we'll add a random score to each user since the backend doesn't have a scoring system yet
-                const leaderboardUsers = users.map((user, index) => ({
-                    id: user.id || `user-${index}`,
-                    username: user.username || `User ${index}`,
+                const leaderboardUsers: LeaderboardUser[] = users.map((user, index) => ({
+                    ...user,
                     score: Math.floor(Math.random() * 1000), // TODO: Currently only random score for demonstration
                     rank: index + 1,
                 }));
@@ -50,7 +75,68 @@ const GlobalLeaderboard: React.FC = () => {
         };
 
         fetchLeaderboardData();
-    }, [apiService]);
+    }, [apiService, refreshFriendsData]);
+
+    // Determine relationship with a user (for action button)
+    const getUserActionButton = (user: LeaderboardUser) => {
+        // Don't show anything for the current user
+        if (currentUser && user.id === currentUser.id) {
+            return null;
+        }
+        
+        // If no ID, can't take action
+        if (!user.id) {
+            return null;
+        }
+
+        // Check if they're already a friend
+        const isFriend = friends.some(friend => friend.id === user.id);
+        if (isFriend) {
+            return <span className="text-green-500 text-xs">Friend</span>;
+        }
+        
+        // Check if there's a pending request
+        const isPending = pendingRequests.some(request => request.id === user.id);
+        if (isPending) {
+            return <span className="text-orange-500 text-xs">Request Pending</span>;
+        }
+        
+        // Check if they're available to add
+        const isAvailable = availableUsers.some(availUser => availUser.id === user.id);
+        if (isAvailable) {
+            return (
+                <Button
+                    type="text"
+                    size="small"
+                    icon={<UserAddOutlined />}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleSendRequest(user);
+                    }}
+                >
+                    Add
+                </Button>
+            );
+        }
+        
+        return null;
+    };
+
+    // Handle sending a friend request
+    const handleSendRequest = async (user: LeaderboardUser) => {
+        if (!user.id) {
+            message.error("Cannot send friend request: Invalid user ID");
+            return;
+        }
+        
+        const result = await addFriend(user.id);
+        if (result.success) {
+            message.success(result.message);
+            await refreshFriendsData();
+        } else {
+            message.error(result.message);
+        }
+    };
 
     const columns = [
         {
@@ -76,7 +162,10 @@ const GlobalLeaderboard: React.FC = () => {
             key: "username",
             render: (username: string) => (
                 <div className="flex items-center">
-                    <Avatar icon={<UserOutlined />} className="mr-2" />
+                    {/* Use a simple div with icon instead of Avatar to prevent cleanup warnings */}
+                    <div className="flex items-center justify-center w-8 h-8 bg-gray-300 rounded-full mr-2 text-gray-700">
+                        <UserOutlined />
+                    </div>
                     {username}
                 </div>
             ),
@@ -87,6 +176,12 @@ const GlobalLeaderboard: React.FC = () => {
             key: "score",
             sorter: (a: LeaderboardUser, b: LeaderboardUser) => a.score - b.score,
         },
+        {
+            title: "Action",
+            key: "action",
+            width: "100px",
+            render: (_: any, record: LeaderboardUser) => getUserActionButton(record),
+        }
     ];
 
     if (loading) {
@@ -94,13 +189,29 @@ const GlobalLeaderboard: React.FC = () => {
     }
 
     return (
-        <Table
-            dataSource={leaderboardData}
-            columns={columns}
-            rowKey="id"
-            pagination={{ pageSize: 10 }}
-            className="leaderboard-table"
-        />
+        <>
+            <Table
+                dataSource={leaderboardData}
+                columns={columns}
+                rowKey="id"
+                pagination={{ pageSize: 10 }}
+                className="leaderboard-table"
+                onRow={(record) => ({
+                    onClick: () => setSelectedUser(record),
+                    style: { cursor: 'pointer' }
+                })}
+            />
+
+            {/* User Profile Popover */}
+            <Popover
+                content={selectedUser && <UserProfileCard user={selectedUser} onClose={() => setSelectedUser(null)} />}
+                title="User Profile"
+                open={!!selectedUser}
+                onOpenChange={(visible) => !visible && setSelectedUser(null)}
+                trigger="click"
+                placement="right"
+            />
+        </>
     );
 };
 

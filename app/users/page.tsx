@@ -6,53 +6,41 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApi } from "@/hooks/useApi";
 import useLocalStorage from "@/hooks/useLocalStorage";
+import { useFriends } from "@/hooks/useFriends";
 import { User } from "@/types/user";
-import { Button, Card, Table } from "antd";
+import { Button, Card, Table, Tag, Popover, Avatar, message, App } from "antd";
 import type { TableProps } from "antd"; // antd component library allows imports of types
+import { UserOutlined, UserAddOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import "@ant-design/v5-patch-for-react-19"; //!put into every page for react19 to work
+import UserProfileCard from "@/components/friends/UserProfileCard";
 // Optionally, you can import a CSS module or file for additional styling:
 // import "@/styles/views/Dashboard.scss";
 
-// Columns for the antd table of User objects
-const columns: TableProps<User>["columns"] = [
-  {
-    title: "Username",
-    dataIndex: "username",
-    key: "username",
-  },
-  {
-    title: "Id",
-    dataIndex: "id",
-    key: "id",
-  },
-];
-
-const Dashboard: React.FC = () => {
+const DashboardContent: React.FC = () => {
   const router = useRouter();
   const apiService = useApi();
   const [users, setUsers] = useState<User[] | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const { message } = App.useApp();
+  
+  const { 
+    friends, 
+    availableUsers, 
+    pendingRequests, 
+    addFriend, 
+    refreshFriendsData,
+    loading: friendsLoading 
+  } = useFriends();
+
   // useLocalStorage hook example use
-  // The hook returns an object with the value and two functions
-  // Simply choose what you need from the hook:
-  const {
-    //value: token, // is commented out because we dont need to know the token value for logout
-    // set: setToken, // is commented out because we dont need to set or update the token value
-    clear: clearToken, // all we need in this scenario is a method to clear the token
-  } = useLocalStorage<string>("token", ""); // if you wanted to select a different token, i.e "lobby", useLocalStorage<string>("lobby", "");
+  const { clear: clearToken } = useLocalStorage<string>("token", "");
 
   const handleLogout = (): void => {
     // Clear token using the returned function 'clear' from the hook
     clearToken();
     router.push("/");
   };
-
-  /*
-  useEffect(() => {
-    if(!token){
-      router.push("/login");
-    }
-  }, [token, router]);
-  */
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -61,53 +49,175 @@ const Dashboard: React.FC = () => {
         // thus we can simply assign it to our users variable.
         const users: User[] = await apiService.get<User[]>("/users");
         setUsers(users);
-        console.log("Fetched users:", users);
+
+        // Set current user
+        const userDataString = localStorage.getItem("user");
+        if (userDataString) {
+          const userData = JSON.parse(userDataString);
+          setCurrentUser(userData);
+        }
+
+        // Refresh friends data
+        refreshFriendsData();
+
       } catch (error) {
         if (error instanceof Error) {
           if (error.message === "Unauthorized") {
             router.push("/login");
           }
-          alert(`Something went wrong while fetching users:\n${error.message}`);
+          message.error(`Something went wrong while fetching users: ${error.message}`);
         } else {
           console.error("An unknown error occurred while fetching users.");
           router.push("/login");
         }
-        router.push("/login");
       }
     };
 
     fetchUsers();
-  }, [apiService, router]); // dependency apiService does not re-trigger the useEffect on every render because the hook uses memoization (check useApi.tsx in the hooks).
-  // if the dependency array is left empty, the useEffect will trigger exactly once
-  // if the dependency array is left away, the useEffect will run on every state change. Since we do a state change to users in the useEffect, this results in an infinite loop.
-  // read more here: https://react.dev/reference/react/useEffect#specifying-reactive-dependencies
+  }, [apiService, router, refreshFriendsData, message]);
+
+  // Get user relationship status
+  const getUserRelationship = (userId: string | null) => {
+    // Skip if userId is null
+    if (!userId) return null;
+    
+    // Don't show anything for the current user
+    if (currentUser && userId === currentUser.id) {
+      return null;
+    }
+    
+    // Check if they're already a friend
+    const isFriend = friends.some(friend => friend.id === userId);
+    if (isFriend) {
+      return <Tag color="green">Friend</Tag>;
+    }
+    
+    // Check if there's a pending request
+    const isPending = pendingRequests.some(request => request.id === userId);
+    if (isPending) {
+      return <Tag color="orange">Request Pending</Tag>;
+    }
+    
+    // Check if they're available to add
+    const isAvailable = availableUsers.some(availUser => availUser.id === userId);
+    if (isAvailable) {
+      return (
+        <Button
+          type="primary"
+          icon={<UserAddOutlined />}
+          size="small"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleSendRequest(userId);
+          }}
+        >
+          Add Friend
+        </Button>
+      );
+    }
+    
+    return null;
+  };
+
+  // Handle sending a friend request
+  const handleSendRequest = async (userId: string) => {
+    const result = await addFriend(userId);
+    if (result.success) {
+      message.success(result.message);
+      refreshFriendsData();
+    } else {
+      message.error(result.message);
+    }
+  };
+
+  // Define table columns with friend status
+  const columns: TableProps<User>["columns"] = [
+    {
+      title: "User",
+      dataIndex: "username",
+      key: "username",
+      render: (text, record) => (
+        <div className="flex items-center">
+          <Avatar icon={<UserOutlined />} className="mr-3" />
+          {text}
+        </div>
+      )
+    },
+    {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      render: (text) => {
+        const status = text || "OFFLINE";
+        let color = "default";
+
+        if (status === "ONLINE") color = "green";
+        if (status === "OFFLINE") color = "default";
+
+        return <Tag color={color}>{status}</Tag>;
+      }
+    },
+    {
+      title: "Action",
+      key: "action",
+      render: (_, record) => getUserRelationship(record.id),
+    },
+  ];
 
   return (
-    <div className="card-container">
+    <div className="p-4 bg-[#181818] min-h-screen">
       <Card
-        title="Get all users from secure endpoint:"
-        loading={!users}
-        className="dashboard-container"
-      >
-        {users && (
-          <>
-            {/* antd Table: pass the columns and data, plus a rowKey for stable row identity */}
-            <Table<User>
-              columns={columns}
-              dataSource={users}
-              rowKey="id"
-              onRow={(row) => ({
-                onClick: () => router.push(`/users/${row.id}`),
-                style: { cursor: "pointer" },
-              })}
-            />
-            <Button onClick={handleLogout} type="primary">
+        title={
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <Button 
+                type="text" 
+                icon={<ArrowLeftOutlined />} 
+                onClick={() => router.push('/main')}
+                className="mr-2"
+              />
+              <span>Users</span>
+            </div>
+            <Button onClick={handleLogout} danger>
               Logout
             </Button>
-          </>
+          </div>
+        }
+        loading={!users}
+        className="bg-zinc-800 text-white"
+      >
+        {users && (
+          <Table<User>
+            columns={columns}
+            dataSource={users}
+            rowKey="id"
+            onRow={(record) => ({
+              onClick: () => setSelectedUser(record),
+              style: { cursor: "pointer" },
+            })}
+          />
         )}
       </Card>
+      
+      {/* User Profile Modal */}
+      <Popover
+        content={selectedUser && <UserProfileCard user={selectedUser} onClose={() => setSelectedUser(null)} />}
+        title="User Profile"
+        open={!!selectedUser}
+        onOpenChange={(visible) => !visible && setSelectedUser(null)}
+        trigger="click"
+        placement="right"
+      />
     </div>
+  );
+};
+
+// Wrap with Ant Design App component to provide context to all child components
+const Dashboard: React.FC = () => {
+  return (
+    <App>
+      <DashboardContent />
+    </App>
   );
 };
 

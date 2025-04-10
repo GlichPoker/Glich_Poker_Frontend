@@ -3,38 +3,46 @@ import React, { useEffect, useState } from "react";
 import { Table, Avatar, Spin, Alert } from "antd";
 import { UserOutlined, TrophyOutlined } from "@ant-design/icons";
 import "@ant-design/v5-patch-for-react-19";
+import { useFriends, FriendWithStatus } from "@/hooks/useFriends";
 
 interface FriendLeaderboardUser {
     id: string;
     username: string;
     score: number;
     rank: number;
+    status?: string;
 }
 
 const FriendLeaderboard: React.FC = () => {
-    const [loading, setLoading] = useState(false);
     const [leaderboardData, setLeaderboardData] = useState<FriendLeaderboardUser[]>([]);
+    const { friends, loading, getStatusColor } = useFriends();
 
-    // Mock data for demonstration purposes
+    // Transform friends data into leaderboard format when friends data changes
     useEffect(() => {
-        // Simulate API loading
-        setLoading(true);
+        if (friends && friends.length > 0) {
+            // Convert friends to leaderboard format with random scores for now
+            // In the future, this would use actual user scores from the API
+            const friendsWithScores = friends.map((friend, index) => ({
+                id: friend.id || `friend-${index}`,
+                username: friend.username || `Friend ${index}`,
+                score: Math.floor(Math.random() * 1000), // Random score for now
+                rank: 0, // Will be calculated below
+                status: friend.status
+            }));
 
-        // Mock data
-        const mockFriends = [
-            { id: '1', username: 'FriendUser1', score: 850, rank: 1 },
-            { id: '2', username: 'FriendUser2', score: 720, rank: 2 },
-            { id: '3', username: 'FriendUser3', score: 680, rank: 3 },
-            { id: '4', username: 'FriendUser4', score: 540, rank: 4 },
-            { id: '5', username: 'FriendUser5', score: 490, rank: 5 },
-        ];
+            // Sort by score (highest first)
+            friendsWithScores.sort((a, b) => b.score - a.score);
 
-        // Simulate delay for API call
-        setTimeout(() => {
-            setLeaderboardData(mockFriends);
-            setLoading(false);
-        }, 500);
-    }, []);
+            // Update rank based on sorted order
+            friendsWithScores.forEach((friend, index) => {
+                friend.rank = index + 1;
+            });
+
+            setLeaderboardData(friendsWithScores);
+        } else {
+            setLeaderboardData([]);
+        }
+    }, [friends]);
 
     const columns = [
         {
@@ -58,9 +66,19 @@ const FriendLeaderboard: React.FC = () => {
             title: "Friend",
             dataIndex: "username",
             key: "username",
-            render: (username: string) => (
+            render: (username: string, record: FriendLeaderboardUser) => (
                 <div className="flex items-center">
-                    <Avatar icon={<UserOutlined />} className="mr-2" />
+                    <div className="relative">
+                        <Avatar icon={<UserOutlined />} className="mr-2" />
+                        {record.status && (
+                            <div 
+                                className="absolute bottom-0 right-1 w-3 h-3 rounded-full border border-white"
+                                style={{ 
+                                    backgroundColor: getStatusColor(record.status as any),
+                                }}
+                            />
+                        )}
+                    </div>
                     {username}
                 </div>
             ),

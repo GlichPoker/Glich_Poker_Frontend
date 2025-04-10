@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from "react";
 import { User } from "@/types/user";
 import { useApi } from "./useApi";
 import useLocalStorage from "./useLocalStorage";
-import { message } from "antd";
 
 // Define friend status types
 export type FriendStatus = "online" | "offline" | "playing";
@@ -10,6 +9,12 @@ export type FriendStatus = "online" | "offline" | "playing";
 export interface FriendWithStatus extends User {
   status: FriendStatus;
   inGameId?: string; // Optional game session ID if they are playing
+}
+
+// Error response interface
+export interface FriendActionResponse {
+  success: boolean;
+  message: string;
 }
 
 export const useFriends = () => {
@@ -84,7 +89,6 @@ export const useFriends = () => {
         setFriends(friendsWithStatus);
       } catch (error) {
         console.error("Failed to fetch friends:", error);
-        message.error("Failed to load friends list");
       }
 
       // Fetch pending friend requests
@@ -93,7 +97,6 @@ export const useFriends = () => {
         setPendingRequests(pendingList);
       } catch (error) {
         console.error("Failed to fetch pending requests:", error);
-        message.error("Failed to load friend requests");
       }
 
       // Fetch available users to add as friends
@@ -102,7 +105,6 @@ export const useFriends = () => {
         setAvailableUsers(usersList);
       } catch (error) {
         console.error("Failed to fetch available users:", error);
-        message.error("Failed to load available users");
       }
     } catch (error) {
       console.error("General error in fetchAllData:", error);
@@ -112,66 +114,105 @@ export const useFriends = () => {
   }, [apiService, user]);
 
   // Handle accepting friend requests
-  const acceptFriendRequest = async (friendId: string) => {
-    if (!user?.id || !friendId) return false;
+  const acceptFriendRequest = async (friendId: string): Promise<FriendActionResponse> => {
+    if (!user?.id || !friendId) {
+      return {
+        success: false,
+        message: "Cannot accept request: Invalid user or friend ID"
+      };
+    }
     
     try {
       await apiService.post('/friends/accept', { userId: user.id, friendId });
-      message.success("Friend request accepted");
       await fetchAllData();
-      return true;
+      return {
+        success: true,
+        message: "Friend request accepted"
+      };
     } catch (error) {
       console.error("Failed to accept friend request:", error);
-      message.error("Failed to accept friend request");
-      return false;
+      return {
+        success: false,
+        message: "Failed to accept friend request"
+      };
     }
   };
 
   // Handle denying friend requests
-  const denyFriendRequest = async (friendId: string) => {
-    if (!user?.id || !friendId) return false;
+  const denyFriendRequest = async (friendId: string): Promise<FriendActionResponse> => {
+    if (!user?.id || !friendId) {
+      return {
+        success: false,
+        message: "Cannot deny request: Invalid user or friend ID"
+      };
+    }
     
     try {
       await apiService.post('/friends/deny', { userId: user.id, friendId });
-      message.success("Friend request denied");
       await fetchAllData();
-      return true;
+      return {
+        success: true,
+        message: "Friend request denied"
+      };
     } catch (error) {
       console.error("Failed to deny friend request:", error);
-      message.error("Failed to deny friend request");
-      return false;
+      return {
+        success: false,
+        message: "Failed to deny friend request"
+      };
     }
   };
 
   // Handle adding new friends
-  const addFriend = async (friendId: string) => {
-    if (!user?.id || !friendId) return false;
+  const addFriend = async (friendId: string): Promise<FriendActionResponse> => {
+    if (!user?.id || !friendId) {
+      return {
+        success: false,
+        message: "Cannot send friend request: Invalid user or friend ID"
+      };
+    }
     
     try {
+      // Debug logging to check request data
+      console.log("Sending friend request with data:", { userId: user.id, friendId });
+      
       await apiService.post('/friends/add', { userId: user.id, friendId });
-      message.success("Friend request sent");
       await fetchAllData();
-      return true;
+      return {
+        success: true,
+        message: "Friend request sent"
+      };
     } catch (error) {
       console.error("Failed to send friend request:", error);
-      message.error("Failed to send friend request");
-      return false;
+      return {
+        success: false,
+        message: "Failed to send friend request"
+      };
     }
   };
 
   // Handle removing friends
-  const removeFriend = async (friendId: string) => {
-    if (!user?.id || !friendId) return false;
+  const removeFriend = async (friendId: string): Promise<FriendActionResponse> => {
+    if (!user?.id || !friendId) {
+      return {
+        success: false,
+        message: "Cannot remove friend: Invalid user or friend ID"
+      };
+    }
 
     try {
       await apiService.post('/friends/remove', { userId: user.id, friendId });
-      message.success("Friend removed");
       await fetchAllData();
-      return true;
+      return {
+        success: true,
+        message: "Friend removed"
+      };
     } catch (error) {
       console.error("Failed to remove friend:", error);
-      message.error("Failed to remove friend");
-      return false;
+      return {
+        success: false,
+        message: "Failed to remove friend"
+      };
     }
   };
 
