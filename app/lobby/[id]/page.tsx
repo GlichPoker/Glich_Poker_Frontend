@@ -13,7 +13,6 @@ const LobbyPage = () => {
     const messageDisplayed = useRef(false);
     const [showVoteOverlay, setShowVoteOverlay] = useState(false);
 
-    // Use a ref to track if message has been shown
     useEffect(() => {
         if (lobbyId && !messageDisplayed.current) {
             message.success(`You entered lobby ${lobbyId}!`);

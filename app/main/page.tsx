@@ -84,9 +84,9 @@ const MainContent: React.FC = () => {
 
                 <div className="flex flex-row justify-end w-[90%] h-[40px] bg-[#181818] gap-x-4 !mr-5">
                     <div className="flex items-center !text-gray-400 font-bold">30,000 chips</div> {/* the amount of chips */}
-                    
+
                     <FriendRequestsNotification />
-                    
+
                     <Popover
                         content={user && <UserProfileCard user={user} onClose={() => setProfileVisible(false)} />}
                         title="My Profile"
@@ -100,7 +100,7 @@ const MainContent: React.FC = () => {
                             onClick={handleProfileClick}
                         />
                     </Popover>
-                    
+
                     <LogoutOutlined
                         className="!text-gray-400 !text-[24px] cursor-pointer"
                         onClick={handleLogout}
@@ -122,7 +122,9 @@ const MainContent: React.FC = () => {
                     >
                         Game rule
                     </Button>
-                    <Button type="primary">
+                    <Button type="primary" onClick={() => {
+                        router.push("/main/create-lobby");
+                    }}>
                         Create a Lobby
                     </Button>
                 </div>
@@ -155,7 +157,6 @@ const MainContent: React.FC = () => {
     );
 };
 
-// Wrap with Ant Design App component to provide context to all child components
 const Main: React.FC = () => {
     return (
         <App>
@@ -165,3 +166,4 @@ const Main: React.FC = () => {
 };
 
 export default Main;
+

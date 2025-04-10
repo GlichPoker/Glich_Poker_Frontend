@@ -27,7 +27,7 @@ export default function Chat() {
             try {
                 await webSocketService.connect("chat-room");
                 setIsConnected(true);
-                
+
                 // Only send join message after successful connection
                 if (username) {
                     await webSocketService.sendMessage(`${username} joined the chat.`);
@@ -36,7 +36,7 @@ export default function Chat() {
                 console.error("Failed to connect to chat:", error);
             }
         };
-        
+
         connectToChat();
 
         const handleMessage = (message: unknown) => {
@@ -114,15 +114,19 @@ export default function Chat() {
                 </div>
 
                 {/* input field */}
-                <div className="flex gap-2 bg-[#181818]">
+                <div className="flex gap-2 bg-[#181818] w-full">
                     <Input
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        onKeyPress={handleKeyPress}
                         placeholder="Enter a message"
                         className="flex-1"
                     />
-                    <Button type="primary" onClick={sendMessage} disabled={!isConnected}>
+                    <Button
+                        type="primary"
+                        onClick={sendMessage}
+                        disabled={!isConnected}
+                        className="whitespace-nowrap"
+                    >
                         Send
                     </Button>
                 </div>
