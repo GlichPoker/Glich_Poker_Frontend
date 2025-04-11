@@ -1,16 +1,10 @@
 "use client";
-import React from "react";
-import { Card, Button } from "antd";
+import React, { useEffect, useState } from "react";
+import { Card, Button, Spin, message } from "antd";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 const { Meta } = Card;
-
-const dummyLobbies = [
-    { id: "1", title: "lobby name 1", description: "custom rule 1" },
-    { id: "2", title: "lobby name 2", description: "custom rule 2" },
-    { id: "3", title: "lobby name 3", description: "custom rule 3" },
-
-];
 
 const imgList = [
     { id: "1", weather: "sunny", src: "/images/lobby/sunny.jpg" },
@@ -20,20 +14,46 @@ const imgList = [
     { id: "5", weather: "cloudy", src: "/images/lobby/cloudy.jpg" }
 ];
 
-// Todo: need to revised after applying weather API
+// Todo: need to revise after applying weather API
 const getRandomImage = () => {
     const randomId = Math.floor(Math.random() * 5) + 1; // create 1~5 number 
     return imgList.find((img) => img.id === randomId.toString())?.src;
 };
 
-
 const LobbyList = () => {
     const router = useRouter();
+    const [lobbies, setLobbies] = useState<any[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
+
+    useEffect(() => {
+        const fetchLobbies = async () => {
+            setLoading(true);
+            try {
+
+                const response = await axios.get('http://localhost:8080/allGames');
+                setLobbies(response.data);
+            } catch (error) {
+                message.error('Failed to load lobbies');
+                console.error(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchLobbies();
+    }, []);
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen bg-[#181818]">
+                <Spin size="large" />
+            </div>
+        );
+    }
 
     return (
         <div className="w-full min-h-full bg-[#181818] p-4">
             <div className="flex flex-wrap gap-4 bg-[#181818]">
-                {dummyLobbies.map((lobby) => {
+                {lobbies.map((lobby) => {
                     const randomImage = getRandomImage();
 
                     return (
@@ -49,7 +69,7 @@ const LobbyList = () => {
                             }
                             actions={[
                                 <div key="join" className="w-full flex justify-center bg-[#181818]">
-                                    <Button type="primary" key="join" onClick={() => router.push(`/lobby/${lobby.id}`)}>Join</Button>
+                                    <Button type="primary" onClick={() => router.push(`/lobby/${lobby.id}`)}>Join</Button>
                                 </div>
                             ]}
                         >
@@ -64,4 +84,5 @@ const LobbyList = () => {
         </div>
     );
 };
+
 export default LobbyList;

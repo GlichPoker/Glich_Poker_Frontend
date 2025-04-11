@@ -90,7 +90,7 @@ export default function Home() {
     <App>
       <div className="relative w-full h-screen bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/images/home.jpg')" }}>
         <div className="absolute inset-0 flex flex-col items-center justify-center translate-y-30 bg-black/0">
-          <h1 className="text-6xl font-bold text-white">GLICH POKER</h1>
+          <h1 className="text-6xl font-bold text-white">GLITCH POKER</h1>
           <p className="text-red-400 italic mt-4">Play with the Devil!</p>
           <Button
             className="home-btn max-w-xs main-btn !mt-10 !text-lg !text-bold"
