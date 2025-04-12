@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Badge, List, Avatar, Button, Popover, Empty, Spin, App } from "antd";
 import { BellOutlined, UserOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
 import { useFriends } from "@/hooks/useFriends";
@@ -14,7 +14,8 @@ const FriendRequestsNotification: React.FC = () => {
     } = useFriends();
     
     const [open, setOpen] = useState(false);
-    const { message } = App.useApp();
+    const [processingIds, setProcessingIds] = useState<string[]>([]);
+    const { message, notification } = App.useApp();
 
     // Refresh friend data when dropdown is opened
     const handleOpenChange = (newOpen: boolean) => {
@@ -24,17 +25,37 @@ const FriendRequestsNotification: React.FC = () => {
         }
     };
 
+    // Helper to check if a request is being processed
+    const isProcessing = (id: string | null) => {
+        return id !== null && processingIds.includes(id);
+    };
+
     // Handle accepting a friend request
     const handleAccept = async (friendId: string | null) => {
         if (!friendId) {
             message.error("Cannot accept request: Invalid ID");
             return;
         }
-        const result = await acceptFriendRequest(friendId);
-        if (result.success) {
-            message.success(result.message);
-        } else {
-            message.error(result.message);
+        
+        // Set this request to processing state
+        setProcessingIds(prev => [...prev, friendId]);
+        
+        try {
+            const result = await acceptFriendRequest(friendId);
+            if (result.success) {
+                message.success(result.message);
+                // Remove from processing immediately after success
+                setProcessingIds(prev => prev.filter(id => id !== friendId));
+            } else {
+                message.error(result.message);
+                // Remove from processing after error
+                setProcessingIds(prev => prev.filter(id => id !== friendId));
+            }
+        } catch (error) {
+            console.error("Error accepting friend request:", error);
+            message.error("An unexpected error occurred");
+            // Remove from processing after exception
+            setProcessingIds(prev => prev.filter(id => id !== friendId));
         }
     };
 
@@ -44,13 +65,41 @@ const FriendRequestsNotification: React.FC = () => {
             message.error("Cannot deny request: Invalid ID");
             return;
         }
-        const result = await denyFriendRequest(friendId);
-        if (result.success) {
-            message.success(result.message);
-        } else {
-            message.error(result.message);
+        
+        // Set this request to processing state
+        setProcessingIds(prev => [...prev, friendId]);
+        
+        try {
+            const result = await denyFriendRequest(friendId);
+            if (result.success) {
+                message.success(result.message);
+                // Remove from processing immediately after success
+                setProcessingIds(prev => prev.filter(id => id !== friendId));
+            } else {
+                message.error(result.message);
+                // Remove from processing after error
+                setProcessingIds(prev => prev.filter(id => id !== friendId));
+            }
+        } catch (error) {
+            console.error("Error denying friend request:", error);
+            message.error("An unexpected error occurred");
+            // Remove from processing after exception
+            setProcessingIds(prev => prev.filter(id => id !== friendId));
         }
     };
+
+    // Show notification when new requests arrive
+    useEffect(() => {
+        if (pendingRequests && pendingRequests.length > 0) {
+            if (!open) { // Only show if the popover is closed
+                notification.info({
+                    message: 'New Friend Requests',
+                    description: `You have ${pendingRequests.length} pending friend request(s)`,
+                    placement: 'topRight',
+                });
+            }
+        }
+    }, [pendingRequests, notification, open]);
 
     const content = (
         <div className="w-[300px] max-h-[400px] overflow-auto">
@@ -75,12 +124,14 @@ const FriendRequestsNotification: React.FC = () => {
                                     type="text" 
                                     icon={<CheckOutlined style={{ color: '#52c41a' }} />} 
                                     onClick={() => handleAccept(request.id)}
+                                    
                                 />,
                                 <Button 
                                     key="deny" 
                                     type="text" 
                                     icon={<CloseOutlined style={{ color: '#f5222d' }} />} 
                                     onClick={() => handleDeny(request.id)}
+                                    
                                 />
                             ]}
                         >
