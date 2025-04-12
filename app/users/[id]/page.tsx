@@ -63,7 +63,7 @@ const Profile: React.FC = () => {
     if (user) {
       // Connect to WebSocket with user ID as game ID (you might want to use a different ID)
       if (user && user.id) {
-        webSocketService.connect("test"); //! this needs the game ID instead of test once we have the game ID
+        webSocketService.connect("chat", "global_chat", token); //! this needs the game ID instead of test once we have the game ID
       } else {
         console.error("Cannot connect: user ID is not available");
       }
@@ -81,7 +81,7 @@ const Profile: React.FC = () => {
         webSocketService.removeListener(messageListener);
       };
     }
-  }, [user]);
+  }, [user, token]);
 
   if (!user) return <div>User not found</div>;
 

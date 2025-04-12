@@ -1,14 +1,24 @@
+import { getApiDomain } from "@/utils/domain";
+
 class WebSocketService {
     private socket: WebSocket | null = null;
     private listeners: ((data: unknown) => void)[] = [];
     private messageQueue: string[] = [];
     private connectionPromise: Promise<void> | null = null;
     private isConnecting: boolean = false;
+    private baseURL: string;
 
-    constructor() { }
+    constructor() {
+        this.baseURL = getApiDomain();
+    }
 
-    public connect(gameID: string) {
+    public connect(service: string, gameID: string, token: string, userID: string = "") {
         // Don't create multiple connections if one is already in progress
+        if (service !== "chat" && service !== "game") {
+            console.error("Invalid service type. Only 'chat' and 'game' are supported.");
+            return;
+        }
+
         if (this.isConnecting) {
             return this.connectionPromise;
         }
@@ -16,7 +26,12 @@ class WebSocketService {
         this.isConnecting = true;
         
         this.connectionPromise = new Promise<void>((resolve) => {
-            this.socket = new WebSocket(`ws://localhost:8080/ws?gameID=${gameID}`);
+            if (userID === "") {
+                this.socket = new WebSocket(`${this.baseURL}/ws/${service}?gameID=${gameID}&token=${token}`);
+            }else {
+                this.socket = new WebSocket(`${this.baseURL}/ws/${service}?gameID=${gameID}&token=${token}&userID=${userID}`);
+            }
+            
 
             this.socket.onmessage = (event) => this.handleMessage(event);
 
@@ -77,12 +92,6 @@ class WebSocketService {
         } else {
             console.log("WebSocket is not connected. Queueing message.");
             this.messageQueue.push(message);
-            
-            // Try to connect if not already connecting
-            if (!this.isConnecting && (!this.socket || this.socket.readyState === WebSocket.CLOSED)) {
-                console.log("Attempting to reconnect...");
-                await this.connect("chat-room");
-            }
         }
     }
 

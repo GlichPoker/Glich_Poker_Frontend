@@ -1,5 +1,5 @@
 "use client";
-
+import useLocalStorage from "@/hooks/useLocalStorage";
 import { useState, useEffect } from "react";
 import { webSocketService } from "@/utils/websocket";
 import { Button, Input, App } from "antd";
@@ -9,6 +9,7 @@ export default function Chat() {
     const [input, setInput] = useState("");
     const [username, setUsername] = useState("");
     const [isConnected, setIsConnected] = useState(false);
+    const { value: token } = useLocalStorage<string>("token", "");
 
     useEffect(() => {
         // retrieve username from localStorage
@@ -25,7 +26,7 @@ export default function Chat() {
         // connect websocket
         const connectToChat = async () => {
             try {
-                await webSocketService.connect("chat-room");
+                await webSocketService.connect("chat", "global_chat", token);
                 setIsConnected(true);
                 
                 // Only send join message after successful connection
@@ -57,7 +58,7 @@ export default function Chat() {
         return () => {
             webSocketService.removeListener(handleMessage);
         };
-    }, [username]);
+    }, [username, token]);
 
     const sendMessage = async () => {
         if (input.trim()) {
