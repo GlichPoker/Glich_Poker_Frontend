@@ -83,7 +83,6 @@ const MainContent: React.FC = () => {
                 <div className="flex flex-row !w-60 justify-start items-center gap-x-4 !ml-5 text-white text-xl font-bold"> Glitch Poker</div>
 
                 <div className="flex flex-row justify-end w-[90%] h-[40px] bg-[#181818] gap-x-4 !mr-5">
-                    <div className="flex items-center !text-gray-400 font-bold">30,000 chips</div> {/* the amount of chips */}
                     
                     <FriendRequestsNotification />
                     

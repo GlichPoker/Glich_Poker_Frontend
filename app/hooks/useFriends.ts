@@ -51,6 +51,13 @@ export const useFriends = () => {
     }
   };
 
+  // Helper function to safely parse IDs to numbers
+  const parseId = (id: string | null): number | null => {
+    if (!id) return null;
+    const parsed = parseInt(id, 10);
+    return isNaN(parsed) ? null : parsed;
+  };
+
   // Function to fetch all friend-related data
   const fetchAllData = useCallback(async () => {
     // Get fresh user data to avoid timing issues
@@ -72,11 +79,18 @@ export const useFriends = () => {
       return;
     }
 
+    // Parse user ID to number as expected by backend
+    const userId = parseId(currentUser.id);
+    if (userId === null) {
+      console.error("Invalid user ID format");
+      return;
+    }
+
     setLoading(true);
     try {
       // Fetch friends list
       try {
-        const friendsList = await apiService.get<User[]>(`/friends/allFriends/${currentUser.id}`);
+        const friendsList = await apiService.get<User[]>(`/friends/allFriends/${userId}`);
         
         // In a real implementation, we would get the status from a websocket or other real-time mechanism
         // For now, let's simulate random statuses
@@ -93,7 +107,7 @@ export const useFriends = () => {
 
       // Fetch pending friend requests
       try {
-        const pendingList = await apiService.get<User[]>(`/friends/pendingRequests/${currentUser.id}`);
+        const pendingList = await apiService.get<User[]>(`/friends/pendingRequests/${userId}`);
         setPendingRequests(pendingList);
       } catch (error) {
         console.error("Failed to fetch pending requests:", error);
@@ -101,7 +115,7 @@ export const useFriends = () => {
 
       // Fetch available users to add as friends
       try {
-        const usersList = await apiService.get<User[]>(`/friends/availableUsers/${currentUser.id}`);
+        const usersList = await apiService.get<User[]>(`/friends/availableUsers/${userId}`);
         setAvailableUsers(usersList);
       } catch (error) {
         console.error("Failed to fetch available users:", error);
@@ -122,8 +136,19 @@ export const useFriends = () => {
       };
     }
     
+    // Parse IDs to numbers as expected by backend
+    const userId = parseId(user.id);
+    const friendIdNum = parseId(friendId);
+    
+    if (userId === null || friendIdNum === null) {
+      return {
+        success: false,
+        message: "Invalid ID format"
+      };
+    }
+    
     try {
-      await apiService.post('/friends/accept', { userId: user.id, friendId });
+      await apiService.post(`/friends/accept?userId=${userId}&friendId=${friendIdNum}`, null);
       await fetchAllData();
       return {
         success: true,
@@ -147,8 +172,19 @@ export const useFriends = () => {
       };
     }
     
+    // Parse IDs to numbers as expected by backend
+    const userId = parseId(user.id);
+    const friendIdNum = parseId(friendId);
+    
+    if (userId === null || friendIdNum === null) {
+      return {
+        success: false,
+        message: "Invalid ID format"
+      };
+    }
+    
     try {
-      await apiService.post('/friends/deny', { userId: user.id, friendId });
+      await apiService.post(`/friends/deny?userId=${userId}&friendId=${friendIdNum}`, null);
       await fetchAllData();
       return {
         success: true,
@@ -172,11 +208,22 @@ export const useFriends = () => {
       };
     }
     
+    // Parse IDs to numbers as expected by backend
+    const userId = parseId(user.id);
+    const friendIdNum = parseId(friendId);
+    
+    if (userId === null || friendIdNum === null) {
+      return {
+        success: false,
+        message: "Invalid ID format"
+      };
+    }
+    
+    // Debug logging to check user and friend IDs
+    console.log(`Sending friend request: userId=${userId}, friendId=${friendIdNum}`);
+    
     try {
-      // Debug logging to check request data
-      console.log("Sending friend request with data:", { userId: user.id, friendId });
-      
-      await apiService.post('/friends/add', { userId: user.id, friendId });
+      await apiService.post(`/friends/add?userId=${userId}&friendId=${friendIdNum}`, null);
       await fetchAllData();
       return {
         success: true,
@@ -200,8 +247,19 @@ export const useFriends = () => {
       };
     }
 
+    // Parse IDs to numbers as expected by backend
+    const userId = parseId(user.id);
+    const friendIdNum = parseId(friendId);
+    
+    if (userId === null || friendIdNum === null) {
+      return {
+        success: false,
+        message: "Invalid ID format"
+      };
+    }
+    
     try {
-      await apiService.post('/friends/remove', { userId: user.id, friendId });
+      await apiService.post(`/friends/remove?userId=${userId}&friendId=${friendIdNum}`, null);
       await fetchAllData();
       return {
         success: true,
