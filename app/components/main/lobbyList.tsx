@@ -12,14 +12,14 @@ const LobbyList = () => {
     const [lobbies, setLobbies] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
 
-    // 게임 리스트 불러오기
+
     useEffect(() => {
         const fetchLobbies = async () => {
             setLoading(true);
             try {
                 const response = await axios.get('http://localhost:8080/game/allGames', {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`, // 토큰을 헤더에 추가
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
                     },
                 });
                 setLobbies(response.data);
@@ -48,7 +48,7 @@ const LobbyList = () => {
                 {lobbies.map((lobby) => {
                     return (
                         <Card
-                            key={lobby.sessionId} // sessionId를 key로 사용
+                            key={lobby.sessionId}
                             className="w-[300px] overflow-hidden rounded-lg bg-[#2e2e2e] text-white"
                             actions={[
                                 <div key="join" className="w-full flex justify-center bg-[#181818]">
@@ -67,7 +67,7 @@ const LobbyList = () => {
                                     <div className="text-sm text-white">
                                         <div><strong>Owner:</strong> {lobby.owner.username}</div>
                                         <div><strong>Status:</strong> {lobby.roundRunning ? "Round Running" : "Waiting for Players"}</div>
-                                        <div><strong>Players:</strong> {lobby.players.length} / 4</div>
+                                        <div><strong>Players:</strong> {lobby.players.length} / 5</div>
                                     </div>
                                 }
                             />

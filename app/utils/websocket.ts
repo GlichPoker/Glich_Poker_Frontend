@@ -109,10 +109,11 @@ class WebSocketService {
 
     private handleMessage(event: MessageEvent) {
         let data: any;
-
+        console.log("Raw WebSocket message received:", event.data);
         try {
             // if the data is json, parsing
             data = JSON.parse(event.data);
+            console.log("Parsed WebSocket message:", data);
         } catch (err) {
             // when the data is not json
             console.warn("Non-JSON message received:", event.data);
@@ -121,8 +122,17 @@ class WebSocketService {
                 message: event.data
             };
         }
+        console.log("Broadcasting message to listeners:", data);
 
         this.listeners.forEach((listener) => listener(data));
+    }
+
+    public disconnect() {
+        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+            this.socket.close();
+            this.socket = null;
+            console.log("WebSocket manually disconnected.");
+        }
     }
 }
 
