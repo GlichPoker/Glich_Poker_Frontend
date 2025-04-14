@@ -41,16 +41,24 @@ export default function Chat() {
         connectToChat();
 
         const handleMessage = (message: unknown) => {
-            let parsed = "";
+            if (typeof message === "object" && message !== null && "event" in message && (message as any).event === "chat") {
+                const rawMsg = (message as any).message;
 
-            if (typeof message === "string") {
-                parsed = message.replace("Server received: ", "");
-            } else if (typeof message === "object") {
-                parsed = JSON.stringify(message); // fallback for JSON
-            }
-
-            if (parsed && !messages.includes(parsed)) {
-                setMessages((prev) => [...prev, parsed]);
+                if (typeof rawMsg === "string") {
+                    setMessages((prev) => {
+                        if (!prev.includes(rawMsg)) {
+                            return [...prev, rawMsg];
+                        }
+                        return prev;
+                    });
+                }
+            } else if (typeof message === "string") {
+                setMessages((prev) => {
+                    if (!prev.includes(message)) {
+                        return [...prev, message];
+                    }
+                    return prev;
+                });
             }
         };
 
@@ -88,24 +96,29 @@ export default function Chat() {
             <div className="flex flex-col h-full w-[95%] p-4 bg-[#181818]">
                 <div className="flex-1 overflow-y-auto p-2 mb-2 bg-[#181818] text-white rounded-lg space-y-2">
                     {messages.map((msg, index) => {
-                        const isMe = msg.startsWith(`${username}:`);
+                        const [sender, ...contentParts] = msg.split(":");
+                        const content = contentParts.join(":").trim();
+
+                        const isMe = sender === username;
                         const isJoinMessage = msg.includes("joined the chat");
                         const isLeftMessage = msg.includes("left the chat");
 
                         let messageStyle = "text-white";
-
                         if (isJoinMessage || isLeftMessage) {
                             messageStyle = "text-gray-500";
                         } else if (isMe) {
-                            messageStyle = "text-red-400 !ml-5 text-left";
+                            messageStyle = "text-red-400 ml-5 text-left";
                         }
 
                         return (
-                            <div
-                                key={index}
-                                className={`p-2 rounded-lg ${messageStyle} !ml-5 text-left`}
-                            >
-                                {msg}
+                            <div key={index} className={`p-2 rounded-lg ${messageStyle}`}>
+                                {isJoinMessage || isLeftMessage ? (
+                                    msg
+                                ) : (
+                                    <>
+                                        <strong>{sender}</strong>: {content}
+                                    </>
+                                )}
                             </div>
                         );
                     })}
@@ -116,6 +129,7 @@ export default function Chat() {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         placeholder="Enter a message"
+                        onKeyDown={handleKeyPress}
                         className="flex-1"
                     />
                     <Button

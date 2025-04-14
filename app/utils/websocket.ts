@@ -22,28 +22,27 @@ class WebSocketService {
         if (this.isConnecting) {
             return this.connectionPromise;
         }
-        
+
         this.isConnecting = true;
-        
+
         this.connectionPromise = new Promise<void>((resolve) => {
             if (userID === "") {
                 this.socket = new WebSocket(`${this.baseURL}/ws/${service}?gameID=${gameID}&token=${token}`);
-            }else {
+            } else {
                 this.socket = new WebSocket(`${this.baseURL}/ws/${service}?gameID=${gameID}&token=${token}&userID=${userID}`);
             }
-            
 
             this.socket.onmessage = (event) => this.handleMessage(event);
 
             this.socket.onopen = () => {
                 console.log("WebSocket connection opened.");
                 this.isConnecting = false;
-                
+
                 // Only process the queue when we're sure the connection is established
                 setTimeout(() => {
                     this.processQueue();
                 }, 100);
-                
+
                 resolve();
             };
 
@@ -52,23 +51,23 @@ class WebSocketService {
                 this.isConnecting = false;
                 this.socket = null;
             };
-            
+
             this.socket.onerror = (error) => {
                 console.error("WebSocket error:", error);
                 this.isConnecting = false;
             };
         });
-        
+
         return this.connectionPromise;
     }
-    
+
     private processQueue() {
         if (this.socket && this.socket.readyState === WebSocket.OPEN && this.messageQueue.length > 0) {
             console.log(`Processing ${this.messageQueue.length} queued messages`);
-            
+
             const queueCopy = [...this.messageQueue];
             this.messageQueue = [];
-            
+
             queueCopy.forEach((message) => {
                 try {
                     this.socket?.send(message);
@@ -109,8 +108,23 @@ class WebSocketService {
     }
 
     private handleMessage(event: MessageEvent) {
-        this.listeners.forEach((listener) => listener(event.data));
+        let data: any;
+
+        try {
+            // if the data is json, parsing
+            data = JSON.parse(event.data);
+        } catch (err) {
+            // when the data is not json
+            console.warn("Non-JSON message received:", event.data);
+            data = {
+                event: "chat",
+                message: event.data
+            };
+        }
+
+        this.listeners.forEach((listener) => listener(data));
     }
 }
 
+// Create a singleton instance of the WebSocketService
 export const webSocketService = new WebSocketService();
