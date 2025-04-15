@@ -9,11 +9,14 @@ import MySeat from "@/components/game/mySeat";
 import OtherPlayerSeat from "@/components/game/otherPlayerSeat";
 import ActionButton from "@/components/game/actionButton";
 import type { GameModel, Player } from '@/types/games';
+import { getApiDomain } from "@/utils/domain";
 
+const baseURL = getApiDomain();
 
 type GameWebSocketMessage = {
     event: string;
     players?: Player[];
+    data?: GameModel;
     [key: string]: any;
 };
 
@@ -62,7 +65,7 @@ const LobbyPage = () => {
         console.log("currentUser:", currentUser);
 
         try {
-            const response = await fetch("http://localhost:8080/game/join", {
+            const response = await fetch(`${baseURL}/game/join`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -83,9 +86,11 @@ const LobbyPage = () => {
 
             const data = JSON.parse(responseText);
             console.log("Successfully joined game:", data);
+            return data;
         } catch (error) {
             console.error("Error joining game:", error);
             alert("Failed to join the game");
+            throw error;
         }
     };
 
@@ -97,36 +102,56 @@ const LobbyPage = () => {
         }
 
         const message = {
-            event: "gamemodel",
+            event: "gameModel",
             gameID: lobbyId,
             userID: currentUser.id,
             token: currentUser.token,
         };
 
-
+        console.log("Requesting game model with:", message);
         webSocketService.sendMessage(JSON.stringify(message));
+
+        // check after a few seconds to debug
+        setTimeout(() => {
+            if (!gameModel) {
+                console.log("No game model received after 5 seconds, requesting again...");
+                webSocketService.sendMessage(JSON.stringify(message));
+            }
+        }, 5000);
     };
 
     // join the game and setup WebSocket after currentUser and lobbyId are ready
     useEffect(() => {
         if (!currentUser || !lobbyId) return;
 
-        joinGame();
-
         const listener = (data: unknown) => {
-            console.log("[WebSocket Message]", data);
+            console.log("[WebSocket Message RAW]", data);
 
             try {
-                const message = data as GameWebSocketMessage;
+                const message = typeof data === 'string' ? JSON.parse(data) : data as GameWebSocketMessage;
+                console.log("[WebSocket Message Parsed]", message);
 
-                if (message?.event === 'gamemodel') {
-                    setGameModel(message as unknown as GameModel);
+                if (message?.event === 'gameModel') {
 
-                    if (message.players && Array.isArray(message.players)) {
-                        console.log("Players received:", message.players);
-                        setPlayers(message.players);
+                    if (message.data) {
+                        console.log("Game model data received:", message.data);
+                        setGameModel(message.data);
+
+                        if (message.data.players && Array.isArray(message.data.players)) {
+                            console.log("Players received from data:", message.data.players);
+                            setPlayers(message.data.players);
+                        }
                     } else {
-                        console.warn("Received gamemodel without players array");
+
+                        console.log("Direct game model received:", message);
+                        setGameModel(message as unknown as GameModel);
+
+                        if (message.players && Array.isArray(message.players)) {
+                            console.log("Players received directly:", message.players);
+                            setPlayers(message.players);
+                        } else {
+                            console.warn("Received gamemodel without players array");
+                        }
                     }
                 }
             } catch (err) {
@@ -134,31 +159,35 @@ const LobbyPage = () => {
             }
         };
 
-        const connectSocket = async () => {
+        const setupGame = async () => {
             try {
+
+                await joinGame();
+                console.log("Game joined successfully, now connecting websocket");
+
                 await webSocketService.connect(
                     'game',
                     lobbyId as string,
                     currentUser.token,
                     String(currentUser.id)
                 );
-                webSocketService.addListener(listener);
-                console.log("WebSocket connected successfully");
 
-                // send message to request game model
+                webSocketService.addListener(listener);
+                console.log("WebSocket connected successfully, requesting game model");
+
+
                 requestGameModel();
             } catch (error) {
-                console.error("WebSocket connection failed:", error);
+                console.error("Error in game setup:", error);
             }
         };
 
-        connectSocket();
+        setupGame();
 
         return () => {
             webSocketService.removeListener(listener);
         };
     }, [lobbyId, currentUser]);  // Runs when either lobbyId or currentUser changes
-
 
     // Memoizing current player and other players
     const currentPlayer = useMemo(() => {
@@ -178,10 +207,11 @@ const LobbyPage = () => {
         if (!lobbyId || !currentUser) return;
 
         try {
-            const response = await fetch("http://localhost:8080/game/quit", {
+            const response = await fetch(`${baseURL}/game/quit`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${currentUser.token}`
                 },
                 body: JSON.stringify({
                     sessionId: lobbyId,
@@ -195,7 +225,6 @@ const LobbyPage = () => {
 
             console.log("Successfully left the game room");
 
-
             webSocketService.disconnect();
         } catch (error) {
             console.error("Error leaving the game:", error);
@@ -204,6 +233,10 @@ const LobbyPage = () => {
             router.push('/main');
         }
     };
+
+    const isHost = useMemo(() => {
+        return currentUser && gameModel?.ownerId === currentUser.id;
+    }, [gameModel, currentUser]);
 
     return (
         <div className="flex flex-col w-full h-auto">
@@ -253,6 +286,29 @@ const LobbyPage = () => {
                             <h2 className="text-xl font-bold">Poker Table</h2>
                             <p>Lobby ID: {lobbyId}</p>
                         </div>
+
+                        {currentUser && gameModel && (
+                            <div className="mt-4">
+                                {currentUser.id === gameModel.ownerId ? (
+                                    <Button
+                                        type="primary"
+                                        className="text-xl px-10 py-4 bg-green-600 hover:bg-green-700"
+                                        onClick={() => {
+                                            webSocketService.sendMessage(JSON.stringify({
+                                                event: 'startGame',
+                                                gameID: lobbyId,
+                                                userID: currentUser.id,
+                                                token: currentUser.token
+                                            }));
+                                        }}
+                                    >
+                                        Start Game
+                                    </Button>
+                                ) : (
+                                    <p className="text-white text-lg font-semibold">Waiting for host to start the game...</p>
+                                )}
+                            </div>
+                        )}
                     </div>
 
                     {/* Player Positions (Top Right & Bottom Right) */}

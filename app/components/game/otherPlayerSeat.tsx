@@ -26,8 +26,7 @@ const OtherPlayerSeat = ({ player, positionLabel }: Props) => {
                     <div className="text-xs mt-1">
                         {player.hand?.map((card, idx) => (
                             <span key={idx}>
-                                {card.rank ?? ''}
-                                {card.suit ?? ''}{' '}
+                                {card?.rank ?? '?'}{card?.suit ?? '?'}{' '}
                             </span>
                         ))}
                     </div>

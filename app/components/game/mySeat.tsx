@@ -42,7 +42,7 @@ const MySeat: React.FC<Props> = ({ player, username }) => {
             {player?.hand && (
                 <div className="mt-2 text-white text-sm">
                     Hand: {player.hand.map((card, i) => (
-                        <span key={i}>{card.rank}{card.suit} </span>
+                        <span key={i}>{card?.rank ?? '?'}{card?.suit ?? '?'}{' '} </span>
                     ))}
                 </div>
             )}

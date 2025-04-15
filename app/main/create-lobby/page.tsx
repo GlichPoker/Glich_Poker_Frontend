@@ -3,6 +3,9 @@ import React, { useState, useEffect } from "react";
 import { Button, Input, Form, message, Radio } from "antd";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { getApiDomain } from "@/utils/domain";
+
+const baseURL = getApiDomain();
 
 const CreateGame = () => {
   const [form] = Form.useForm();
@@ -43,7 +46,7 @@ const CreateGame = () => {
 
 
       const response = await axios.post(
-        'http://localhost:8080/game/create',
+        `${baseURL}/game/create`,
         {
           userId,
           isPublic: !isPrivate,

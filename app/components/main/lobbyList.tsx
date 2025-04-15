@@ -4,7 +4,9 @@ import React, { useEffect, useState } from "react";
 import { Card, Button, Spin, message } from "antd";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+import { getApiDomain } from "@/utils/domain";
 
+const baseURL = getApiDomain();
 const { Meta } = Card;
 
 const LobbyList = () => {
@@ -17,7 +19,7 @@ const LobbyList = () => {
         const fetchLobbies = async () => {
             setLoading(true);
             try {
-                const response = await axios.get('http://localhost:8080/game/allGames', {
+                const response = await axios.get(`${baseURL}/game/allGames`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('token')}`,
                     },
