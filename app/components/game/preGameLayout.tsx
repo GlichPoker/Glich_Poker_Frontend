@@ -4,6 +4,7 @@ import Vote from '@/components/game/voting/vote';
 import MySeat from '@/components/game/mySeat';
 import OtherPlayerSeat from '@/components/game/otherPlayerSeat';
 
+
 interface PreGameLayoutProps {
     lobbyId: string;
     isHost: boolean;
@@ -13,6 +14,7 @@ interface PreGameLayoutProps {
     showVoteOverlay: boolean;
     setShowVoteOverlay: (show: boolean) => void;
     handleExitGame: () => void;
+
 }
 
 const PreGameLayout = ({
@@ -23,9 +25,14 @@ const PreGameLayout = ({
     startGame,
     showVoteOverlay,
     setShowVoteOverlay,
-    handleExitGame
+    handleExitGame,
 
 }: PreGameLayoutProps) => {
+    const handleStart = async () => {
+        await startGame();
+
+    };
+
     return (
         <div className="flex flex-col w-full h-auto">
             {/* NAVBAR */}
@@ -77,7 +84,7 @@ const PreGameLayout = ({
                                 <Button
                                     type="primary"
                                     className="mt-4"
-                                    onClick={startGame}
+                                    onClick={handleStart} // 변경
                                 >
                                     Start Game
                                 </Button>

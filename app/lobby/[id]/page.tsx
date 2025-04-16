@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { GameModel, Player } from '@/types/games';
 import { useParams, useRouter } from 'next/navigation';
-import { Button } from 'antd';
 import { getApiDomain } from '@/utils/domain';
 import { useGameSocket } from '@/hooks/useGameSocket';
 import { GameState } from '@/types/gameState';
 import PreGameLayout from '@/components/game/preGameLayout';
-
+import InGameLayout from '@/components/game/inGameLayout';
 
 const baseURL = getApiDomain();
 
@@ -21,8 +21,6 @@ const LobbyPage = () => {
         username: string;
         token: string;
     } | null>(null);
-
-    const [gameState, setGameState] = useState<GameState>(GameState.PRE_GAME);
 
     useEffect(() => {
         try {
@@ -49,6 +47,7 @@ const LobbyPage = () => {
         otherPlayers,
         isHost,
         startGame,
+        gameState,
     } = useGameSocket({
         currentUser: currentUser,
         lobbyId: lobbyId as string,
@@ -77,19 +76,25 @@ const LobbyPage = () => {
             console.log('Successfully left the game room');
             router.push('/main');
         } catch (error) {
-            console.error('Error leaving the game:', error);
-            alert('Failed to leave the game');
+            console.error('Error leaving the game room:', error);
+            alert('Failed to leave the game room');
         }
     };
 
-    //according to game state, render different layout
+
+    const startGameAndSetState = async () => {
+        await startGame();
+
+    };
+
+
     const renderLayout = () => {
         switch (gameState) {
             case GameState.PRE_GAME:
                 return (
                     <PreGameLayout
                         isHost={isHost}
-                        startGame={startGame}
+                        startGame={startGameAndSetState}
                         showVoteOverlay={showVoteOverlay}
                         setShowVoteOverlay={setShowVoteOverlay}
                         lobbyId={lobbyId as string}
@@ -98,16 +103,18 @@ const LobbyPage = () => {
                         otherPlayers={otherPlayers}
                     />
                 );
-            // case GameState.IN_GAME:
-            //     return (
-            //         <InGameLayout
-            //             gameModel={gameModel}
-            //             currentPlayer={currentPlayer}
-            //             otherPlayers={otherPlayers}
-            //         />
-            //     );
-            // case GameState.POST_GAME:
-            //     return <PostGameLayout gameModel={gameModel} />;
+            case GameState.IN_GAME:
+                return (
+                    <InGameLayout
+                        gameModel={gameModel}
+                        currentPlayer={currentPlayer}
+                        otherPlayers={otherPlayers}
+                        lobbyId={lobbyId as string}
+                        showVoteOverlay={showVoteOverlay}
+                        setShowVoteOverlay={setShowVoteOverlay}
+                        handleExitGame={handleExitGame}
+                    />
+                );
             default:
                 return null;
         }

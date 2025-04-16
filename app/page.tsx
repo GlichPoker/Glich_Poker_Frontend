@@ -18,6 +18,8 @@ export default function Home() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [showLoginView, setShowLoginView] = useState(true);
 
+  const [messageApi, contextHolder] = message.useMessage();
+
   const showModal = () => {
     setIsModalVisible(true);
   };
@@ -45,10 +47,10 @@ export default function Home() {
       }
     } catch (error) {
       if (error instanceof Error) {
-        message.error("Invalid username or password");
+        messageApi.error("Invalid username or password");
         console.log(error.message)
       } else {
-        message.error("An unknown error occurred during login.");
+        messageApi.error("An unknown error occurred during login.");
         console.error("An unknown error occurred during login.");
       }
     } finally {
@@ -74,12 +76,12 @@ export default function Home() {
     } catch (error) {
       if (error instanceof Error) {
         if (error.message.includes("409")) {
-          message.error("The username is already taken");
+          messageApi.error("The username is already taken");
         } else {
-          message.error(`Registration failed: ${error.message}`);
+          messageApi.error(`Registration failed: ${error.message}`);
         }
       } else {
-        message.error("An unknown error occurred.");
+        messageApi.error("An unknown error occurred.");
       }
     } finally {
       setIsLoading(false);
@@ -89,6 +91,7 @@ export default function Home() {
   return (
     <App>
       <div className="relative w-full h-screen bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/images/home.jpg')" }}>
+        {contextHolder}
         <div className="absolute inset-0 flex flex-col items-center justify-center translate-y-30 bg-black/0">
           <h1 className="text-6xl font-bold text-white">GLITCH POKER</h1>
           <p className="text-red-400 italic mt-4">Play with the Devil!</p>

@@ -21,7 +21,7 @@ const MainContent: React.FC = () => {
     const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [profileVisible, setProfileVisible] = useState(false);
-    const { message } = App.useApp();
+    const [messageApi, contextHolder] = message.useMessage();
 
     // Check authentication status
     useEffect(() => {
@@ -30,7 +30,7 @@ const MainContent: React.FC = () => {
         // If no token, redirect immediately
         if (!localStorageToken) {
             router.replace("/"); // Redirect to login page
-            message.error("Please login first");
+            messageApi.error("Please login first");
             return;
         }
 
@@ -42,7 +42,7 @@ const MainContent: React.FC = () => {
                 setUser(userData);
             } catch (error) {
                 console.error("Failed to parse user data:", error);
-                message.error("Error loading user data");
+                messageApi.error("Error loading user data");
                 // Clear invalid data and redirect
                 localStorage.removeItem("user");
                 localStorage.removeItem("token");
@@ -68,7 +68,7 @@ const MainContent: React.FC = () => {
         clearToken();
         localStorage.removeItem("user");
 
-        message.success("Logged out successfully");
+        messageApi.success("Logged out successfully");
         router.push("/"); // Redirect to login page
     };
 
@@ -78,6 +78,7 @@ const MainContent: React.FC = () => {
 
     return (
         <div className="flex flex-col min-h-screen bg-[#181818]">
+            {contextHolder}
             {/* nav bar */}
             <nav className="flex flex-row h-14 justify-between items-center bg-[#181818]">
                 <div className="flex flex-row !w-60 justify-start items-center gap-x-4 !ml-5 text-white text-xl font-bold"> Glitch Poker</div>

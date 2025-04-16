@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { webSocketService } from '@/utils/websocket';
 import { GameModel, Player } from '@/types/games';
 import { getApiDomain } from '@/utils/domain';
+import { GameState } from '@/types/gameState';
 
 const baseURL = getApiDomain();
 
@@ -9,6 +10,7 @@ type GameWebSocketMessage = {
     event: string;
     players?: Player[];
     data?: GameModel;
+    state?: GameState;
     [key: string]: any;
 };
 
@@ -20,6 +22,7 @@ interface UseGameSocketParams {
 export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => {
     const [gameModel, setGameModel] = useState<GameModel | null>(null);
     const [players, setPlayers] = useState<Player[]>([]);
+    const [gameState, setGameState] = useState<GameState>(GameState.PRE_GAME);
 
     // Join Game API
     const joinGame = async () => {
@@ -50,7 +53,6 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
         }
     };
 
-    // 요청: GameModel
     const requestGameModel = () => {
         if (!lobbyId || !currentUser) return;
 
@@ -79,15 +81,28 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
             try {
                 const message = typeof data === 'string' ? JSON.parse(data) : (data as GameWebSocketMessage);
 
-                if (message.event === 'gameModel') {
-                    const model = message.data || (message as GameModel);
-                    setGameModel(model);
+                switch (message.event) {
+                    case 'gameModel': {
+                        const model = message.data || (message as GameModel);
+                        setGameModel(model);
 
-                    if (model.players && Array.isArray(model.players)) {
-                        setPlayers(model.players);
-                    } else if (message.players && Array.isArray(message.players)) {
-                        setPlayers(message.players);
+                        if (model.players && Array.isArray(model.players)) {
+                            setPlayers(model.players);
+                        }
+
+                        break;
                     }
+
+                    case 'gameStateChanged': {
+                        if (message.state) {
+                            console.log('Game state changed to:', message.state);
+                            setGameState(message.state as GameState);
+                        }
+                        break;
+                    }
+
+                    default:
+                        console.warn("Unknown WebSocket event:", message.event);
                 }
             } catch (err) {
                 console.error('WebSocket parse error:', err);
@@ -118,7 +133,7 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
         };
     }, [lobbyId, currentUser]);
 
-    // currentPlayer와 otherPlayers를 구분하는 로직
+    // separate currentPlayer and otherPlayers
     const currentPlayer = useMemo(() => {
         if (!currentUser || !players) return undefined;
         return players.find((p) => p.userId === currentUser.id);
@@ -129,12 +144,11 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
         return players.filter((p) => p.userId !== currentUser.id);
     }, [players, currentUser]);
 
-    // isHost: 현재 플레이어가 호스트인지 확인
     const isHost = useMemo(() => {
         return currentPlayer?.userId === gameModel?.ownerId;
     }, [currentPlayer, gameModel]);
 
-    // startGame: 게임을 시작하는 함수
+    // startGame
     const startGame = async () => {
         if (!gameModel || !currentUser) return;
 
@@ -170,5 +184,7 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
         isHost,
         startGame,
         requestGameModel,
+        gameState,
+        setGameState
     };
 };

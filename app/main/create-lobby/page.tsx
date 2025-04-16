@@ -14,6 +14,7 @@ const CreateGame = () => {
   const [userId, setUserId] = useState<number | null>(null);
   const [userToken, setUserToken] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
+  const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
     const userStr = localStorage.getItem('user');
@@ -25,19 +26,19 @@ const CreateGame = () => {
           setUserToken(userData.token);
           setUsername(userData.username);
         } else {
-          message.error('User ID not found. Please login again.');
+          messageApi.error('User ID not found. Please login again.');
         }
       } catch {
-        message.error('Error parsing user data');
+        messageApi.error('Error parsing user data');
       }
     } else {
-      message.error('User data not found. Please login again.');
+      messageApi.error('User data not found. Please login again.');
     }
   }, []);
 
   const handleCreateGame = async (values: any) => {
     if (!userId || !userToken) {
-      message.error('User info not found. Please login again.');
+      messageApi.error('User info not found. Please login again.');
       return;
     }
 
@@ -64,20 +65,21 @@ const CreateGame = () => {
         }
       );
 
-      message.success('Game created successfully!');
-      router.push(`/lobby/${response.data.id}`);
+      messageApi.success('Game created successfully!');
+      router.push(`/lobby/${response.data.sessionId}`);
     } catch (error: any) {
       console.error('Game creation failed:', error);
       if (error.response) {
-        message.error(`Server error: ${error.response.status} - ${error.response.data?.message || error.message}`);
+        messageApi.error(`Server error: ${error.response.status} - ${error.response.data?.message || error.message}`);
       } else {
-        message.error('Network or request error');
+        messageApi.error('Network or request error');
       }
     }
   };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-[#181818] text-white">
+      {contextHolder}
       <div className="w-full max-w-lg p-6 rounded-lg shadow-md">
         <h1 className="text-center text-xl font-bold mb-6">Create New Poker Game</h1>
 
@@ -86,7 +88,7 @@ const CreateGame = () => {
             form={form}
             layout="vertical"
             onFinish={handleCreateGame}
-            initialValues={{ smallBlind: 10, bigBlind: 20 }}
+            initialValues={{ smallBlind: 10, bigBlind: 20, gameType: "public" }}
           >
             <Form.Item
               label="Small Blind"
@@ -107,7 +109,7 @@ const CreateGame = () => {
             <Form.Item label="Game Type" name="gameType">
               <Radio.Group
                 onChange={(e) => setIsPrivate(e.target.value === 'private')}
-                defaultValue="public"
+
               >
                 <Radio value="public">Public</Radio>
                 <Radio value="private">Private</Radio>
