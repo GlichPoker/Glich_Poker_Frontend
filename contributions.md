@@ -40,7 +40,7 @@ Note: If a team member fails to show continuous progress after using their Joker
 |---------------------|------------|-----------------------------|--------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
 | **[@elio42]**  | [10.4.25]     | [[Link to Commit 1](https://github.com/GlichPoker/Glich_Poker_Backend/commit/b56eca93cadc225346bf4b37fafc6fb690b0f088)]          | [Previously, websocket connection request where not checked for authentication, now they do have authentication.]                              | [This contribution is certainly a bit smaller, but I spent most of my working time this week on the other contributin. Furthermore authentication for websocket requests is certainly important. ] |
 |                     | [8.4.25]     | [[Link to Commit 2](https://github.com/GlichPoker/Glich_Poker_Backend/commit/9e7680b673d04a668b615b945924472b0d3c7a8c)]          | [I set up the production database on google cloud, for this we used postgres. Note that there where a number of follwo up commits to test and fix the deployment with github actions.]| [Beeing able to store the gamestates to continue later on is important for an online game. Note that most of my time this week was spent on this commit because there was sooo much troubleshooting.]|
-| **[@arden333]**  | [05.04.025]     | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/8dbb6a2bcf76e128ab03e5eb33c9a93e91709e76]          | [Implement text chat in the lobby]                              | [Users can chat their friends before playing a game]                                                                 |
+| **[@arden333]**  | [05.04.25]     | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/8dbb6a2bcf76e128ab03e5eb33c9a93e91709e76]          | [Implement text chat in the lobby]                              | [Users can chat their friends before playing a game]                                                                 |
 |                     | [10.04.25]     | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/3fda84e8164340e998137cd74f7495e9257d5eb7]          | [Add creating the new game lobby fuction]                              | [Users can create their game room with custom settings to play]                                                                 |
 | **[@BeCre11how]**   | [03.04.25] | [https://github.com/GlichPoker/Glich_Poker_Backend/commit/74895b1cbe67b96d452929b529b2071407d72ff9]          | [Add Postgres DB local]                                      | [actually persist data and not just for sessions]                                                   |
 |                     | [03.04.25] | [https://github.com/GlichPoker/Glich_Poker_Backend/commit/2dc4c051d5e8302972bb6de5fc3fba3df8f3c121]          | [Add entities, extend controller methods, adjust some logic] | [Frontend can use friend endpoints now and try to test the app with actual data which is persisted] |
@@ -49,13 +49,22 @@ Note: If a team member fails to show continuous progress after using their Joker
 
 ---
 
-## Contributions Week 3 - [Begin Date] to [End Date]
+## Contributions Week 3 - [10.04.25] to [16.04.25]
 
-*Continue with the same table format as above.*
+| **Student**         | **Date**   | **Link to Commit**          | **Description**                                              | **Relevance**                                                                                       |
+|---------------------|------------|-----------------------------|--------------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| **[@elio42]**  | []     | []          | []                              | [] |
+|                     | []     | []          | []| []|
+| **[@arden333]**  | [14.04.25]     | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/97fc422747b895a159ea1c6f7d097a38d6cb8521]          | [Implemented pre-game mode]                              | [rendered different UI, layout, and a player list according to 3 game states]                                                                 |
+|                     | [16.04.25]     | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/820c4a8a6e2cbee095dafcd201e9e4d6dd6d5692]          | [Implemented in-gmae mode]                              | [In in-game mode, action buttons activate and game is started]                                                                 |
+| **[@BeCre11how]**   | [] | []          | []                                      | []                                                   |
+|                     | [] | []          | [] | [] |
+| **[@RealBlueSwan]** | [] | []          | []                   | []                                             |
+|                     | [] | []          | []                                             | []                                          |
 
 ---
 
-## Contributions Week 4 - [Begin Date] to [End Date]
+## Contributions Week 4 - [17.04.25] to [23.04.25]
 
 *Continue with the same table format as above.*
 
