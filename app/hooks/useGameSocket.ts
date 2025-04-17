@@ -1,8 +1,9 @@
 import { useEffect, useState, useMemo } from 'react';
 import { webSocketService } from '@/utils/websocket';
-import { GameModel, Player } from '@/types/games';
-import { getApiDomain } from '@/utils/domain';
+import { GameModel, Player } from '@/types/game';
 import { GameState } from '@/types/gameState';
+import { RoundModel } from '@/types/round';
+import { getApiDomain } from '@/utils/domain';
 
 const baseURL = getApiDomain();
 
@@ -23,6 +24,7 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
     const [gameModel, setGameModel] = useState<GameModel | null>(null);
     const [players, setPlayers] = useState<Player[]>([]);
     const [gameState, setGameState] = useState<GameState>(GameState.PRE_GAME);
+    const [roundModel, setRoundModel] = useState<RoundModel | null>(null);
 
     // Join Game API
     const joinGame = async () => {
@@ -106,6 +108,12 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
                             console.log('Game state changed to:', message.state);
                             setGameState(message.state as GameState);
                         }
+                        break;
+                    }
+
+                    case 'roundModel': {
+                        console.log("[Received roundModel:]", roundModel)
+                        setRoundModel(message);
                         break;
                     }
 
@@ -193,6 +201,7 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
         startGame,
         requestGameModel,
         gameState,
-        setGameState
+        setGameState,
+        roundModel
     };
 };
