@@ -57,7 +57,7 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
         if (!lobbyId || !currentUser) return;
 
         const message = {
-            event: 'gameModel',
+            event: 'GAMEMODEL',
             gameID: lobbyId,
             userID: currentUser.id,
             token: currentUser.token,
@@ -80,9 +80,12 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
         const listener = (data: unknown) => {
             try {
                 const message = typeof data === 'string' ? JSON.parse(data) : (data as GameWebSocketMessage);
+                
+                // Log received event for debugging
+                console.log('Received WebSocket event:', message.event);
 
                 switch (message.event) {
-                    case 'gameModel': {
+                    case 'GAMEMODEL': {
                         const model = message.data || (message as GameModel);
                         setGameModel(model);
 
@@ -93,7 +96,12 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
                         break;
                     }
 
-                    case 'gameStateChanged': {
+                    case 'ROUNDMODEL': {
+                        // Handle round model updates if needed
+                        break;
+                    }
+
+                    case 'GAMESTATECHANGED': {
                         if (message.state) {
                             console.log('Game state changed to:', message.state);
                             setGameState(message.state as GameState);
