@@ -3,6 +3,7 @@ import Vote from '@/components/game/voting/vote';
 import MySeat from '@/components/game/mySeat';
 import OtherPlayerSeat from '@/components/game/otherPlayerSeat';
 import ActionButton from '@/components/game/actionButton';
+import { Badge } from 'antd';
 
 
 interface InGameLayoutProps {
@@ -90,11 +91,17 @@ const InGameLayout = ({
                         ))}
                     </div>
                 </div>
-
-                {/* My seat */}
+                {/* myturn with my turn notification*/}
                 <div className="absolute bottom-32 left-0 right-0 flex justify-center">
-                    <MySeat player={currentPlayer} username={currentPlayer?.username} />
+                    {isMyTurn ? (
+                        <Badge.Ribbon text="My Turn" color="red" >
+                            <MySeat player={currentPlayer} username={currentPlayer?.username} />
+                        </Badge.Ribbon>
+                    ) : (
+                        <MySeat player={currentPlayer} username={currentPlayer?.username} />
+                    )}
                 </div>
+
 
                 {/* Action buttons */}
                 <div className="absolute bottom-15 flex left-0 right-0 justify-evenly">
