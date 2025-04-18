@@ -112,7 +112,6 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
                     }
 
                     case 'roundModel': {
-                        console.log("[Received roundModel:]", roundModel)
                         setRoundModel(message);
                         break;
                     }

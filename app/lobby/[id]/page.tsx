@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { GameModel, Player } from '@/types/games';
 import { useParams, useRouter } from 'next/navigation';
 import { getApiDomain } from '@/utils/domain';
 import { useGameSocket } from '@/hooks/useGameSocket';
+import { useActionHandlers } from '@/hooks/useActionHandlers';
 import { GameState } from '@/types/gameState';
 import PreGameLayout from '@/components/game/preGameLayout';
 import InGameLayout from '@/components/game/inGameLayout';
@@ -41,7 +41,7 @@ const LobbyPage = () => {
     }, []);
 
     const {
-        gameModel,
+        roundModel,
         players,
         currentPlayer,
         otherPlayers,
@@ -52,6 +52,19 @@ const LobbyPage = () => {
         currentUser: currentUser,
         lobbyId: lobbyId as string,
     });
+
+    // if currentUser and lobbyId exist,
+    const actionHandlers = currentUser && lobbyId ? useActionHandlers({
+        currentUser,
+        lobbyId: lobbyId as string,
+    }) : { // if not,
+        handleFold: () => console.warn('You cannot do this yet'),
+        handleCall: () => console.warn('You cannot do this yet'),
+        handleRaise: () => console.warn('You cannot do this yet'),
+    };
+
+    const { handleFold, handleCall, handleRaise } = actionHandlers;
+
 
     const handleExitGame = async () => {
         if (!lobbyId || !currentUser) return;
@@ -106,13 +119,16 @@ const LobbyPage = () => {
             case GameState.IN_GAME:
                 return (
                     <InGameLayout
-                        gameModel={gameModel}
+                        roundModel={roundModel}
                         currentPlayer={currentPlayer}
                         otherPlayers={otherPlayers}
                         lobbyId={lobbyId as string}
                         showVoteOverlay={showVoteOverlay}
                         setShowVoteOverlay={setShowVoteOverlay}
                         handleExitGame={handleExitGame}
+                        handleFold={handleFold}
+                        handleCall={handleCall}
+                        handleRaise={handleRaise}
                     />
                 );
             default:

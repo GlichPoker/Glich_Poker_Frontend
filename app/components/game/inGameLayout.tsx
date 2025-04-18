@@ -1,30 +1,38 @@
-// components/game/InGameLayout.tsx
 import { Button } from 'antd';
 import Vote from '@/components/game/voting/vote';
 import MySeat from '@/components/game/mySeat';
 import OtherPlayerSeat from '@/components/game/otherPlayerSeat';
 import ActionButton from '@/components/game/actionButton';
-import { GameModel, Player } from '@/types/games';
+
 
 interface InGameLayoutProps {
-    gameModel: GameModel | null;
+    roundModel: any;
     lobbyId: string;
     currentPlayer: any;
     otherPlayers: any[];
     showVoteOverlay: boolean;
     setShowVoteOverlay: (show: boolean) => void;
     handleExitGame: () => void;
+    handleFold: () => void;
+    handleCall: () => void;
+    handleRaise: () => void;
 }
 
 const InGameLayout = ({
-    gameModel,
+    roundModel,
     lobbyId,
     currentPlayer,
     otherPlayers,
     showVoteOverlay,
     setShowVoteOverlay,
     handleExitGame,
+    handleFold,
+    handleCall,
+    handleRaise,
 }: InGameLayoutProps) => {
+
+    const isMyTurn = roundModel?.playersTurnId === currentPlayer?.userId;
+
     return (
         <div className="flex flex-col w-full h-auto">
             {/* Nav bar */}
@@ -69,8 +77,7 @@ const InGameLayout = ({
 
                     {/* Center Table */}
                     <div className="flex flex-col items-center justify-center w-[33.33%] text-center space-y-2">
-
-                        <p className="text-sm mt-4">Pot: $0</p>
+                        <p className="text-sm mt-4">Pot: ${roundModel?.potSize}</p>
                     </div>
 
                     <div className="flex flex-col items-center w-[33.33%] space-y-8">
@@ -91,12 +98,11 @@ const InGameLayout = ({
 
                 {/* Action buttons */}
                 <div className="absolute bottom-15 flex left-0 right-0 justify-evenly">
-                    <ActionButton label="Fold" onClick={() => console.log("Fold")} />
-                    <ActionButton label="Check" onClick={() => console.log("Check")} />
-                    <ActionButton label="Call" onClick={() => console.log("Call")} />
-                    <ActionButton label="Bet" onClick={() => console.log("Bet")} />
-                    <ActionButton label="Raise" onClick={() => console.log("Raise")} />
-
+                    <ActionButton label="Fold" onClick={handleFold} disabled={!isMyTurn} />
+                    <ActionButton label="Check" onClick={() => console.log("Check")} disabled={!isMyTurn} />
+                    <ActionButton label="Call" onClick={handleCall} disabled={!isMyTurn} />
+                    <ActionButton label="Bet" onClick={() => console.log("Bet")} disabled={!isMyTurn} />
+                    <ActionButton label="Raise" onClick={handleRaise} disabled={!isMyTurn} />
                 </div>
             </div>
         </div>
