@@ -21,7 +21,7 @@ const MySeat: React.FC<Props> = ({ player, username, roundPlayer }) => {
     const displayName = roundPlayer?.name || player?.name || username || '';
     const balance = roundPlayer?.balance ?? player?.balance ?? 0;
     const roundBet = roundPlayer?.roundBet ?? player?.roundBet ?? 0;
-    
+
     const avatarChar = displayName.trim().length > 0
         ? displayName.charAt(0).toUpperCase()
         : '?';
@@ -42,20 +42,20 @@ const MySeat: React.FC<Props> = ({ player, username, roundPlayer }) => {
                     </div>
                 </div>
             </div>
-            
+
             {/* Display cards from roundPlayer if available */}
             {roundPlayer?.hand && roundPlayer.hand.length > 0 && (
                 <div className="mt-4 flex justify-center">
                     {roundPlayer.hand.map((card, i) => (
-                        <Card 
-                            key={i} 
-                            cardCode={card.cardCode} 
+                        <Card
+                            key={i}
+                            cardCode={card.cardCode}
                             className={i === 0 ? "mr-2" : ""}
                         />
                     ))}
                 </div>
             )}
-            
+
             {/* Fallback to player hand if roundPlayer not available */}
             {!roundPlayer?.hand && player?.hand && (
                 <div className="mt-4 flex justify-center">

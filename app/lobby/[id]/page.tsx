@@ -118,6 +118,7 @@ const LobbyPage = () => {
                     />
                 );
             case GameState.IN_GAME:
+                if (!roundModel) return null;
                 return (
                     <InGameLayout
                         roundModel={roundModel}
@@ -126,7 +127,7 @@ const LobbyPage = () => {
                         lobbyId={lobbyId as string}
                         showVoteOverlay={showVoteOverlay}
                         setShowVoteOverlay={setShowVoteOverlay}
-                        handleExitGame={handleExitGame}
+                        // handleExitGame={handleExitGame}
                         handleFold={handleFold}
                         handleCall={handleCall}
                         handleRaise={handleRaise}

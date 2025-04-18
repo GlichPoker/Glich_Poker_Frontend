@@ -2,7 +2,6 @@ import { getApiDomain } from '@/utils/domain';
 
 const baseURL = getApiDomain();
 
-
 type ActionHandlerParams = {
     lobbyId: string | string[] | undefined;
     currentUser: { id: number; token: string } | null;
@@ -18,15 +17,22 @@ export const useActionHandlers = ({ lobbyId, currentUser }: ActionHandlerParams)
         Authorization: `Bearer ${currentUser.token}`,
     };
 
-    const postAction = async (endpoint: string, event: string) => {
+
+    const postAction = async (endpoint: string, event: string, amount?: number) => {
         try {
+            const requestBody: any = {
+                sessionId: lobbyId,
+                userId: currentUser.id,
+            };
+
+            if (amount !== undefined) {
+                requestBody.amount = amount;
+            }
+
             const response = await fetch(`${baseURL}/game/${endpoint}`, {
                 method: 'POST',
                 headers: commonHeaders,
-                body: JSON.stringify({
-                    sessionId: lobbyId,
-                    userId: currentUser.id,
-                }),
+                body: JSON.stringify(requestBody),
             });
 
             if (!response.ok) {
@@ -41,9 +47,8 @@ export const useActionHandlers = ({ lobbyId, currentUser }: ActionHandlerParams)
 
     return {
         handleFold: () => postAction('fold', 'fold'),
-        handleCall: () => postAction('call', 'call'),
-        handleRaise: () => postAction('raise', 'raise'),
         handleCheck: () => postAction('check', 'check'),
-
+        handleCall: (amount: number) => postAction('call', 'call', amount),
+        handleRaise: (amount: number) => postAction('raise', 'raise', amount),
     };
 };
