@@ -1,5 +1,5 @@
 import { Avatar } from 'antd';
-import type { Player } from '@/types/games';
+import type { Player } from '@/types/game';
 
 type Props = {
     player?: Player;

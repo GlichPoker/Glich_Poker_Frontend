@@ -82,7 +82,7 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
         const listener = (data: unknown) => {
             try {
                 const message = typeof data === 'string' ? JSON.parse(data) : (data as GameWebSocketMessage);
-                
+
                 // Log received event for debugging
                 console.log('Received WebSocket event:', message.event);
 
