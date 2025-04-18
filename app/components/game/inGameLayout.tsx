@@ -4,9 +4,10 @@ import MySeat from '@/components/game/mySeat';
 import OtherPlayerSeat from '@/components/game/otherPlayerSeat';
 import ActionButton from '@/components/game/actionButton';
 import { Badge } from 'antd';
+import { RoundModel } from '@/types/round';
 
 interface InGameLayoutProps {
-    roundModel: any;
+    roundModel: RoundModel;
     lobbyId: string;
     currentPlayer: any;
     otherPlayers: any[];
@@ -118,10 +119,18 @@ const InGameLayout = ({
                 <div className="absolute bottom-32 left-0 right-0 flex justify-center">
                     {isMyTurn ? (
                         <Badge.Ribbon text="My Turn" color="red">
-                            <MySeat player={currentPlayer} username={currentPlayer?.username} />
+                            <MySeat 
+                                player={currentPlayer} 
+                                username={currentPlayer?.username}
+                                roundPlayer={roundModel?.player}
+                            />
                         </Badge.Ribbon>
                     ) : (
-                        <MySeat player={currentPlayer} username={currentPlayer?.username} />
+                        <MySeat 
+                            player={currentPlayer} 
+                            username={currentPlayer?.username}
+                            roundPlayer={roundModel?.player}
+                        />
                     )}
                 </div>
 
