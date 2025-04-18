@@ -5,7 +5,6 @@ import OtherPlayerSeat from '@/components/game/otherPlayerSeat';
 import ActionButton from '@/components/game/actionButton';
 import { Badge } from 'antd';
 
-
 interface InGameLayoutProps {
     roundModel: any;
     lobbyId: string;
@@ -17,6 +16,7 @@ interface InGameLayoutProps {
     handleFold: () => void;
     handleCall: () => void;
     handleRaise: () => void;
+    handleCheck: () => void;
 }
 
 const InGameLayout = ({
@@ -30,6 +30,7 @@ const InGameLayout = ({
     handleFold,
     handleCall,
     handleRaise,
+    handleCheck,
 }: InGameLayoutProps) => {
 
     const isMyTurn = roundModel?.playersTurnId === currentPlayer?.userId;
@@ -46,13 +47,13 @@ const InGameLayout = ({
                     >
                         Vote
                     </Button>
-                    <Button
+                    {/* <Button
                         type="link"
                         className="!text-gray-500 !font-bold"
                         onClick={handleExitGame}
                     >
                         Exit
-                    </Button>
+                    </Button> */}
                 </div>
             </nav>
 
@@ -64,16 +65,25 @@ const InGameLayout = ({
 
             {/* Game area */}
             <div className="bg-[url('/images/poker-table.jpg')] bg-cover bg-center relative min-h-screen text-white">
-                {/* Other players seats */}
+                {/* left - Other players seats */}
                 <div className="flex flex-row w-full pt-20 pb-8">
                     <div className="flex flex-col items-center w-[33.33%] space-y-8">
-                        {[0, 1].map((i) => (
+                        {/* index=0 player seat */}
+                        {otherPlayers.length > 0 && otherPlayers[0] && (
                             <OtherPlayerSeat
-                                key={i}
-                                player={otherPlayers[i]}
-                                positionLabel={i === 0 ? 'Top Left' : 'Bottom Left'}
+                                key={0}
+                                player={otherPlayers[0]}
+                                positionLabel="Top Left"
                             />
-                        ))}
+                        )}
+                        {/* index=2 player seat */}
+                        {otherPlayers.length > 2 && otherPlayers[2] && (
+                            <OtherPlayerSeat
+                                key={2}
+                                player={otherPlayers[2]}
+                                positionLabel="Top Right"
+                            />
+                        )}
                     </div>
 
                     {/* Center Table */}
@@ -81,20 +91,33 @@ const InGameLayout = ({
                         <p className="text-sm mt-4">Pot: ${roundModel?.potSize}</p>
                     </div>
 
+                    {/* right - Other players seats */}
                     <div className="flex flex-col items-center w-[33.33%] space-y-8">
-                        {[2, 3].map((i) => (
+                        {/* indext=1 player seat */}
+                        {otherPlayers.length > 1 && otherPlayers[1] && (
                             <OtherPlayerSeat
-                                key={i}
-                                player={otherPlayers[i]}
-                                positionLabel={i === 2 ? 'Top Right' : 'Bottom Right'}
+                                key={1}
+                                player={otherPlayers[1]}
+                                positionLabel="Bottom Left"
                             />
-                        ))}
+                        )}
+
+
+                        {/* indext=3 player seat */}
+                        {otherPlayers.length > 3 && otherPlayers[3] && (
+                            <OtherPlayerSeat
+                                key={3}
+                                player={otherPlayers[3]}
+                                positionLabel="Bottom Right"
+                            />
+                        )}
                     </div>
                 </div>
-                {/* myturn with my turn notification*/}
+
+                {/* My turn notification */}
                 <div className="absolute bottom-32 left-0 right-0 flex justify-center">
                     {isMyTurn ? (
-                        <Badge.Ribbon text="My Turn" color="red" >
+                        <Badge.Ribbon text="My Turn" color="red">
                             <MySeat player={currentPlayer} username={currentPlayer?.username} />
                         </Badge.Ribbon>
                     ) : (
@@ -102,13 +125,11 @@ const InGameLayout = ({
                     )}
                 </div>
 
-
                 {/* Action buttons */}
                 <div className="absolute bottom-15 flex left-0 right-0 justify-evenly">
                     <ActionButton label="Fold" onClick={handleFold} disabled={!isMyTurn} />
-                    <ActionButton label="Check" onClick={() => console.log("Check")} disabled={!isMyTurn} />
+                    <ActionButton label="Check" onClick={handleCheck} disabled={!isMyTurn} />
                     <ActionButton label="Call" onClick={handleCall} disabled={!isMyTurn} />
-                    <ActionButton label="Bet" onClick={() => console.log("Bet")} disabled={!isMyTurn} />
                     <ActionButton label="Raise" onClick={handleRaise} disabled={!isMyTurn} />
                 </div>
             </div>

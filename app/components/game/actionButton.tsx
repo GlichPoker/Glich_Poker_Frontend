@@ -1,20 +1,37 @@
-// components/game/actionButton.tsx
-
+import React from 'react';
 import { Button } from 'antd';
 
-type Props = {
+interface Props {
     label: string;
-    disabled?: boolean;
-    onClick?: () => void;
-};
+    onClick: () => void;
+    disabled: boolean;
+}
 
-const ActionButton = ({ label, onClick, disabled }: Props) => {
+const ActionButton: React.FC<Props> = ({ label, onClick, disabled }) => {
+    // disabled button stayle
+    const disabledStyle: React.CSSProperties = {
+        backgroundColor: '#4d4d4d',
+        color: '#ffffff',
+        borderColor: '#4d4d4d',
+        cursor: 'not-allowed',
+        width: '120px',
+    };
+
+    // button style
+    const enabledStyle: React.CSSProperties = {
+        backgroundColor: '#9f0712',
+        color: '#ffffff',
+        borderColor: '#9f0712',
+        cursor: 'pointer',
+        width: '120px',
+    };
+
     return (
         <Button
-            type="primary"
-            className="w-[120px] !font-bold"
             onClick={onClick}
             disabled={disabled}
+            style={disabled ? disabledStyle : enabledStyle}
+            type="primary"
         >
             {label}
         </Button>

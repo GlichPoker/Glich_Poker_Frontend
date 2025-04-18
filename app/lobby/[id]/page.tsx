@@ -61,9 +61,10 @@ const LobbyPage = () => {
         handleFold: () => console.warn('You cannot do this yet'),
         handleCall: () => console.warn('You cannot do this yet'),
         handleRaise: () => console.warn('You cannot do this yet'),
+        handleCheck: () => console.warn('You cannot do this yet'),
     };
 
-    const { handleFold, handleCall, handleRaise } = actionHandlers;
+    const { handleFold, handleCall, handleRaise, handleCheck } = actionHandlers;
 
 
     const handleExitGame = async () => {
@@ -129,6 +130,7 @@ const LobbyPage = () => {
                         handleFold={handleFold}
                         handleCall={handleCall}
                         handleRaise={handleRaise}
+                        handleCheck={handleCheck}
                     />
                 );
             default:

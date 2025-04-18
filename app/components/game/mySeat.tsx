@@ -1,4 +1,4 @@
-// app/components/game/mySeat.tsx
+
 
 import React from 'react';
 import { Avatar } from 'antd';

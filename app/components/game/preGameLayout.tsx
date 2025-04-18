@@ -1,9 +1,7 @@
-// components/game/PreGameLayout.tsx
 import { Button } from 'antd';
 import Vote from '@/components/game/voting/vote';
 import MySeat from '@/components/game/mySeat';
 import OtherPlayerSeat from '@/components/game/otherPlayerSeat';
-
 
 interface PreGameLayoutProps {
     lobbyId: string;
@@ -14,7 +12,6 @@ interface PreGameLayoutProps {
     showVoteOverlay: boolean;
     setShowVoteOverlay: (show: boolean) => void;
     handleExitGame: () => void;
-
 }
 
 const PreGameLayout = ({
@@ -26,11 +23,9 @@ const PreGameLayout = ({
     showVoteOverlay,
     setShowVoteOverlay,
     handleExitGame,
-
 }: PreGameLayoutProps) => {
     const handleStart = async () => {
         await startGame();
-
     };
 
     return (
@@ -66,13 +61,20 @@ const PreGameLayout = ({
                 <div className="flex flex-row w-full pt-20 pb-8">
                     {/* Player Positions (Top Left & Bottom Left) */}
                     <div className="flex flex-col items-center w-[33.33%] space-y-8">
-                        {[0, 1].map((i) => (
+                        {otherPlayers[0] && (
                             <OtherPlayerSeat
-                                key={i}
-                                player={otherPlayers[i]}
-                                positionLabel={i === 0 ? 'Top Left' : 'Bottom Left'}
+                                key={0}
+                                player={otherPlayers[0]}
+                                positionLabel="Top Left"
                             />
-                        ))}
+                        )}
+                        {otherPlayers[1] && (
+                            <OtherPlayerSeat
+                                key={1}
+                                player={otherPlayers[1]}
+                                positionLabel="Bottom Left"
+                            />
+                        )}
                     </div>
 
                     {/* Poker Table Details + Host Start Button */}
@@ -96,13 +98,20 @@ const PreGameLayout = ({
 
                     {/* Player Positions (Top Right & Bottom Right) */}
                     <div className="flex flex-col items-center w-[33.33%] space-y-8">
-                        {[2, 3].map((i) => (
+                        {otherPlayers[2] && (
                             <OtherPlayerSeat
-                                key={i}
-                                player={otherPlayers[i]}
-                                positionLabel={i === 2 ? 'Top Right' : 'Bottom Right'}
+                                key={2}
+                                player={otherPlayers[2]}
+                                positionLabel="Top Right"
                             />
-                        ))}
+                        )}
+                        {otherPlayers[3] && (
+                            <OtherPlayerSeat
+                                key={3}
+                                player={otherPlayers[3]}
+                                positionLabel="Bottom Right"
+                            />
+                        )}
                     </div>
                 </div>
 

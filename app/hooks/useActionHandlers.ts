@@ -43,7 +43,7 @@ export const useActionHandlers = ({ lobbyId, currentUser }: ActionHandlerParams)
         handleFold: () => postAction('fold', 'fold'),
         handleCall: () => postAction('call', 'call'),
         handleRaise: () => postAction('raise', 'raise'),
-        // handleCheck: () => postAction('check', 'check'),
-        // handleBet: () => postAction('bet', 'bet'),
+        handleCheck: () => postAction('check', 'check'),
+
     };
 };
