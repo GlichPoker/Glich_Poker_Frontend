@@ -61,17 +61,17 @@ const PreGameLayout = ({
                 <div className="flex flex-row w-full pt-20 pb-8">
                     {/* Player Positions (Top Left & Bottom Left) */}
                     <div className="flex flex-col items-center w-[33.33%] space-y-8">
-                        {otherPlayers[0] && (
-                            <OtherPlayerSeat
-                                key={0}
-                                player={otherPlayers[0]}
-                                positionLabel="Top Left"
-                            />
-                        )}
                         {otherPlayers[1] && (
                             <OtherPlayerSeat
                                 key={1}
                                 player={otherPlayers[1]}
+                                positionLabel="Top Left"
+                            />
+                        )}
+                        {otherPlayers[0] && (
+                            <OtherPlayerSeat
+                                key={0}
+                                player={otherPlayers[0]}
                                 positionLabel="Bottom Left"
                             />
                         )}

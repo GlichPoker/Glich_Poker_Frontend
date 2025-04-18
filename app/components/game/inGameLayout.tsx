@@ -69,18 +69,18 @@ const InGameLayout = ({
                 <div className="flex flex-row w-full pt-20 pb-8">
                     <div className="flex flex-col items-center w-[33.33%] space-y-8">
                         {/* index=0 player seat */}
-                        {otherPlayers.length > 0 && otherPlayers[0] && (
+                        {otherPlayers.length > 1 && otherPlayers[1] && (
                             <OtherPlayerSeat
-                                key={0}
-                                player={otherPlayers[0]}
+                                key={1}
+                                player={otherPlayers[1]}
                                 positionLabel="Top Left"
                             />
                         )}
                         {/* index=2 player seat */}
-                        {otherPlayers.length > 2 && otherPlayers[2] && (
+                        {otherPlayers.length > 0 && otherPlayers[0] && (
                             <OtherPlayerSeat
-                                key={2}
-                                player={otherPlayers[2]}
+                                key={0}
+                                player={otherPlayers[0]}
                                 positionLabel="Top Right"
                             />
                         )}
@@ -94,10 +94,10 @@ const InGameLayout = ({
                     {/* right - Other players seats */}
                     <div className="flex flex-col items-center w-[33.33%] space-y-8">
                         {/* indext=1 player seat */}
-                        {otherPlayers.length > 1 && otherPlayers[1] && (
+                        {otherPlayers.length > 2 && otherPlayers[2] && (
                             <OtherPlayerSeat
-                                key={1}
-                                player={otherPlayers[1]}
+                                key={2}
+                                player={otherPlayers[2]}
                                 positionLabel="Bottom Left"
                             />
                         )}
