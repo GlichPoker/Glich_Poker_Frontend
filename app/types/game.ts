@@ -10,7 +10,7 @@ export interface Player {
 }
 
 export interface GameModel {
-    event: 'gamemodel';
+    event: 'GAMEMODEL';
     sessionId: number;
     players: Player[];
     round: {
