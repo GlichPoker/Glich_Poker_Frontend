@@ -146,26 +146,28 @@ const InGameLayout = ({
                     )}
                 </div>
 
-                {/* Action buttons*/}
+                {/* Action buttons */}
                 <div className="absolute bottom-10 w-full flex justify-evenly items-end">
                     {/* Fold */}
                     <div className="flex flex-col items-center w-28">
-                        <ActionButton
-                            label="Fold"
-                            onClick={handleFold}
-                            disabled={!isMyTurn}
-
-                        />
+                        <div className="w-full">
+                            <ActionButton
+                                label="Fold"
+                                onClick={handleFold}
+                                disabled={!isMyTurn}
+                            />
+                        </div>
                     </div>
 
                     {/* Check */}
                     <div className="flex flex-col items-center w-28">
-                        <ActionButton
-                            label="Check"
-                            onClick={handleCheck}
-                            disabled={!isMyTurn}
-
-                        />
+                        <div className="w-full">
+                            <ActionButton
+                                label="Check"
+                                onClick={handleCheck}
+                                disabled={!isMyTurn}
+                            />
+                        </div>
                     </div>
 
                     {/* Call */}
@@ -176,14 +178,16 @@ const InGameLayout = ({
                             value={callInput}
                             onChange={handleCallInputChange}
                             disabled={!isMyTurn}
-                            className="h-8 w-full text-center text-white bg-transparent border-2 border-white rounded-md"
+                            placeholder={`$${callAmount}`}
+                            className="h-8 w-full text-center text-white bg-transparent border-2 border-white rounded-md mb-1"
                         />
-                        <ActionButton
-                            label="Call"
-                            onClick={() => handleCall(callInput)}
-                            disabled={!isMyTurn || callInput <= 0}
-
-                        />
+                        <div className="w-full">
+                            <ActionButton
+                                label="Call"
+                                onClick={() => handleCall(callInput)}
+                                disabled={!isMyTurn || callInput <= 0}
+                            />
+                        </div>
                     </div>
 
                     {/* Raise */}
@@ -193,14 +197,16 @@ const InGameLayout = ({
                             value={raiseInput}
                             onChange={handleRaiseInputChange}
                             disabled={!isMyTurn}
-                            className="h-8 w-full text-center text-white bg-transparent border-2 border-white rounded-md"
+                            placeholder={`min $${minRaiseAmount}`}
+                            className="h-8 w-full text-center text-white bg-transparent border-2 border-white rounded-md mb-1"
                         />
-                        <ActionButton
-                            label="Raise"
-                            onClick={() => handleRaise(raiseInput)}
-                            disabled={!isMyTurn || raiseInput < minRaiseAmount}
-
-                        />
+                        <div className="w-full">
+                            <ActionButton
+                                label="Raise"
+                                onClick={() => handleRaise(raiseInput)}
+                                disabled={!isMyTurn || raiseInput < minRaiseAmount}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

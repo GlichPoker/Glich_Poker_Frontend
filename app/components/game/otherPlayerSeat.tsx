@@ -13,7 +13,7 @@ const OtherPlayerSeat = ({ player, positionLabel }: Props) => {
             {player ? (
                 <>
                     <Avatar
-                        style={{ backgroundColor: player.active ? '#52c41a' : '#1890ff' }}
+                        style={{ backgroundColor: player.active ? '#00cf48' : '#b6b8ba' }}
                         size="large"
                     >
                         {player.name?.charAt(0).toUpperCase() || 'P'}

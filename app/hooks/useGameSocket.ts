@@ -26,6 +26,57 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
     const [gameState, setGameState] = useState<GameState>(GameState.PRE_GAME);
     const [roundModel, setRoundModel] = useState<RoundModel | null>(null);
 
+
+    // check if round is finished
+    const shouldCompleteRound = (roundModel: RoundModel): boolean => {
+        if (!roundModel) return false;
+
+        const allPlayers = [roundModel.player, ...roundModel.otherPlayers];
+        const activePlayers = allPlayers.filter(p => p.active);
+
+
+        // 1. reamined only one player -> the round is finished
+        if (activePlayers.length === 1) {
+            return true;
+        }
+
+        // 2. the bet amoutn of all active players and no turn -> the round is finished
+        const allSameBet = activePlayers.every(p => p.roundBet === activePlayers[0].roundBet);
+        const isTurnOngoing = roundModel.playersTurnId !== null;
+
+        return allSameBet && !isTurnOngoing;
+    };
+
+    // post request to /roundComplete
+    useEffect(() => {
+        if (!roundModel || !currentUser) return;
+
+        if (shouldCompleteRound(roundModel)) {
+
+            fetch(`${baseURL}/game/roundComplete`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${currentUser.token}`,
+                },
+                body: JSON.stringify({
+                    sessionId: lobbyId,
+                    userId: currentUser.id,
+                }),
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to complete round');
+                    return res.json();
+                })
+                .then(data => {
+                    console.log('Round completed successfully.', data);
+                })
+                .catch(err => {
+                    console.error('failed to complete round', err);
+                });
+        }
+    }, [roundModel]);
+
     // Join Game API
     const joinGame = async () => {
         if (!lobbyId || !currentUser) return;
@@ -83,11 +134,6 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
             try {
                 const message = typeof data === 'string' ? JSON.parse(data) : (data as GameWebSocketMessage);
 
-                // Log received event for debugging
-                console.log('Received WebSocket event:', message.event);
-
-                // Log received event for debugging
-                console.log('Received WebSocket event:', message.event);
 
                 switch (message.event) {
                     case 'GAMEMODEL': {
