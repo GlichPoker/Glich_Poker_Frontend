@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button, InputNumber } from 'antd';
 import Vote from '@/components/game/voting/vote';
 import MySeat from '@/components/game/mySeat';
@@ -35,6 +35,23 @@ const InGameLayout = ({
 
     // check player's turn
     const isMyTurn = roundModel?.playersTurnId === currentPlayer?.userId;
+
+    // Determine if the round is over (same logic as in useGameSocket.shouldCompleteRound)
+    const isRoundOver = useMemo(() => {
+        if (!roundModel) return false;
+        
+        const allPlayers = [roundModel.player, ...roundModel.otherPlayers];
+        const activePlayers = allPlayers.filter(p => p.active);
+        
+        // Round is over if only one player remains active
+        if (activePlayers.length === 1) return true;
+        
+        // Round is over if all active players have the same bet amount and no turn is ongoing
+        const allSameBet = activePlayers.every(p => p.roundBet === activePlayers[0].roundBet);
+        const isTurnOngoing = roundModel.playersTurnId !== null && roundModel.playersTurnId !== undefined;
+        
+        return allSameBet && !isTurnOngoing;
+    }, [roundModel]);
 
     const previousPlayerRoundBet = otherPlayers.length > 0 ? otherPlayers[0].roundBet : 0;
 
@@ -79,6 +96,13 @@ const InGameLayout = ({
 
             {/* Game area */}
             <div className="bg-[url('/images/poker-table.jpg')] bg-cover bg-center relative min-h-screen text-white">
+                {/* Round status indicator */}
+                {isRoundOver && (
+                    <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-70 px-4 py-2 rounded-lg z-10">
+                        <span className="text-yellow-400 font-bold">Round Complete - Showing All Cards</span>
+                    </div>
+                )}
+                
                 {/* left - Other players seats */}
                 <div className="flex flex-row w-full pt-20 pb-8">
                     <div className="flex flex-col items-center w-[33.33%] space-y-8">
@@ -88,6 +112,8 @@ const InGameLayout = ({
                                 key={1}
                                 player={otherPlayers[1]}
                                 positionLabel="Top Left"
+                                roundPlayer={roundModel?.otherPlayers?.[1]}
+                                isRoundOver={isRoundOver}
                             />
                         )}
                         {/* index=2 player seat */}
@@ -96,6 +122,8 @@ const InGameLayout = ({
                                 key={0}
                                 player={otherPlayers[0]}
                                 positionLabel="Top Right"
+                                roundPlayer={roundModel?.otherPlayers?.[0]}
+                                isRoundOver={isRoundOver}
                             />
                         )}
                     </div>
@@ -103,6 +131,20 @@ const InGameLayout = ({
                     {/* Center Table */}
                     <div className="flex flex-col items-center justify-center w-[33.33%] text-center space-y-2">
                         <p className="text-sm mt-4">Pot: ${roundModel?.potSize}</p>
+                        
+                        {/* Community Cards */}
+                        {roundModel?.communityCards && roundModel.communityCards.length > 0 && (
+                            <div className="flex justify-center mt-4 gap-1">
+                                {roundModel.communityCards.map((card, i) => (
+                                    <img 
+                                        key={i} 
+                                        src={`https://deckofcardsapi.com/static/img/${card.cardCode}.png`}
+                                        alt={card.cardCode}
+                                        className="h-16 w-auto rounded"
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* right - Other players seats */}
@@ -113,6 +155,8 @@ const InGameLayout = ({
                                 key={2}
                                 player={otherPlayers[2]}
                                 positionLabel="Bottom Left"
+                                roundPlayer={roundModel?.otherPlayers?.[2]}
+                                isRoundOver={isRoundOver}
                             />
                         )}
 
@@ -122,6 +166,8 @@ const InGameLayout = ({
                                 key={3}
                                 player={otherPlayers[3]}
                                 positionLabel="Bottom Right"
+                                roundPlayer={roundModel?.otherPlayers?.[3]}
+                                isRoundOver={isRoundOver}
                             />
                         )}
                     </div>
@@ -148,13 +194,14 @@ const InGameLayout = ({
 
                 {/* Action buttons */}
                 <div className="absolute bottom-10 w-full flex justify-evenly items-end">
+                    {/* Action buttons are disabled when the round is over */}
                     {/* Fold */}
                     <div className="flex flex-col items-center w-28">
                         <div className="w-full">
                             <ActionButton
                                 label="Fold"
                                 onClick={handleFold}
-                                disabled={!isMyTurn}
+                                disabled={!isMyTurn || isRoundOver}
                             />
                         </div>
                     </div>
@@ -165,7 +212,7 @@ const InGameLayout = ({
                             <ActionButton
                                 label="Check"
                                 onClick={handleCheck}
-                                disabled={!isMyTurn}
+                                disabled={!isMyTurn || isRoundOver}
                             />
                         </div>
                     </div>
@@ -177,7 +224,7 @@ const InGameLayout = ({
                             max={roundModel?.player?.balance ?? 0}
                             value={callInput}
                             onChange={handleCallInputChange}
-                            disabled={!isMyTurn}
+                            disabled={!isMyTurn || isRoundOver}
                             placeholder={`$${callAmount}`}
                             className="h-8 w-full text-center text-white bg-transparent border-2 border-white rounded-md mb-1"
                         />
@@ -185,7 +232,7 @@ const InGameLayout = ({
                             <ActionButton
                                 label="Call"
                                 onClick={() => handleCall(callInput)}
-                                disabled={!isMyTurn || callInput <= 0}
+                                disabled={!isMyTurn || callInput <= 0 || isRoundOver}
                             />
                         </div>
                     </div>
@@ -196,7 +243,7 @@ const InGameLayout = ({
                             min={minRaiseAmount}
                             value={raiseInput}
                             onChange={handleRaiseInputChange}
-                            disabled={!isMyTurn}
+                            disabled={!isMyTurn || isRoundOver}
                             placeholder={`min $${minRaiseAmount}`}
                             className="h-8 w-full text-center text-white bg-transparent border-2 border-white rounded-md mb-1"
                         />
@@ -204,7 +251,7 @@ const InGameLayout = ({
                             <ActionButton
                                 label="Raise"
                                 onClick={() => handleRaise(raiseInput)}
-                                disabled={!isMyTurn || raiseInput < minRaiseAmount}
+                                disabled={!isMyTurn || raiseInput < minRaiseAmount || isRoundOver}
                             />
                         </div>
                     </div>
