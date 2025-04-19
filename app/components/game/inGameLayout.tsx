@@ -36,7 +36,6 @@ const InGameLayout = ({
     // check player's turn
     const isMyTurn = roundModel?.playersTurnId === currentPlayer?.userId;
 
-    // 1번 플레이어(다른 플레이어 중 첫번째)의 roundBet
     const previousPlayerRoundBet = otherPlayers.length > 0 ? otherPlayers[0].roundBet : 0;
 
     // Call = other player's bet - my bet
@@ -46,11 +45,9 @@ const InGameLayout = ({
     const highestBet = otherPlayers.reduce((max, p) => Math.max(max, p.roundBet), 0);
     const minRaiseAmount = highestBet + (roundModel?.gameSettings?.bigBlind ?? 20);
 
-    // 상태 관리
     const [callInput, setCallInput] = useState(callAmount);
     const [raiseInput, setRaiseInput] = useState(minRaiseAmount);
 
-    // onChange에서 null을 처리하는 함수
     const handleCallInputChange = (value: number | null) => {
         setCallInput(value ?? 0);
     };
@@ -149,7 +146,7 @@ const InGameLayout = ({
                     )}
                 </div>
 
-                {/* Action buttons - 가로 배치 */}
+                {/* Action buttons*/}
                 <div className="absolute bottom-10 w-full flex justify-evenly items-end">
                     {/* Fold */}
                     <div className="flex flex-col items-center w-28">
