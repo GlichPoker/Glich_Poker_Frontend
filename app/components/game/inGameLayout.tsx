@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Button, InputNumber } from 'antd';
 import Vote from '@/components/game/voting/vote';
 import MySeat from '@/components/game/mySeat';
@@ -39,17 +39,17 @@ const InGameLayout = ({
     // Determine if the round is over (same logic as in useGameSocket.shouldCompleteRound)
     const isRoundOver = useMemo(() => {
         if (!roundModel) return false;
-        
+
         const allPlayers = [roundModel.player, ...roundModel.otherPlayers];
         const activePlayers = allPlayers.filter(p => p.active);
-        
+
         // Round is over if only one player remains active
         if (activePlayers.length === 1) return true;
-        
+
         // Round is over if all active players have the same bet amount and no turn is ongoing
         const allSameBet = activePlayers.every(p => p.roundBet === activePlayers[0].roundBet);
         const isTurnOngoing = roundModel.playersTurnId !== null && roundModel.playersTurnId !== undefined;
-        
+
         return allSameBet && !isTurnOngoing;
     }, [roundModel]);
 
@@ -64,6 +64,15 @@ const InGameLayout = ({
 
     const [callInput, setCallInput] = useState(callAmount);
     const [raiseInput, setRaiseInput] = useState(minRaiseAmount);
+
+    useEffect(() => {
+        setCallInput(callAmount);
+    }, [callAmount]);
+
+    useEffect(() => {
+        setRaiseInput(minRaiseAmount);
+    }, [minRaiseAmount]);
+
 
     const handleCallInputChange = (value: number | null) => {
         setCallInput(value ?? 0);
@@ -102,7 +111,7 @@ const InGameLayout = ({
                         <span className="text-yellow-400 font-bold">Round Complete - Showing All Cards</span>
                     </div>
                 )}
-                
+
                 {/* left - Other players seats */}
                 <div className="flex flex-row w-full pt-20 pb-8">
                     <div className="flex flex-col items-center w-[33.33%] space-y-8">
@@ -131,13 +140,13 @@ const InGameLayout = ({
                     {/* Center Table */}
                     <div className="flex flex-col items-center justify-center w-[33.33%] text-center space-y-2">
                         <p className="text-sm mt-4">Pot: ${roundModel?.potSize}</p>
-                        
+
                         {/* Community Cards */}
                         {roundModel?.communityCards && roundModel.communityCards.length > 0 && (
                             <div className="flex justify-center mt-4 gap-1">
                                 {roundModel.communityCards.map((card, i) => (
-                                    <img 
-                                        key={i} 
+                                    <img
+                                        key={i}
                                         src={`https://deckofcardsapi.com/static/img/${card.cardCode}.png`}
                                         alt={card.cardCode}
                                         className="h-16 w-auto rounded"
