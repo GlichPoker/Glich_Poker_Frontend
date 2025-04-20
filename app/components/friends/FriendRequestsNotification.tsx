@@ -1,175 +1,139 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { Badge, List, Avatar, Button, Popover, Empty, Spin, App } from "antd";
+import React, { useState } from "react";
+import { Badge, Popover, List, Avatar, Button, App, Spin, Divider, Empty } from "antd";
 import { BellOutlined, UserOutlined, CheckOutlined, CloseOutlined } from "@ant-design/icons";
-import { useFriends } from "@/hooks/useFriends";
+import { useFriends, FriendWithStatus } from "@/hooks/useFriends";
+import "@ant-design/v5-patch-for-react-19";
 
 const FriendRequestsNotification: React.FC = () => {
-    const {
-        pendingRequests,
-        loading,
-        acceptFriendRequest,
-        denyFriendRequest,
-        refreshFriendsData
-    } = useFriends();
+  const [open, setOpen] = useState(false);
+  const { message } = App.useApp();
+  
+  const { 
+    pendingRequests, 
+    loading, 
+    acceptFriendRequest, 
+    denyFriendRequest,
+    refreshFriendsData
+  } = useFriends();
+
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
     
-    const [open, setOpen] = useState(false);
-    const [processingIds, setProcessingIds] = useState<string[]>([]);
-    const { message, notification } = App.useApp();
+    // Refresh friend request data when opening the popover
+    if (newOpen) {
+      refreshFriendsData();
+    }
+  };
 
-    // Refresh friend data when dropdown is opened
-    const handleOpenChange = (newOpen: boolean) => {
-        setOpen(newOpen);
-        if (newOpen) {
-            refreshFriendsData();
-        }
-    };
+  const handleAccept = async (friend: FriendWithStatus) => {
+    if (!friend.username) {
+      message.error("Cannot accept request: Username is missing");
+      return;
+    }
+    
+    const result = await acceptFriendRequest(friend.username);
+    if (result.success) {
+      message.success(result.message);
+      refreshFriendsData(); // Refresh to update UI
+    } else {
+      message.error(result.message);
+    }
+  };
 
-    // Helper to check if a request is being processed
-    const isProcessing = (id: string | null) => {
-        return id !== null && processingIds.includes(id);
-    };
+  const handleDeny = async (friend: FriendWithStatus) => {
+    if (!friend.username) {
+      message.error("Cannot deny request: Username is missing");
+      return;
+    }
+    
+    const result = await denyFriendRequest(friend.username);
+    if (result.success) {
+      message.success(result.message);
+      refreshFriendsData(); // Refresh to update UI
+    } else {
+      message.error(result.message);
+    }
+  };
 
-    // Handle accepting a friend request
-    const handleAccept = async (friendId: string | null) => {
-        if (!friendId) {
-            message.error("Cannot accept request: Invalid ID");
-            return;
-        }
-        
-        // Set this request to processing state
-        setProcessingIds(prev => [...prev, friendId]);
-        
-        try {
-            const result = await acceptFriendRequest(friendId);
-            if (result.success) {
-                message.success(result.message);
-                // Remove from processing immediately after success
-                setProcessingIds(prev => prev.filter(id => id !== friendId));
-            } else {
-                message.error(result.message);
-                // Remove from processing after error
-                setProcessingIds(prev => prev.filter(id => id !== friendId));
-            }
-        } catch (error) {
-            console.error("Error accepting friend request:", error);
-            message.error("An unexpected error occurred");
-            // Remove from processing after exception
-            setProcessingIds(prev => prev.filter(id => id !== friendId));
-        }
-    };
+  // Render each friend request item
+  const renderRequestItem = (friend: FriendWithStatus) => (
+    <List.Item
+      key={friend.username || "unknown"} // Use username as key since ID might be missing
+      className="flex justify-between items-center"
+      actions={[
+        <Button 
+          key="accept" 
+          type="text" 
+          size="small" 
+          icon={<CheckOutlined style={{ color: 'green' }} />} 
+          onClick={() => handleAccept(friend)}
+          title="Accept"
+        />,
+        <Button 
+          key="deny" 
+          type="text" 
+          size="small" 
+          icon={<CloseOutlined style={{ color: 'red' }} />} 
+          onClick={() => handleDeny(friend)}
+          title="Deny"
+        />
+      ]}
+    >
+      <List.Item.Meta
+        avatar={<Avatar icon={<UserOutlined />} />}
+        title={friend.username || "Unknown User"}
+      />
+    </List.Item>
+  );
 
-    // Handle denying a friend request
-    const handleDeny = async (friendId: string | null) => {
-        if (!friendId) {
-            message.error("Cannot deny request: Invalid ID");
-            return;
-        }
-        
-        // Set this request to processing state
-        setProcessingIds(prev => [...prev, friendId]);
-        
-        try {
-            const result = await denyFriendRequest(friendId);
-            if (result.success) {
-                message.success(result.message);
-                // Remove from processing immediately after success
-                setProcessingIds(prev => prev.filter(id => id !== friendId));
-            } else {
-                message.error(result.message);
-                // Remove from processing after error
-                setProcessingIds(prev => prev.filter(id => id !== friendId));
-            }
-        } catch (error) {
-            console.error("Error denying friend request:", error);
-            message.error("An unexpected error occurred");
-            // Remove from processing after exception
-            setProcessingIds(prev => prev.filter(id => id !== friendId));
-        }
-    };
-
-    // Show notification when new requests arrive
-    useEffect(() => {
-        if (pendingRequests && pendingRequests.length > 0) {
-            if (!open) { // Only show if the popover is closed
-                notification.info({
-                    message: 'New Friend Requests',
-                    description: `You have ${pendingRequests.length} pending friend request(s)`,
-                    placement: 'topRight',
-                });
-            }
-        }
-    }, [pendingRequests, notification, open]);
-
-    const content = (
-        <div className="w-[300px] max-h-[400px] overflow-auto">
-            <div className="p-2 border-b border-gray-700">
-                <h3 className="text-lg font-semibold">Friend Requests</h3>
-            </div>
-            
-            {loading ? (
-                <div className="p-4 flex justify-center">
-                    <Spin />
-                </div>
-            ) : pendingRequests && pendingRequests.length > 0 ? (
-                <List
-                    itemLayout="horizontal"
-                    dataSource={pendingRequests}
-                    renderItem={(request) => (
-                        <List.Item
-                            className="px-4"
-                            actions={[
-                                <Button 
-                                    key="accept" 
-                                    type="text" 
-                                    icon={<CheckOutlined style={{ color: '#52c41a' }} />} 
-                                    onClick={() => handleAccept(request.id)}
-                                    
-                                />,
-                                <Button 
-                                    key="deny" 
-                                    type="text" 
-                                    icon={<CloseOutlined style={{ color: '#f5222d' }} />} 
-                                    onClick={() => handleDeny(request.id)}
-                                    
-                                />
-                            ]}
-                        >
-                            <List.Item.Meta
-                                avatar={<Avatar icon={<UserOutlined />} />}
-                                title={request.username}
-                                description="Wants to be your friend"
-                            />
-                        </List.Item>
-                    )}
-                />
-            ) : (
-                <Empty 
-                    description="No pending friend requests" 
-                    image={Empty.PRESENTED_IMAGE_SIMPLE} 
-                    className="my-8"
-                />
-            )}
+  // Content for the popover
+  const content = (
+    <div style={{ maxWidth: 300, maxHeight: 400, overflowY: 'auto' }}>
+      {loading ? (
+        <div className="flex justify-center py-4">
+          <Spin />
         </div>
-    );
+      ) : pendingRequests.length > 0 ? (
+        <>
+          <div className="px-1 py-2">
+            <div className="font-medium mb-2">Friend Requests</div>
+            <Divider className="my-2" />
+            <List
+              dataSource={pendingRequests}
+              renderItem={renderRequestItem}
+              className="friend-requests-list"
+            />
+          </div>
+        </>
+      ) : (
+        <Empty
+          description="No pending friend requests"
+          className="py-4"
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+        />
+      )}
+    </div>
+  );
 
-    return (
-        <Popover
-            content={content}
-            trigger="click"
-            open={open}
-            onOpenChange={handleOpenChange}
-            placement="bottomRight"
-            arrow={false}
-            overlayClassName="friend-request-popover"
-        >
-            <div className="px-2 cursor-pointer">
-                <Badge count={pendingRequests?.length || 0} overflowCount={99}>
-                    <BellOutlined className="text-xl text-white" />
-                </Badge>
-            </div>
-        </Popover>
-    );
+  return (
+    <Popover
+      content={content}
+      title={null}
+      trigger="click"
+      open={open}
+      onOpenChange={handleOpenChange}
+      placement="bottomRight"
+      arrow={false}
+    >
+      <Badge count={pendingRequests.length} overflowCount={9} size="small">
+        <BellOutlined
+          className="!text-gray-400 !text-[24px] cursor-pointer"
+          onClick={() => setOpen(true)}
+        />
+      </Badge>
+    </Popover>
+  );
 };
 
 export default FriendRequestsNotification;
