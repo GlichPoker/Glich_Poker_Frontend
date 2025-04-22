@@ -1,5 +1,5 @@
+//lobby/[id]/page.tsx
 'use client';
-
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getApiDomain } from '@/utils/domain';
@@ -8,6 +8,7 @@ import { useActionHandlers } from '@/hooks/useActionHandlers';
 import { GameState } from '@/types/gameState';
 import PreGameLayout from '@/components/game/preGameLayout';
 import InGameLayout from '@/components/game/inGameLayout';
+import "@ant-design/v5-patch-for-react-19";
 
 const baseURL = getApiDomain();
 
@@ -21,6 +22,8 @@ const LobbyPage = () => {
         username: string;
         token: string;
     } | null>(null);
+
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         try {
@@ -57,6 +60,7 @@ const LobbyPage = () => {
     const actionHandlers = currentUser && lobbyId ? useActionHandlers({
         currentUser,
         lobbyId: lobbyId as string,
+        setError,
     }) : { // if not,
         handleFold: () => console.warn('You cannot do this yet'),
         handleCall: () => console.warn('You cannot do this yet'),
@@ -95,12 +99,10 @@ const LobbyPage = () => {
         }
     };
 
-
     const startGameAndSetState = async () => {
         await startGame();
 
     };
-
 
     const renderLayout = () => {
         switch (gameState) {
@@ -132,6 +134,8 @@ const LobbyPage = () => {
                         handleCall={handleCall}
                         handleRaise={handleRaise}
                         handleCheck={handleCheck}
+                        error={error}
+                        setError={setError}
                     />
                 );
             default:

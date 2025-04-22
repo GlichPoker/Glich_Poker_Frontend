@@ -1,13 +1,16 @@
+//useActionHandlers.ts
 import { getApiDomain } from '@/utils/domain';
+import { notification } from 'antd';
 
 const baseURL = getApiDomain();
 
 type ActionHandlerParams = {
     lobbyId: string | string[] | undefined;
     currentUser: { id: number; token: string } | null;
+    setError: (message: string) => void;
 };
 
-export const useActionHandlers = ({ lobbyId, currentUser }: ActionHandlerParams) => {
+export const useActionHandlers = ({ lobbyId, currentUser, setError }: ActionHandlerParams) => {
     if (!lobbyId || !currentUser) {
         throw new Error("useActionHandlers: Missing lobbyId or currentUser");
     }
@@ -36,12 +39,26 @@ export const useActionHandlers = ({ lobbyId, currentUser }: ActionHandlerParams)
             });
 
             if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Action failed: ${response.statusText} - ${errorText}`);
+                let readableMessage = `Unexpected error (${response.status})`;
+                try {
+                    const errorJson = await response.json();
+                    readableMessage = errorJson.message || readableMessage;
+                } catch (parseError) {
+                    console.warn('Failed to parse error response:', parseError);
+                }
+                notification.error({
+                    message: 'Action Error',
+                    description: readableMessage,
+                    placement: 'top',
+                });
+                console.error(`Error in ${endpoint}:`, readableMessage);
+                setError(`Action failed: ${readableMessage}`);
+
+                throw new Error(readableMessage);
             }
 
         } catch (err) {
-            console.error(`Error in ${endpoint}:`, err);
+            setError(`Something went wrong: ${err}`);
         }
     };
 
