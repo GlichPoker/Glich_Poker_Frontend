@@ -67,7 +67,7 @@ const LobbyList = () => {
                                 title={<span>Game Room {lobby.sessionId}</span>}  // Game Room ID
                                 description={
                                     <div className="text-sm text-white">
-                                        <div><strong>Owner:</strong> {lobby.owner.username}</div>
+                                        <div><strong>Owner:</strong> {lobby.owner?.username ?? ""}</div>
                                         <div><strong>Status:</strong> {lobby.roundRunning ? "Round Running" : "Waiting for Players"}</div>
                                         <div><strong>Players:</strong> {lobby.players.length} / 5</div>
                                     </div>

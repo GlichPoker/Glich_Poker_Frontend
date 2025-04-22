@@ -94,12 +94,14 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
                 }),
             });
 
-            const text = await response.text();
-            if (!response.ok) {
+            const res = await response.json();
+            if (response.status !== 200) {
                 throw new Error(`Join game failed: ${response.statusText}`);
             }
 
-            return JSON.parse(text);
+            setGameModel(res);
+
+
         } catch (error) {
             console.error('Failed to join game:', error);
             throw error;
@@ -179,7 +181,6 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
                 );
 
                 webSocketService.addListener(listener);
-                requestGameModel();
             } catch (err) {
                 console.error('WebSocket setup failed:', err);
             }
@@ -204,7 +205,7 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
     }, [players, currentUser]);
 
     const isHost = useMemo(() => {
-        return currentPlayer?.userId === gameModel?.ownerId;
+        return currentUser?.id === gameModel?.ownerId;
     }, [currentPlayer, gameModel]);
 
     // startGame
