@@ -13,7 +13,7 @@ type Props = {
 const OtherPlayerSeat = ({ player, positionLabel, roundPlayer, isRoundOver = false }: Props) => {
     // Use roundPlayer data if available, otherwise fall back to player data
     const playerData = roundPlayer || player;
-    
+
     return (
         <div className="bg-black bg-opacity-70 rounded-lg p-4 border-2 border-gray-500 min-w-40 min-h-28 flex flex-col items-center text-white">
             <div className="font-bold text-sm mb-1">{positionLabel}</div>
@@ -29,8 +29,8 @@ const OtherPlayerSeat = ({ player, positionLabel, roundPlayer, isRoundOver = fal
                     <div className="text-xs mt-1">
                         Balance: {playerData.balance ?? 0} | Bet: {playerData.roundBet ?? 0}
                     </div>
-                    <div className="text-xs mt-1">{playerData.online ? 'Online' : 'Offline'}</div>
-                    
+
+
                     {/* Show actual cards if round is over and we have roundPlayer data */}
                     {roundPlayer?.hand && roundPlayer.hand.length > 0 && (
                         <div className="mt-2 flex justify-center">
@@ -63,7 +63,7 @@ const OtherPlayerSeat = ({ player, positionLabel, roundPlayer, isRoundOver = fal
                             )}
                         </div>
                     )}
-                    
+
                     {/* Fallback to show card backs for regular player data */}
                     {!roundPlayer?.hand && player?.hand && player.hand.length > 0 && (
                         <div className="mt-2 flex justify-center">

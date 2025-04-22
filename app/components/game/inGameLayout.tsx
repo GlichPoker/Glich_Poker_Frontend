@@ -43,10 +43,16 @@ const InGameLayout = ({
 
     const isMyTurn = roundModel?.playersTurnId === currentPlayer?.userId;
 
-    const previousPlayerRoundBet = otherPlayers.length > 0 ? otherPlayers[0].roundBet : 0;
-    const callAmount = Math.max(0, previousPlayerRoundBet - (roundModel?.player?.roundBet ?? 0));
-    const highestBet = otherPlayers.reduce((max, p) => Math.max(max, p.roundBet), 0);
-    const minRaiseAmount = highestBet + (roundModel?.gameSettings?.bigBlind ?? 20);
+    const allRoundBets = roundModel
+        ? [...(roundModel.otherPlayers?.map(p => p.roundBet) ?? []), roundModel.player?.roundBet ?? 0]
+        : [];
+
+    const highestBet = allRoundBets.length > 0 ? Math.max(...allRoundBets) : 0;
+
+    const callAmount = Math.max(0, highestBet - (roundModel?.player?.roundBet ?? 0));
+
+    const bigBlind = roundModel?.gameSettings?.bigBlind ?? 20;
+    const minRaiseAmount = highestBet + bigBlind;
 
 
     const [callInput, setCallInput] = useState(callAmount);
