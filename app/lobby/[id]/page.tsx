@@ -17,6 +17,7 @@ const LobbyPage = () => {
     const router = useRouter();
 
     const [showVoteOverlay, setShowVoteOverlay] = useState(false);
+    const [playerCount, setPlayerCount] = useState(0);
     const [currentUser, setCurrentUser] = useState<{
         id: number;
         username: string;
@@ -51,6 +52,7 @@ const LobbyPage = () => {
         isHost,
         startGame,
         gameState,
+        winningModel,
     } = useGameSocket({
         currentUser: currentUser,
         lobbyId: lobbyId as string,
@@ -136,6 +138,9 @@ const LobbyPage = () => {
                         handleCheck={handleCheck}
                         error={error}
                         setError={setError}
+                        setPlayerCount={setPlayerCount}
+                        winningModel={winningModel}
+                        currentUser={currentUser}
                     />
                 );
             default:

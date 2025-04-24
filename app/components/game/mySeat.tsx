@@ -27,7 +27,7 @@ const MySeat: React.FC<Props> = ({ player, username, roundPlayer }) => {
         : '?';
 
     return (
-        <div className="bg-black bg-opacity-70 rounded-lg p-6 border-2 border-red-800 min-w-60">
+        <div className="bg-black bg-opacity-70 rounded-lg p-6 border-2 border-red-800 min-w-80">
             <div className="flex items-center">
                 <Avatar style={{ backgroundColor: '#f56a00', marginRight: '8px' }} size="large">
                     {avatarChar}

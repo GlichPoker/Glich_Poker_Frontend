@@ -1,8 +1,10 @@
+//useGmaeSocket.ts
 import { useEffect, useState, useMemo } from 'react';
 import { webSocketService } from '@/utils/websocket';
 import { GameModel, Player } from '@/types/game';
 import { GameState } from '@/types/gameState';
 import { RoundModel } from '@/types/round';
+import { WinningModel } from '@/types/winning';
 import { getApiDomain } from '@/utils/domain';
 
 const baseURL = getApiDomain();
@@ -25,6 +27,8 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
     const [players, setPlayers] = useState<Player[]>([]);
     const [gameState, setGameState] = useState<GameState>(GameState.PRE_GAME);
     const [roundModel, setRoundModel] = useState<RoundModel | null>(null);
+    const [winningModel, setWinningModel] = useState<WinningModel | null>(null);
+
 
 
     // check if round is finished
@@ -46,36 +50,6 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
 
         return allSameBet && !isTurnOngoing;
     };
-
-    // post request to /roundComplete
-    useEffect(() => {
-        if (!roundModel || !currentUser) return;
-
-        if (shouldCompleteRound(roundModel)) {
-
-            fetch(`${baseURL}/game/roundComplete`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${currentUser.token}`,
-                },
-                body: JSON.stringify({
-                    sessionId: lobbyId,
-                    userId: currentUser.id,
-                }),
-            })
-                .then(res => {
-                    if (!res.ok) throw new Error('Failed to complete round');
-                    return res.json();
-                })
-                .then(data => {
-                    console.log('Round completed successfully.', data);
-                })
-                .catch(err => {
-                    console.error('failed to complete round', err);
-                });
-        }
-    }, [roundModel]);
 
     // Join Game API
     const joinGame = async () => {
@@ -101,6 +75,10 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
 
             setGameModel(res);
 
+            // update players list
+            if (res.players && Array.isArray(res.players)) {
+                setPlayers(res.players);
+            }
 
         } catch (error) {
             console.error('Failed to join game:', error);
@@ -159,6 +137,15 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
 
                     case 'ROUNDMODEL': {
                         setRoundModel(message);
+                        break;
+                    }
+
+                    case 'WINNINGMODEL': {
+                        const model = message as WinningModel;
+                        setWinningModel(model);
+                        console.log("Received WINNINGMODEL:", model);
+
+
                         break;
                     }
 
@@ -246,6 +233,7 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
         requestGameModel,
         gameState,
         setGameState,
-        roundModel
+        roundModel,
+        winningModel
     };
 };

@@ -113,7 +113,6 @@ class WebSocketService {
         try {
             // if the data is json, parsing
             data = JSON.parse(event.data);
-            console.log("Parsed WebSocket message:", data);
         } catch (err) {
             // when the data is not json
             console.warn("Non-JSON message received:", event.data);

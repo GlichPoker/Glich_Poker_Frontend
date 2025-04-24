@@ -1,3 +1,4 @@
+//preGameLayout.tsx
 import { Button } from 'antd';
 import Vote from '@/components/game/voting/vote';
 import MySeat from '@/components/game/mySeat';
@@ -81,17 +82,17 @@ const PreGameLayout = ({
                     <div className="flex flex-col items-center justify-between w-[33.33%] text-white">
                         <div className="rounded-lg p-4 mb-4 text-center">
                             <h2 className="text-xl font-bold">Poker Table</h2>
-                            <p>Lobby ID: {lobbyId}</p>
+                            <p className="!mb-30">Lobby ID: {lobbyId}</p>
                             {isHost ? (
                                 <Button
                                     type="primary"
                                     className="mt-4"
-                                    onClick={handleStart} // 변경
+                                    onClick={handleStart}
                                 >
                                     Start Game
                                 </Button>
                             ) : (
-                                <p className="text-sm text-gray-300 mt-2">Waiting for host to start the game...</p>
+                                <p className="text-sm text-gray-300">Waiting for host to start the game...</p>
                             )}
                         </div>
                     </div>

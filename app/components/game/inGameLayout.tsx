@@ -1,4 +1,4 @@
-//inGameLayout.tsx
+"use client"
 import React, { useState, useEffect } from 'react';
 import { Button, InputNumber, Badge, notification } from 'antd';
 import Vote from '@/components/game/voting/vote';
@@ -7,9 +7,13 @@ import OtherPlayerSeat from '@/components/game/otherPlayerSeat';
 import ActionButton from '@/components/game/actionButton';
 import { RoundModel } from '@/types/round';
 import { useActionHandlers } from '@/hooks/useActionHandlers';
+import { Modal } from 'antd';
+import { WinningModel } from '@/types/winning';
+import { webSocketService } from '@/utils/websocket';
 import "@ant-design/v5-patch-for-react-19";
+import { getApiDomain } from '@/utils/domain';
 
-
+const baseURL = getApiDomain();
 
 interface InGameLayoutProps {
     roundModel?: RoundModel;
@@ -22,8 +26,12 @@ interface InGameLayoutProps {
     handleCall: (amount: number) => void;
     handleRaise: (amount: number) => void;
     handleCheck: () => void;
+    // handleExitGame: () => void;
     error: string | null;
     setError: React.Dispatch<React.SetStateAction<string | null>>;
+    setPlayerCount?: (count: number) => void;
+    winningModel?: WinningModel | null;
+    currentUser: { id: number; username: string; token: string } | null;
 }
 
 const InGameLayout = ({
@@ -37,43 +45,51 @@ const InGameLayout = ({
     handleCall,
     handleRaise,
     handleCheck,
+    // handleExitGame,
     error,
     setError,
+    setPlayerCount,
+    winningModel,
+    currentUser,
 }: InGameLayoutProps) => {
-
     const isMyTurn = roundModel?.playersTurnId === currentPlayer?.userId;
 
     const allRoundBets = roundModel
         ? [...(roundModel.otherPlayers?.map(p => p.roundBet) ?? []), roundModel.player?.roundBet ?? 0]
         : [];
-
     const highestBet = allRoundBets.length > 0 ? Math.max(...allRoundBets) : 0;
-
     const callAmount = Math.max(0, highestBet - (roundModel?.player?.roundBet ?? 0));
 
-    const bigBlind = roundModel?.gameSettings?.bigBlind ?? 20;
-    const minRaiseAmount = highestBet + bigBlind;
-
-
     const [callInput, setCallInput] = useState(callAmount);
-    const [raiseInput, setRaiseInput] = useState(minRaiseAmount);
+    const [raiseInput, setRaiseInput] = useState<number>(callAmount + 1);
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const token = localStorage.getItem("token");
 
+    // winner modal
+    useEffect(() => {
+        if (winningModel) {
+            setIsModalVisible(true);
+        }
+    }, [winningModel]);
+
+    // send the number of players to upper component
+    useEffect(() => {
+        if (setPlayerCount) {
+            const totalPlayers = 1 + (otherPlayers?.length || 0);
+            setPlayerCount(totalPlayers);
+        }
+    }, [currentPlayer, otherPlayers, setPlayerCount]);
 
     useEffect(() => {
         setCallInput(callAmount);
     }, [callAmount]);
-
-    useEffect(() => {
-        setRaiseInput(minRaiseAmount);
-    }, [minRaiseAmount]);
-
 
     const handleCallInputChange = (value: number | null) => {
         setCallInput(value ?? 0);
     };
 
     const handleRaiseInputChange = (value: number | null) => {
-        setRaiseInput(value ?? minRaiseAmount);
+        setRaiseInput(value ?? callAmount + 1);
     };
 
     const handleActionError = (message: string) => {
@@ -86,7 +102,28 @@ const InGameLayout = ({
         setError: handleActionError
     });
 
+    // Modal Handler
+    const handleModalClose = async () => {
+        setIsModalVisible(false);
 
+        if (!currentUser) return;
+
+        try {
+            await fetch(`${baseURL}/game/readyForNextGame`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    sessionId: parseInt(lobbyId, 10),
+                    userId: currentUser.id
+                })
+            });
+        } catch (error) {
+            console.error("Failed to notify server about next round readiness:", error);
+        }
+    };
     return (
         <div className="flex flex-col w-full h-auto">
             <nav className="flex flex-row h-14 justify-between items-center bg-[#181818]">
@@ -227,22 +264,63 @@ const InGameLayout = ({
 
                     <div className="flex flex-col items-center w-28">
                         <InputNumber
-                            min={minRaiseAmount}
-                            value={raiseInput}
+                            min={callAmount + 1}
                             onChange={handleRaiseInputChange}
                             disabled={!isMyTurn}
-                            placeholder={`min $${minRaiseAmount}`}
+                            placeholder=""
                             className="h-8 w-full text-center text-white bg-transparent border-2 border-white rounded-md mb-1"
                         />
                         <div className="w-full">
                             <ActionButton
                                 label="Raise"
-                                onClick={() => handleRaise(raiseInput)}
-                                disabled={!isMyTurn || raiseInput < minRaiseAmount}
+                                onClick={() => {
+                                    if (raiseInput < callAmount + 1) {
+                                        notification.error({
+                                            message: "Invalid Raise Amount",
+                                            description: `Raise must be greater than $${callAmount}`,
+                                            duration: 3,
+                                        });
+                                        return;
+                                    }
+                                    handleRaise(raiseInput);
+                                }}
+                                disabled={!isMyTurn || raiseInput < callAmount + 1}
                             />
                         </div>
                     </div>
                 </div>
+
+                {/* Winner presentation modal  */}
+                <Modal
+                    title="🏆 Round Result"
+                    open={isModalVisible}
+                    onCancel={handleModalClose}
+                    footer={[
+                        <Button key="ok" type="primary" onClick={handleModalClose}>
+                            OK
+                        </Button>
+                    ]}
+                    destroyOnClose={true}
+                >
+                    {winningModel && (
+                        <div className="text-center space-y-4">
+                            <p className="text-lg font-semibold">
+                                {winningModel.player.name} won the pot of ${winningModel.potSize}!
+                            </p>
+                            <p className="text-base">Hand: {winningModel.player.evaluationResult.handRank}</p>
+                            <div className="flex justify-center gap-2">
+                                {winningModel.player.hand.map((card, i) => (
+                                    <img
+                                        key={i}
+                                        src={`https://deckofcardsapi.com/static/img/${card.cardCode}.png`}
+                                        alt={card.cardCode}
+                                        className="h-20 w-auto rounded"
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                </Modal>
             </div>
         </div>
     );
