@@ -1,4 +1,3 @@
-//useGmaeSocket.ts
 import { useEffect, useState, useMemo } from 'react';
 import { webSocketService } from '@/utils/websocket';
 import { GameModel, Player } from '@/types/game';
@@ -20,36 +19,24 @@ type GameWebSocketMessage = {
 interface UseGameSocketParams {
     lobbyId: string;
     currentUser: { id: number; username: string; token: string } | null;
+    roundModel: RoundModel | null;
+    setRoundModel: (round: RoundModel | null) => void;
+    winningModel: WinningModel | null;
+    setWinningModel: (winner: WinningModel | null) => void;
+    setGameState: (state: GameState) => void;
 }
 
-export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => {
+export const useGameSocket = ({
+    lobbyId,
+    currentUser,
+    roundModel,
+    setRoundModel,
+    winningModel,
+    setWinningModel,
+    setGameState
+}: UseGameSocketParams) => {
     const [gameModel, setGameModel] = useState<GameModel | null>(null);
     const [players, setPlayers] = useState<Player[]>([]);
-    const [gameState, setGameState] = useState<GameState>(GameState.PRE_GAME);
-    const [roundModel, setRoundModel] = useState<RoundModel | null>(null);
-    const [winningModel, setWinningModel] = useState<WinningModel | null>(null);
-
-
-
-    // check if round is finished
-    const shouldCompleteRound = (roundModel: RoundModel): boolean => {
-        if (!roundModel) return false;
-
-        const allPlayers = [roundModel.player, ...roundModel.otherPlayers];
-        const activePlayers = allPlayers.filter(p => p.active);
-
-
-        // 1. reamined only one player -> the round is finished
-        if (activePlayers.length === 1) {
-            return true;
-        }
-
-        // 2. the bet amoutn of all active players and no turn -> the round is finished
-        const allSameBet = activePlayers.every(p => p.roundBet === activePlayers[0].roundBet);
-        const isTurnOngoing = roundModel.playersTurnId !== null;
-
-        return allSameBet && !isTurnOngoing;
-    };
 
     // Join Game API
     const joinGame = async () => {
@@ -74,8 +61,6 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
             }
 
             setGameModel(res);
-
-            // update players list
             if (res.players && Array.isArray(res.players)) {
                 setPlayers(res.players);
             }
@@ -114,16 +99,13 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
             try {
                 const message = typeof data === 'string' ? JSON.parse(data) : (data as GameWebSocketMessage);
 
-
                 switch (message.event) {
                     case 'GAMEMODEL': {
                         const model = message.data || (message as GameModel);
                         setGameModel(model);
-
                         if (model.players && Array.isArray(model.players)) {
                             setPlayers(model.players);
                         }
-
                         break;
                     }
 
@@ -131,6 +113,11 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
                         if (message.state) {
                             console.log('Game state changed to:', message.state);
                             setGameState(message.state as GameState);
+
+                            if (message.state === GameState.PRE_GAME) {
+                                setWinningModel(null);
+                                setRoundModel(null);
+                            }
                         }
                         break;
                     }
@@ -144,8 +131,6 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
                         const model = message as WinningModel;
                         setWinningModel(model);
                         console.log("Received WINNINGMODEL:", model);
-
-
                         break;
                     }
 
@@ -180,7 +165,6 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
         };
     }, [lobbyId, currentUser]);
 
-    // separate currentPlayer and otherPlayers
     const currentPlayer = useMemo(() => {
         if (!currentUser || !players) return undefined;
         return players.find((p) => p.userId === currentUser.id);
@@ -195,10 +179,10 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
         return currentUser?.id === gameModel?.ownerId;
     }, [currentPlayer, gameModel]);
 
-    // startGame
     const startGame = async () => {
         if (!gameModel || !currentUser) return;
-        setWinningModel(null);
+
+        setWinningModel(null); // reset for new round
         try {
             const response = await fetch(`${baseURL}/game/start`, {
                 method: 'POST',
@@ -231,9 +215,5 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
         isHost,
         startGame,
         requestGameModel,
-        gameState,
-        setGameState,
-        roundModel,
-        winningModel
     };
 };

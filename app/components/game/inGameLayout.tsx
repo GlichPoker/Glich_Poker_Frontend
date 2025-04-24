@@ -29,9 +29,12 @@ interface InGameLayoutProps {
     // handleExitGame: () => void;
     error: string | null;
     setError: React.Dispatch<React.SetStateAction<string | null>>;
+    setWinningModel: React.Dispatch<React.SetStateAction<WinningModel | null>>;
+    setRoundModel: React.Dispatch<React.SetStateAction<RoundModel | null>>;
     setPlayerCount?: (count: number) => void;
     winningModel?: WinningModel | null;
     currentUser: { id: number; username: string; token: string } | null;
+
 }
 
 const InGameLayout = ({
@@ -48,6 +51,8 @@ const InGameLayout = ({
     // handleExitGame,
     error,
     setError,
+    setWinningModel,
+    setRoundModel,
     setPlayerCount,
     winningModel,
     currentUser,
@@ -105,7 +110,8 @@ const InGameLayout = ({
     // Modal Handler
     const handleModalClose = async () => {
         setIsModalVisible(false);
-
+        setWinningModel(null);
+        setRoundModel(null);
         if (!currentUser) return;
 
         try {

@@ -8,6 +8,8 @@ import { useActionHandlers } from '@/hooks/useActionHandlers';
 import { GameState } from '@/types/gameState';
 import PreGameLayout from '@/components/game/preGameLayout';
 import InGameLayout from '@/components/game/inGameLayout';
+import { WinningModel } from '@/types/winning';
+import { RoundModel } from '@/types/round';
 import "@ant-design/v5-patch-for-react-19";
 
 const baseURL = getApiDomain();
@@ -25,6 +27,10 @@ const LobbyPage = () => {
     } | null>(null);
 
     const [error, setError] = useState<string | null>(null);
+    const [winningModel, setWinningModel] = useState<WinningModel | null>(null);
+    const [roundModel, setRoundModel] = useState<RoundModel | null>(null);
+    const [gameState, setGameState] = useState<GameState>(GameState.PRE_GAME);
+
 
     useEffect(() => {
         try {
@@ -45,17 +51,20 @@ const LobbyPage = () => {
     }, []);
 
     const {
-        roundModel,
         players,
         currentPlayer,
         otherPlayers,
         isHost,
         startGame,
-        gameState,
-        winningModel,
+        requestGameModel
     } = useGameSocket({
-        currentUser: currentUser,
+        currentUser,
         lobbyId: lobbyId as string,
+        roundModel,
+        setRoundModel,
+        winningModel,
+        setWinningModel,
+        setGameState
     });
 
     // if currentUser and lobbyId exist,
@@ -138,6 +147,8 @@ const LobbyPage = () => {
                         handleCheck={handleCheck}
                         error={error}
                         setError={setError}
+                        setWinningModel={setWinningModel}
+                        setRoundModel={setRoundModel}
                         setPlayerCount={setPlayerCount}
                         winningModel={winningModel}
                         currentUser={currentUser}
