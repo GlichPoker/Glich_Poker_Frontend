@@ -198,7 +198,7 @@ export const useGameSocket = ({ lobbyId, currentUser }: UseGameSocketParams) => 
     // startGame
     const startGame = async () => {
         if (!gameModel || !currentUser) return;
-
+        setWinningModel(null);
         try {
             const response = await fetch(`${baseURL}/game/start`, {
                 method: 'POST',

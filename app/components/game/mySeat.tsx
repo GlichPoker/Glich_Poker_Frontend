@@ -46,13 +46,15 @@ const MySeat: React.FC<Props> = ({ player, username, roundPlayer }) => {
             {/* Display cards from roundPlayer if available */}
             {roundPlayer?.hand && roundPlayer.hand.length > 0 && (
                 <div className="mt-4 flex justify-center">
-                    {roundPlayer.hand.map((card, i) => (
-                        <Card
-                            key={i}
-                            cardCode={card.cardCode}
-                            className={i === 0 ? "mr-2" : ""}
-                        />
-                    ))}
+                    {roundPlayer.hand
+                        .filter(card => card !== null)
+                        .map((card, i) => (
+                            <Card
+                                key={i}
+                                cardCode={card.cardCode}
+                                className={i === 0 ? "mr-2" : ""}
+                            />
+                        ))}
                 </div>
             )}
 
