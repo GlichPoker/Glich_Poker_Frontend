@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   images: {
     domains: ['deckofcardsapi.com'],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;

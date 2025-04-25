@@ -9,7 +9,6 @@ import { RoundModel } from '@/types/round';
 import { useActionHandlers } from '@/hooks/useActionHandlers';
 import { Modal } from 'antd';
 import { WinningModel } from '@/types/winning';
-import { webSocketService } from '@/utils/websocket';
 import "@ant-design/v5-patch-for-react-19";
 import { getApiDomain } from '@/utils/domain';
 
