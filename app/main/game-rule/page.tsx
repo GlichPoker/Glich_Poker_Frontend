@@ -1,22 +1,25 @@
 "use client";
 import "@ant-design/v5-patch-for-react-19";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Divider, message } from "antd";
 import { useRouter } from "next/navigation";
 
 const GameRule: React.FC = () => {
     const router = useRouter();
+    const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
 
-    //prevent aunthorized user
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
             message.error("Please log in first.");
             router.replace("/login");
+        } else {
+            setIsAuthorized(true);
         }
     }, [router]);
 
-    if (!localStorage.getItem("token")) {
+    if (isAuthorized === null) {
+
         return null;
     }
 
@@ -30,9 +33,9 @@ const GameRule: React.FC = () => {
                         <h1 className="text-red-800 text-3xl font-bold">Glitch Poker Game Rules</h1>
                         <Button type="primary" onClick={() => router.push("/main")}>Back to Main Page</Button>
                     </div>
-
-                    {/* poker game rules */}
                 </section>
+
+                {/* poker game rules */}
                 <section className="!mt-10">
                     <p className=" text-gray-400">
                         The goal of poker is to win chips by either having the best hand at
@@ -41,7 +44,7 @@ const GameRule: React.FC = () => {
                 </section>
                 <Divider className="!border-red-900 font-bold">Poker Hand Rankings (From Highest to Lowest)</Divider>
                 <section>
-                    <ul className="  text-gray-400">
+                    <ul className="text-gray-400">
                         <li>1. Royal Flush: A, K, Q, J, 10, all of the same suit.</li>
                         <li>2. Straight Flush: Five consecutive cards of the same suit.</li>
                         <li>3. Four of a Kind: Four cards of the same rank.</li>
@@ -59,7 +62,7 @@ const GameRule: React.FC = () => {
                     <p>
                         1. <b>The Deal</b>: Each player is dealt two private cards (also known as hole cards).
                     </p>
-                    <p >
+                    <p>
                         2. <b>The Betting Rounds</b>: There are four betting rounds:
                     </p>
                     <ul className="!pl-8 list-disc">
@@ -68,7 +71,7 @@ const GameRule: React.FC = () => {
                         <li>The Turn: A fourth community card is dealt.</li>
                         <li>The River: A fifth community card is dealt.</li>
                     </ul>
-                    <p >
+                    <p>
                         3. <b>Showdown</b>: If more than one player remains after the final round of betting, the hands are revealed, and the best hand wins.
                     </p>
                 </section>
