@@ -18,8 +18,7 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
-  background-color: #18181b;
-  color: white;
+  @apply bg-zinc-900 text-white;
 }
 
 body {
@@ -63,13 +62,11 @@ a {
 }
 
 .home-btn {
-  width: 100%;
-  padding: 1.5rem 2.5rem;
-  background-color: #991b1b; /* equivalent to bg-red-800 */
+  @apply w-full !px-10 !py-6 !bg-red-800;
 }
 
 .home-btn:hover {
-  background-color: #7f1d1d; /* equivalent to bg-red-900 */
+  @apply !bg-red-900;
 }
 
 .ant-modal-content {
