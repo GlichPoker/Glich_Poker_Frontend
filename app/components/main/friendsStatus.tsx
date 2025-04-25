@@ -32,8 +32,10 @@ const FriendsStatus: React.FC = () => {
     };
 
     // Get status text based on friend status
-    const getStatusText = (status: string) => {
-        switch (status) {
+    const getStatusText = (status: string | null): string => {
+        if (!status) return 'Unknown';
+        
+        switch (status.toLowerCase()) {
             case 'online': return 'Online';
             case 'playing': return 'Playing';
             case 'offline': return 'Offline';
@@ -54,7 +56,7 @@ const FriendsStatus: React.FC = () => {
                 </div>
             </div>
             
-            {friend.status === 'playing' && friend.inGameId && (
+            {friend.status && friend.status.toLowerCase() === 'playing' && friend.inGameId && (
                 <Button 
                     type="primary" 
                     size="small" 
@@ -134,7 +136,7 @@ const FriendsStatus: React.FC = () => {
                                             className="text-xs"
                                         >
                                             {getStatusText(friend.status)}
-                                            {friend.status === 'playing' && friend.inGameId && 
+                                            {friend.status && friend.status.toLowerCase() === 'playing' && friend.inGameId && 
                                                 ' (In Game)'}
                                         </span>
                                     }

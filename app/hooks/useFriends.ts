@@ -6,6 +6,7 @@ import { message } from 'antd';
 // Define types
 export interface FriendWithStatus extends User {
   status: 'ONLINE' | 'OFFLINE' | 'IN_GAME' | string | null;
+  inGameId?: string | null;
 }
 
 interface FriendResponse {
