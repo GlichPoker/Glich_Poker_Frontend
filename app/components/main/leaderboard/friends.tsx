@@ -10,7 +10,7 @@ interface FriendLeaderboardUser {
     username: string;
     score: number;
     rank: number;
-    status?: string;
+    status?: string | null;
 }
 
 const FriendLeaderboard: React.FC = () => {
