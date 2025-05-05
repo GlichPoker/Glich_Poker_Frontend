@@ -109,13 +109,11 @@ class WebSocketService {
 
     private handleMessage(event: MessageEvent) {
         let data: any;
-        // console.log("Raw WebSocket message received:", event.data);
         try {
             // if the data is json, parsing
             data = JSON.parse(event.data);
         } catch (err) {
             // when the data is not json
-            console.warn("Non-JSON message received:", event.data);
             data = {
                 event: "chat",
                 message: event.data
