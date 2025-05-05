@@ -12,3 +12,10 @@ export function getApiDomain(): string {
   const devUrl = "http://localhost:8080";
   return isProduction() ? prodUrl : devUrl;
 }
+
+export function getWSDomain(): string {
+  const prodUrl = process.env.NEXT_PUBLIC_PROD_WS_URL ||
+    "wss://automatic-bond-454109-v8.oa.r.appspot.com"; // TODO: update with your production URL as needed.
+  const devUrl = "ws://localhost:8080";
+  return isProduction() ? prodUrl : devUrl;
+}

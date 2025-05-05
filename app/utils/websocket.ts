@@ -1,4 +1,4 @@
-import { getApiDomain } from "@/utils/domain";
+import { getWSDomain } from "@/utils/domain";
 
 class WebSocketService {
     private socket: WebSocket | null = null;
@@ -9,7 +9,7 @@ class WebSocketService {
     private baseURL: string;
 
     constructor() {
-        this.baseURL = getApiDomain();
+        this.baseURL = getWSDomain();
     }
 
     public connect(service: string, gameID: string, token: string, userID: string = "") {
