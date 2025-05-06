@@ -86,7 +86,7 @@ const LobbyPage = () => {
         if (!lobbyId || !currentUser) return;
 
         try {
-            // 1. 먼저 quit 요청
+            //request to quit endpoint
             const quitResponse = await fetch(`${baseURL}/game/quit`, {
                 method: 'POST',
                 headers: {
@@ -103,6 +103,7 @@ const LobbyPage = () => {
                 throw new Error('Failed to leave the game room');
             }
 
+            // request to delete endpoint
             setTimeout(async () => {
                 if (playerCount <= 1 && isHost && gameState === GameState.PRE_GAME) {
                     const deleteResponse = await fetch(`${baseURL}/game/delete?sessionId=${lobbyId}&userId=${currentUser.id}`, {

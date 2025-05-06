@@ -43,8 +43,21 @@ const CreateGame = () => {
     }
 
     try {
-      const { smallBlind, bigBlind } = values;
+      const { smallBlind, bigBlind, customRule } = values;
 
+      const defaultOrder = [
+        "HIGHCARD",
+        "ONEPAIR",
+        "TWOPAIR",
+        "THREEOFKIND",
+        "STRAIGHT",
+        "FLUSH",
+        "FULLHOUSE",
+        "FOUROFKIND",
+        "STRAIGHTFLUSH",
+        "ROYALFLUSH"
+      ];
+      const order = customRule === "reverse" ? [...defaultOrder].reverse() : defaultOrder;
 
       const response = await axios.post(
         `${baseURL}/game/create`,
@@ -55,6 +68,8 @@ const CreateGame = () => {
             initialBalance: 1000,
             smallBlind: parseInt(smallBlind),
             bigBlind: parseInt(bigBlind),
+            descending: customRule !== "reverse",
+            order
           },
         },
         {
@@ -75,6 +90,7 @@ const CreateGame = () => {
         messageApi.error('Network or request error');
       }
     }
+
   };
 
   return (
@@ -88,7 +104,7 @@ const CreateGame = () => {
             form={form}
             layout="vertical"
             onFinish={handleCreateGame}
-            initialValues={{ smallBlind: 10, bigBlind: 20, gameType: "public" }}
+            initialValues={{ smallBlind: 10, bigBlind: 20, gameType: "public", customRule: "default" }}
           >
             <Form.Item
               label="Small Blind"
@@ -113,6 +129,13 @@ const CreateGame = () => {
               >
                 <Radio value="public">Public</Radio>
                 <Radio value="private">Private</Radio>
+              </Radio.Group>
+            </Form.Item>
+
+            <Form.Item label="Custom Rule" name="customRule">
+              <Radio.Group>
+                <Radio value="default">Default</Radio>
+                <Radio value="reverse">Reverse Hand Rankings</Radio>
               </Radio.Group>
             </Form.Item>
 

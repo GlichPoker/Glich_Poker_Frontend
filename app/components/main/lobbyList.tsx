@@ -13,21 +13,23 @@ const LobbyList = () => {
     const router = useRouter();
     const [lobbies, setLobbies] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [messageApi, contextHolder] = message.useMessage();
 
-
+    // Fetch lobbies on mount
     useEffect(() => {
         const fetchLobbies = async () => {
             setLoading(true);
             try {
                 const response = await axios.get(`${baseURL}/game/allGames`, {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
                 });
                 setLobbies(response.data);
             } catch (error) {
-                message.error('Failed to load lobbies');
-                console.error(error);
+                console.error("Failed to fetch lobbies:", error);
+                setErrorMessage("Failed to load lobbies");
             } finally {
                 setLoading(false);
             }
@@ -35,6 +37,17 @@ const LobbyList = () => {
 
         fetchLobbies();
     }, []);
+
+    // Show error message in a safe way (React 18 + AntD v5 compliant)
+    useEffect(() => {
+        if (errorMessage) {
+            messageApi.open({
+                type: "error",
+                content: errorMessage,
+            });
+            setErrorMessage(null);
+        }
+    }, [errorMessage, messageApi]);
 
     if (loading) {
         return (
@@ -46,35 +59,39 @@ const LobbyList = () => {
 
     return (
         <div className="w-full min-h-full bg-[#181818] p-4">
+            {contextHolder}
             <div className="flex flex-wrap gap-4 bg-[#181818]">
-                {lobbies.map((lobby) => {
-                    return (
-                        <Card
-                            key={lobby.sessionId}
-                            className="w-[300px] overflow-hidden rounded-lg bg-[#2e2e2e] text-white"
-                            actions={[
-                                <div key="join" className="w-full flex justify-center bg-[#181818]">
-                                    <Button
-                                        type="primary"
-                                        onClick={() => router.push(`/lobby/${lobby.sessionId}`)}
-                                    >
-                                        Join
-                                    </Button>
-                                </div>
-                            ]}
-                        >
-                            <Meta
-                                title={<span>Game Room {lobby.sessionId}</span>}  // Game Room ID
-                                description={
-                                    <div className="text-sm text-white">
-                                        <div><strong>Owner:</strong> {lobby.owner?.username ?? ""}</div>
-                                        <div><strong>Status:</strong> {lobby.roundRunning ? "Round Running" : "Waiting for Players"}</div>
+                {lobbies.map((lobby) => (
+                    <Card
+                        key={lobby.sessionId}
+                        className="w-[300px] overflow-hidden rounded-lg bg-[#2e2e2e] text-white"
+                        actions={[
+                            <div key="join" className="w-full flex justify-center bg-[#181818]">
+                                <Button
+                                    type="primary"
+                                    onClick={() => router.push(`/lobby/${lobby.sessionId}`)}
+                                >
+                                    Join
+                                </Button>
+                            </div>,
+                        ]}
+                    >
+                        <Meta
+                            title={<span>Game Room {lobby.sessionId}</span>}
+                            description={
+                                <div className="text-sm text-white">
+                                    <div>
+                                        <strong>Owner:</strong> {lobby.owner?.username ?? ""}
                                     </div>
-                                }
-                            />
-                        </Card>
-                    );
-                })}
+                                    <div>
+                                        <strong>Status:</strong>{" "}
+                                        {lobby.roundRunning ? "Round Running" : "Waiting for Players"}
+                                    </div>
+                                </div>
+                            }
+                        />
+                    </Card>
+                ))}
             </div>
         </div>
     );
