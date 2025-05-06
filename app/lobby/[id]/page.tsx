@@ -86,7 +86,8 @@ const LobbyPage = () => {
         if (!lobbyId || !currentUser) return;
 
         try {
-            const response = await fetch(`${baseURL}/game/quit`, {
+            // 1. 먼저 quit 요청
+            const quitResponse = await fetch(`${baseURL}/game/quit`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -98,12 +99,29 @@ const LobbyPage = () => {
                 }),
             });
 
-            if (!response.ok) {
+            if (!quitResponse.ok) {
                 throw new Error('Failed to leave the game room');
             }
 
-            console.log('Successfully left the game room');
-            router.push('/main');
+            setTimeout(async () => {
+                if (playerCount <= 1 && isHost && gameState === GameState.PRE_GAME) {
+                    const deleteResponse = await fetch(`${baseURL}/game/delete?sessionId=${lobbyId}&userId=${currentUser.id}`, {
+                        method: 'POST',
+                        headers: {
+                            Authorization: `Bearer ${currentUser.token}`,
+                        },
+                    });
+
+                    if (!deleteResponse.ok) {
+                        const errorText = await deleteResponse.text();
+                        console.warn('Failed to delete the lobby:', deleteResponse.status, errorText);
+                    } else {
+                        console.log('Lobby deleted');
+                    }
+                }
+
+                router.push('/main');
+            }, 500);
         } catch (error) {
             console.error('Error leaving the game room:', error);
             alert('Failed to leave the game room');
