@@ -9,7 +9,8 @@ class WebSocketService {
     private baseURL: string;
 
     constructor() {
-        this.baseURL = getWSDomain();
+        //this.baseURL = getWSDomain();
+        this.baseURL = "wss://automatic-bond-454109-v8.oa.r.appspot.com";
     }
 
     public connect(service: string, gameID: string, token: string, userID: string = "") {
