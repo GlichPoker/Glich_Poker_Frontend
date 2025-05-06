@@ -13,6 +13,7 @@ interface PreGameLayoutProps {
     showVoteOverlay: boolean;
     setShowVoteOverlay: (show: boolean) => void;
     handleExitGame: () => void;
+    customRuleText: string | null;
 }
 
 const PreGameLayout = ({
@@ -24,6 +25,7 @@ const PreGameLayout = ({
     showVoteOverlay,
     setShowVoteOverlay,
     handleExitGame,
+    customRuleText,
 }: PreGameLayoutProps) => {
     const handleStart = async () => {
         await startGame();
@@ -33,7 +35,13 @@ const PreGameLayout = ({
         <div className="flex flex-col w-full h-auto">
             {/* NAVBAR */}
             <nav className="flex flex-row h-14 justify-between items-center bg-[#181818]">
-                <div className="flex flex-row justify-end w-[95%] h-[40px]">
+                {/* left: logo */}
+                <div className="text-sm text-gray-500 !ml-4">
+                    <span className="text-lg font-bold">Glitch Poker</span>
+                </div>
+
+                {/* right: buttons */}
+                <div className="flex flex-row space-x-4">
                     <Button
                         type="link"
                         className="!text-gray-500 !font-bold"
@@ -82,7 +90,8 @@ const PreGameLayout = ({
                     <div className="flex flex-col items-center justify-between w-[33.33%] text-white">
                         <div className="rounded-lg p-4 mb-4 text-center">
                             <h2 className="text-xl font-bold">Poker Table</h2>
-                            <p className="!mb-30">Lobby ID: {lobbyId}</p>
+                            <p className="!mb-10">Lobby ID: {lobbyId}</p>
+                            <p className="!mb-10">{customRuleText}</p>
                             {isHost ? (
                                 <Button
                                     type="primary"

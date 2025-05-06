@@ -57,7 +57,7 @@ const CreateGame = () => {
         "STRAIGHTFLUSH",
         "ROYALFLUSH"
       ];
-      const order = customRule === "reverse" ? [...defaultOrder].reverse() : defaultOrder;
+
 
       const response = await axios.post(
         `${baseURL}/game/create`,
@@ -68,8 +68,10 @@ const CreateGame = () => {
             initialBalance: 1000,
             smallBlind: parseInt(smallBlind),
             bigBlind: parseInt(bigBlind),
-            descending: customRule !== "reverse",
-            order
+            descending: customRule === "reverse",
+            //if customrule is reverse,
+            order: customRule === "reverse" ? defaultOrder : [...defaultOrder].reverse()
+            // order: customRule === "reverse" ? [...defaultOrder].reverse() : defaultOrder
           },
         },
         {

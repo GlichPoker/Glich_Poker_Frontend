@@ -30,6 +30,7 @@ const LobbyPage = () => {
     const [winningModel, setWinningModel] = useState<WinningModel | null>(null);
     const [roundModel, setRoundModel] = useState<RoundModel | null>(null);
     const [gameState, setGameState] = useState<GameState>(GameState.PRE_GAME);
+    const [customRuleText, setCustomRuleText] = useState<string | null>(null);
 
 
     useEffect(() => {
@@ -49,6 +50,38 @@ const LobbyPage = () => {
             console.error('Error retrieving user data:', err);
         }
     }, []);
+
+    useEffect(() => {
+        const fetchGameSettings = async () => {
+            if (!lobbyId || !currentUser) return;
+
+            try {
+                const response = await fetch(`${baseURL}/game/allGames`, {
+                    headers: {
+                        Authorization: `Bearer ${currentUser.token}`,
+                    },
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch game list');
+
+                const games = await response.json();
+
+                const currentGame = games.find(
+                    (game: any) => String(game.sessionId) === String(lobbyId)
+                );
+
+                if (currentGame && currentGame.settings?.descending) {
+                    setCustomRuleText('Rule: Reverse Hand Rankings');
+                } else {
+                    setCustomRuleText('Rule: Standard Hand Rankings');
+                }
+            } catch (err) {
+                console.error('Error fetching game data:', err);
+            }
+        };
+
+        fetchGameSettings();
+    }, [lobbyId, currentUser]);
 
     const {
         players,
@@ -147,6 +180,7 @@ const LobbyPage = () => {
                         handleExitGame={handleExitGame}
                         currentPlayer={currentPlayer}
                         otherPlayers={otherPlayers}
+                        customRuleText={customRuleText}
                     />
                 );
             case GameState.IN_GAME:
@@ -171,6 +205,7 @@ const LobbyPage = () => {
                         setPlayerCount={setPlayerCount}
                         winningModel={winningModel}
                         currentUser={currentUser}
+                        customRuleText={customRuleText}
                     />
                 );
             default:

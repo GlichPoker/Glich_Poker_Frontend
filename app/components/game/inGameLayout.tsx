@@ -33,6 +33,7 @@ interface InGameLayoutProps {
     setPlayerCount?: (count: number) => void;
     winningModel?: WinningModel | null;
     currentUser: { id: number; username: string; token: string } | null;
+    customRuleText: string | null;
 
 }
 
@@ -55,6 +56,7 @@ const InGameLayout = ({
     setPlayerCount,
     winningModel,
     currentUser,
+    customRuleText,
 }: InGameLayoutProps) => {
     const isMyTurn = roundModel?.playersTurnId === currentPlayer?.userId;
 
@@ -132,7 +134,12 @@ const InGameLayout = ({
     return (
         <div className="flex flex-col w-full h-auto">
             <nav className="flex flex-row h-14 justify-between items-center bg-[#181818]">
-                <div className="flex flex-row justify-end w-[95%] h-[40px]">
+                {/* left: logo */}
+                <div className="text-sm text-gray-500 !ml-4">
+                    <span className="text-lg font-bold">Glitch Poker</span>
+                </div>
+
+                <div className="flex flex-row space-x-4">
                     <Button
                         type="link"
                         className="!text-gray-500 !font-bold"
@@ -173,6 +180,7 @@ const InGameLayout = ({
 
                     {/* Center */}
                     <div className="flex flex-col items-center justify-center w-[33.33%] text-center space-y-2">
+                        <p className="!mb-5">{customRuleText}</p>
                         <p className="text-2xl mt-4">Pot: ${roundModel?.potSize}</p>
                         {roundModel?.communityCards && roundModel.communityCards.length > 0 && (
                             <div className="flex justify-center !mt-6 gap-1">
