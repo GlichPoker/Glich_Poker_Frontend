@@ -70,19 +70,41 @@ const LobbyPage = () => {
                     (game: any) => String(game.sessionId) === String(lobbyId)
                 );
 
-                if (currentGame && currentGame.settings?.descending) {
-                    setCustomRuleText('Rule: Reverse Hand Rankings');
+                if (!currentGame?.settings?.order) {
+                    setCustomRuleText("Rule: Unknown");
+                    return;
+                }
+
+                const defaultOrder = [
+                    "ROYALFLUSH",
+                    "STRAIGHTFLUSH",
+                    "FOUROFKIND",
+                    "FULLHOUSE",
+                    "FLUSH",
+                    "STRAIGHT",
+                    "THREEOFKIND",
+                    "TWOPAIR",
+                    "ONEPAIR",
+                    "HIGHCARD",
+                ];
+
+                const reverseOrder = [...defaultOrder].reverse();
+                const currentOrder = currentGame.settings.order;
+
+                if (JSON.stringify(currentOrder) === JSON.stringify(defaultOrder)) {
+                    setCustomRuleText("Rule: Standard Hand Rankings");
+                } else if (JSON.stringify(currentOrder) === JSON.stringify(reverseOrder)) {
+                    setCustomRuleText("Rule: Reverse Hand Rankings");
                 } else {
-                    setCustomRuleText('Rule: Standard Hand Rankings');
+                    setCustomRuleText("Rule: Custom Hand Rankings");
                 }
             } catch (err) {
-                console.error('Error fetching game data:', err);
+                console.error("Error fetching game data:", err);
             }
         };
 
         fetchGameSettings();
     }, [lobbyId, currentUser]);
-
     const {
         players,
         currentPlayer,

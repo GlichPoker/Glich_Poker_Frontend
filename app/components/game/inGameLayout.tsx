@@ -81,7 +81,7 @@ const InGameLayout = ({
         "THREEOFKIND",
         "TWOPAIR",
         "ONEPAIR",
-        "HIGHCARD"
+        "HIGHCARD",
     ];
 
 

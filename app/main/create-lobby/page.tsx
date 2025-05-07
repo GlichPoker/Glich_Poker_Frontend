@@ -41,16 +41,16 @@ const CreateGame = () => {
   }, []);
 
   const defaultOrder = [
-    "HIGHCARD",
-    "ONEPAIR",
-    "TWOPAIR",
-    "THREEOFKIND",
-    "STRAIGHT",
-    "FLUSH",
-    "FULLHOUSE",
-    "FOUROFKIND",
+    "ROYALFLUSH",
     "STRAIGHTFLUSH",
-    "ROYALFLUSH"
+    "FOUROFKIND",
+    "FULLHOUSE",
+    "FLUSH",
+    "STRAIGHT",
+    "THREEOFKIND",
+    "TWOPAIR",
+    "ONEPAIR",
+    "HIGHCARD",
   ];
   const reverseOrder = [...defaultOrder].reverse();
 
@@ -147,14 +147,15 @@ const CreateGame = () => {
 
             <Divider className="!border-red-900 font-bold">Custom rules</Divider>
 
-            <Form.Item label="Winner" name="winner">
+            <Form.Item label="Winner" name="winner" rules={[{ required: true, message: "Select how to decide winners" }]}>
               <Radio.Group onChange={(e) => setWinner(e.target.value)}>
                 <Radio value="descending">High Card Wins (Descending)</Radio>
                 <Radio value="ascending">Low Card Wins (Ascending)</Radio>
               </Radio.Group>
             </Form.Item>
 
-            <Form.Item label="Hand Rank" name="handRank">
+            <Form.Item label="Hand Rank" name="handRank" rules={[{ required: true, message: "Select a hand rank rule" }]}
+            >
               <Radio.Group onChange={(e) => setHandRankType(e.target.value)}>
                 <Radio value="default">Default</Radio>
                 <Radio value="reverse">Reverse Hand Rankings</Radio>
