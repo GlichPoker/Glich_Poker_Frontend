@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { Button, InputNumber, Badge, notification } from 'antd';
+import { Button, InputNumber, Badge, notification, Drawer } from 'antd';
 import Vote from '@/components/game/voting/vote';
 import MySeat from '@/components/game/mySeat';
 import OtherPlayerSeat from '@/components/game/otherPlayerSeat';
@@ -69,6 +69,46 @@ const InGameLayout = ({
     const [callInput, setCallInput] = useState(callAmount);
     const [raiseInput, setRaiseInput] = useState<number>(callAmount + 1);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+    const defaultOrder = [
+        "ROYALFLUSH",
+        "STRAIGHTFLUSH",
+        "FOUROFKIND",
+        "FULLHOUSE",
+        "FLUSH",
+        "STRAIGHT",
+        "THREEOFKIND",
+        "TWOPAIR",
+        "ONEPAIR",
+        "HIGHCARD"
+    ];
+
+
+    const rankImageMap: Record<string, string> = {
+        HIGHCARD: "/images/handRank/HIGHCARD.png",
+        ONEPAIR: "/images/handRank/ONEPAIR.png",
+        TWOPAIR: "/images/handRank/TWOPAIR.png",
+        THREEOFKIND: "/images/handRank/THREEOFKIND.png",
+        STRAIGHT: "/images/handRank/STRAIGHT.png",
+        FLUSH: "/images/handRank/FLUSH.png",
+        FULLHOUSE: "/images/handRank/FULLHOUSE.png",
+        FOUROFKIND: "/images/handRank/FOUROFKIND.png",
+        STRAIGHTFLUSH: "/images/handRank/STRAIGHTFLUSH.png",
+        ROYALFLUSH: "/images/handRank/ROYALFLUSH.png",
+    };
+
+    const lowerRule = customRuleText?.toLowerCase() || "";
+    let handRankOrder: string[];
+
+    if (lowerRule.includes("custom") && roundModel?.gameSettings?.order) {
+        handRankOrder = roundModel.gameSettings.order;
+    } else if (lowerRule.includes("reverse")) {
+        handRankOrder = [...defaultOrder].reverse();
+    } else {
+        handRankOrder = defaultOrder;
+    }
+
     const token = localStorage.getItem("token");
 
     // winner modal
@@ -133,12 +173,13 @@ const InGameLayout = ({
     };
     return (
         <div className="flex flex-col w-full h-auto">
-            <nav className="flex flex-row h-14 justify-between items-center bg-[#181818]">
-                {/* left: logo */}
-                <div className="text-sm text-gray-500 !ml-4">
+            <nav className="flex flex-row h-14 justify-between items-center bg-[#181818] px-4">
+                {/* Left: Logo */}
+                <div className="text-sm text-gray-500">
                     <span className="text-lg font-bold">Glitch Poker</span>
                 </div>
 
+                {/* Right: Controls */}
                 <div className="flex flex-row space-x-4">
                     <Button
                         type="link"
@@ -146,6 +187,13 @@ const InGameLayout = ({
                         onClick={() => setShowVoteOverlay(true)}
                     >
                         Vote
+                    </Button>
+                    <Button
+                        type="link"
+                        className="!text-gray-500 !font-bold"
+                        onClick={() => setIsDrawerOpen(true)}
+                    >
+                        Hand Rankings
                     </Button>
                 </div>
             </nav>
@@ -346,6 +394,32 @@ const InGameLayout = ({
                         </div>
                     )}
                 </Modal>
+                <Drawer
+                    title="Poker Hand Rankings"
+                    placement="right"
+                    width={360}
+                    onClose={() => setIsDrawerOpen(false)}
+                    open={isDrawerOpen}
+                >
+                    <div className="flex flex-col items-center space-y-4">
+                        {handRankOrder.map((rank) => (
+                            <div key={rank} className="w-full text-center">
+                                <img
+                                    src={rankImageMap[rank]}
+                                    alt={rank}
+                                    className="w-full max-w-[300px] mx-auto rounded shadow"
+                                />
+                            </div>
+                        ))}
+                        <p className="mt-4 text-gray-500 text-sm italic">
+                            {lowerRule.includes("custom")
+                                ? "Custom rule applied"
+                                : lowerRule.includes("reverse")
+                                    ? "Reverse rule applied: High Card is strongest"
+                                    : "Standard rule applied: Royal Flush is strongest"}
+                        </p>
+                    </div>
+                </Drawer>
             </div>
         </div>
     );

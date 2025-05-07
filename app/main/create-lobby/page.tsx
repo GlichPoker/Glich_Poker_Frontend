@@ -1,9 +1,10 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Button, Input, Form, message, Radio } from "antd";
+import { Button, Input, Form, message, Radio, Divider } from "antd";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { getApiDomain } from "@/utils/domain";
+import { useCustomHandRank } from "@/hooks/useCustomHandRank";
 
 const baseURL = getApiDomain();
 
@@ -15,6 +16,9 @@ const CreateGame = () => {
   const [userToken, setUserToken] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [messageApi, contextHolder] = message.useMessage();
+  const [winner, setWinner] = useState("descending");
+  const { customOrder, DraggableList } = useCustomHandRank();
+  const [handRankType, setHandRankType] = useState("default");
 
   useEffect(() => {
     const userStr = localStorage.getItem('user');
@@ -36,6 +40,20 @@ const CreateGame = () => {
     }
   }, []);
 
+  const defaultOrder = [
+    "HIGHCARD",
+    "ONEPAIR",
+    "TWOPAIR",
+    "THREEOFKIND",
+    "STRAIGHT",
+    "FLUSH",
+    "FULLHOUSE",
+    "FOUROFKIND",
+    "STRAIGHTFLUSH",
+    "ROYALFLUSH"
+  ];
+  const reverseOrder = [...defaultOrder].reverse();
+
   const handleCreateGame = async (values: any) => {
     if (!userId || !userToken) {
       messageApi.error('User info not found. Please login again.');
@@ -43,21 +61,16 @@ const CreateGame = () => {
     }
 
     try {
-      const { smallBlind, bigBlind, customRule } = values;
+      const { smallBlind, bigBlind, handRank } = values;
 
-      const defaultOrder = [
-        "HIGHCARD",
-        "ONEPAIR",
-        "TWOPAIR",
-        "THREEOFKIND",
-        "STRAIGHT",
-        "FLUSH",
-        "FULLHOUSE",
-        "FOUROFKIND",
-        "STRAIGHTFLUSH",
-        "ROYALFLUSH"
-      ];
-
+      let order;
+      if (handRank === "reverse") {
+        order = reverseOrder;
+      } else if (handRank === "custom") {
+        order = customOrder;
+      } else {
+        order = defaultOrder;
+      }
 
       const response = await axios.post(
         `${baseURL}/game/create`,
@@ -68,10 +81,8 @@ const CreateGame = () => {
             initialBalance: 1000,
             smallBlind: parseInt(smallBlind),
             bigBlind: parseInt(bigBlind),
-            descending: customRule === "reverse",
-            //if customrule is reverse,
-            order: customRule === "reverse" ? defaultOrder : [...defaultOrder].reverse()
-            // order: customRule === "reverse" ? [...defaultOrder].reverse() : defaultOrder
+            descending: winner === "descending",
+            order
           },
         },
         {
@@ -108,6 +119,7 @@ const CreateGame = () => {
             onFinish={handleCreateGame}
             initialValues={{ smallBlind: 10, bigBlind: 20, gameType: "public", customRule: "default" }}
           >
+            <Divider className="!border-red-900 font-bold">Basic Setting</Divider>
             <Form.Item
               label="Small Blind"
               name="smallBlind"
@@ -127,19 +139,30 @@ const CreateGame = () => {
             <Form.Item label="Game Type" name="gameType">
               <Radio.Group
                 onChange={(e) => setIsPrivate(e.target.value === 'private')}
-
               >
                 <Radio value="public">Public</Radio>
                 <Radio value="private">Private</Radio>
               </Radio.Group>
             </Form.Item>
 
-            <Form.Item label="Custom Rule" name="customRule">
-              <Radio.Group>
-                <Radio value="default">Default</Radio>
-                <Radio value="reverse">Reverse Hand Rankings</Radio>
+            <Divider className="!border-red-900 font-bold">Custom rules</Divider>
+
+            <Form.Item label="Winner" name="winner">
+              <Radio.Group onChange={(e) => setWinner(e.target.value)}>
+                <Radio value="descending">High Card Wins (Descending)</Radio>
+                <Radio value="ascending">Low Card Wins (Ascending)</Radio>
               </Radio.Group>
             </Form.Item>
+
+            <Form.Item label="Hand Rank" name="handRank">
+              <Radio.Group onChange={(e) => setHandRankType(e.target.value)}>
+                <Radio value="default">Default</Radio>
+                <Radio value="reverse">Reverse Hand Rankings</Radio>
+                <Radio value="custom">Custom</Radio>
+              </Radio.Group>
+            </Form.Item>
+
+            {handRankType === "custom" && <DraggableList />}
 
             {isPrivate && (
               <Form.Item

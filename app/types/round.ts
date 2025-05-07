@@ -20,6 +20,8 @@ export type GameSettings = {
     smallBlind: number;
     bigBlind: number;
     initialBalance: number;
+    descending: boolean;
+    order?: string[];
 };
 
 export interface RoundModel {

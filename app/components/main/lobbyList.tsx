@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, Button, Spin, message } from "antd";
+import { Card, Button, Spin, message, Tag } from "antd";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { getApiDomain } from "@/utils/domain";
@@ -81,7 +81,13 @@ const LobbyList = () => {
                             description={
                                 <div className="text-sm text-white">
                                     <div>
+                                        <div>{lobby.public ? (
+                                            <Tag color="green" >Public</Tag>
+                                        ) : (
+                                            <Tag color="red">Private</Tag>
+                                        )}</div>
                                         <strong>Owner:</strong> {lobby.owner?.username ?? ""}
+
                                     </div>
                                     <div>
                                         <strong>Status:</strong>{" "}
