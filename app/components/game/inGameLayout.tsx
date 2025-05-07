@@ -229,19 +229,48 @@ const InGameLayout = ({
                     {/* Center */}
                     <div className="flex flex-col items-center justify-center w-[33.33%] text-center space-y-2">
                         <p className="!mb-5">{customRuleText}</p>
-                        <p className="text-2xl mt-4">Pot: ${roundModel?.potSize}</p>
-                        {roundModel?.communityCards && roundModel.communityCards.length > 0 && (
-                            <div className="flex justify-center !mt-6 gap-1">
-                                {roundModel.communityCards.map((card, i) => (
-                                    <img
-                                        key={i}
-                                        src={`https://deckofcardsapi.com/static/img/${card.cardCode}.png`}
-                                        alt={card.cardCode}
-                                        className="!h-32 w-auto rounded"
-                                    />
-                                ))}
+                        
+                        {/* Poker Table */}
+                        <div className="relative w-[1000px] h-[500px] mb-4">
+                            <div className="absolute inset-0 flex items-center justify-center">
+                                {/* Outer container with brown border */}
+                                <div className="relative w-full h-full flex items-center justify-center" style={{
+                                    clipPath: 'ellipse(50% 50% at 50% 50%)',
+                                    background: '#8B4513', /* Brown border color */
+                                }}>
+                                    {/* Inner container with green table */}
+                                    <div className="w-[calc(100%-16px)] h-[calc(100%-16px)]" style={{
+                                        clipPath: 'ellipse(50% 50% at 50% 50%)',
+                                        overflow: 'hidden',
+                                    }}>
+                                        <img 
+                                            src="/images/tables/green-table.jpg" 
+                                            alt="Poker Table" 
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </div>
+                                </div>
                             </div>
-                        )}
+                            
+                            {/* Community cards on the table above the pot */}
+                            {roundModel?.communityCards && roundModel.communityCards.length > 0 && (
+                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[120%] z-20 flex justify-center gap-1">
+                                    {roundModel.communityCards.map((card, i) => (
+                                        <img
+                                            key={i}
+                                            src={`https://deckofcardsapi.com/static/img/${card.cardCode}.png`}
+                                            alt={card.cardCode}
+                                            className="!h-24 w-auto rounded shadow-lg"
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                            
+                            {/* Pot display on top of table */}
+                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                                <p className="text-2xl font-bold text-white drop-shadow-lg">Pot: ${roundModel?.potSize}</p>
+                            </div>
+                        </div>
                     </div>
 
                     <div className="flex flex-col items-center w-[33.33%] space-y-8">
