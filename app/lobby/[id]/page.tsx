@@ -31,6 +31,15 @@ const LobbyPage = () => {
     const [roundModel, setRoundModel] = useState<RoundModel | null>(null);
     const [gameState, setGameState] = useState<GameState>(GameState.PRE_GAME);
     const [customRuleText, setCustomRuleText] = useState<string | null>(null);
+    const [weatherType, setWeatherType] = useState<string | null>(null);
+    const allowedWeatherTypes = ["SUNNY", "RAINY", "SNOWY", "CLOUDY"] as const;
+    type WeatherLiteral = typeof allowedWeatherTypes[number];
+
+    function isValidWeatherType(value: any): value is WeatherLiteral {
+        return allowedWeatherTypes.includes(value);
+    }
+
+    const safeWeatherType = isValidWeatherType(weatherType) ? weatherType : undefined;
 
 
     useEffect(() => {
@@ -90,6 +99,7 @@ const LobbyPage = () => {
 
                 const reverseOrder = [...defaultOrder].reverse();
                 const currentOrder = currentGame.settings.order;
+                setWeatherType(currentGame.settings.weatherType);
 
                 if (JSON.stringify(currentOrder) === JSON.stringify(defaultOrder)) {
                     setCustomRuleText("Rule: Standard Hand Rankings");
@@ -203,6 +213,7 @@ const LobbyPage = () => {
                         currentPlayer={currentPlayer}
                         otherPlayers={otherPlayers}
                         customRuleText={customRuleText}
+                        weatherType={safeWeatherType}
                     />
                 );
             case GameState.IN_GAME:
@@ -228,6 +239,7 @@ const LobbyPage = () => {
                         winningModel={winningModel}
                         currentUser={currentUser}
                         customRuleText={customRuleText}
+                        weatherType={safeWeatherType}
                     />
                 );
             default:

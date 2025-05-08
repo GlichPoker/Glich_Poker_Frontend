@@ -3,6 +3,7 @@ import { Button } from 'antd';
 import Vote from '@/components/game/voting/vote';
 import MySeat from '@/components/game/mySeat';
 import OtherPlayerSeat from '@/components/game/otherPlayerSeat';
+import WeatherIcon from "@/components/game/weatherIcon";
 
 interface PreGameLayoutProps {
     lobbyId: string;
@@ -14,6 +15,7 @@ interface PreGameLayoutProps {
     setShowVoteOverlay: (show: boolean) => void;
     handleExitGame: () => void;
     customRuleText: string | null;
+    weatherType?: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY";
 }
 
 const PreGameLayout = ({
@@ -26,6 +28,7 @@ const PreGameLayout = ({
     setShowVoteOverlay,
     handleExitGame,
     customRuleText,
+    weatherType,
 }: PreGameLayoutProps) => {
     const handleStart = async () => {
         await startGame();
@@ -42,6 +45,7 @@ const PreGameLayout = ({
 
                 {/* right: buttons */}
                 <div className="flex flex-row space-x-4">
+                    {weatherType && <WeatherIcon weatherType={weatherType} />}
                     <Button
                         type="link"
                         className="!text-gray-500 !font-bold"

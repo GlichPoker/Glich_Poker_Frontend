@@ -5,6 +5,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { getApiDomain } from "@/utils/domain";
 import { useCustomHandRank } from "@/hooks/useCustomHandRank";
+import useWeather from "@/hooks/useWeather";
 
 const baseURL = getApiDomain();
 
@@ -19,6 +20,9 @@ const CreateGame = () => {
   const [winner, setWinner] = useState("descending");
   const { customOrder, DraggableList } = useCustomHandRank();
   const [handRankType, setHandRankType] = useState("default");
+  const { emoji, weatherType, loading: weatherLoading, error: weatherError } = useWeather();
+
+
 
   useEffect(() => {
     const userStr = localStorage.getItem('user');
@@ -61,7 +65,7 @@ const CreateGame = () => {
     }
 
     try {
-      const { smallBlind, bigBlind, handRank } = values;
+      const { smallBlind, bigBlind, handRank, password } = values;
 
       let order;
       if (handRank === "reverse") {
@@ -72,19 +76,23 @@ const CreateGame = () => {
         order = defaultOrder;
       }
 
+      const payload: any = {
+        userId,
+        isPublic: !isPrivate,
+        gameSettings: {
+          initialBalance: 1000,
+          smallBlind: parseInt(smallBlind),
+          bigBlind: parseInt(bigBlind),
+          descending: winner === "descending",
+          order,
+          weatherType: weatherType ?? "SUNNY",
+          password: isPrivate ? password : "",
+        },
+      };
+
       const response = await axios.post(
         `${baseURL}/game/create`,
-        {
-          userId,
-          isPublic: !isPrivate,
-          gameSettings: {
-            initialBalance: 1000,
-            smallBlind: parseInt(smallBlind),
-            bigBlind: parseInt(bigBlind),
-            descending: winner === "descending",
-            order
-          },
-        },
+        payload,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -106,6 +114,7 @@ const CreateGame = () => {
 
   };
 
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-[#181818] text-white">
       {contextHolder}
@@ -117,8 +126,10 @@ const CreateGame = () => {
             form={form}
             layout="vertical"
             onFinish={handleCreateGame}
-            initialValues={{ smallBlind: 10, bigBlind: 20, gameType: "public", customRule: "default" }}
+            initialValues={{ smallBlind: 10, bigBlind: 20, gameType: "public", winner: "descending", handRank: "default" }}
           >
+
+            {/* basic setting */}
             <Divider className="!border-red-900 font-bold">Basic Setting</Divider>
             <Form.Item
               label="Small Blind"
@@ -144,9 +155,34 @@ const CreateGame = () => {
                 <Radio value="private">Private</Radio>
               </Radio.Group>
             </Form.Item>
+            {isPrivate && (
+              <Form.Item
+                label="Password"
+                name="password"
+                rules={[{ required: isPrivate, message: 'Enter a password' }]}
+              >
+                <Input.Password />
+              </Form.Item>
+            )}
+
+
+            {/* current weather */}
+            {(weatherLoading || weatherError) && (
+              <div className="text-center text-sm text-amber-500">
+                Please allow location access to apply weather-based game rules.
+              </div>
+            )}
+
+            {!weatherLoading && !weatherError && emoji && (
+              <div className="text-center text-lg text-white">
+                <p className="text-sm text-white">Current Weather</p>
+                <span style={{ fontSize: "2.5rem" }}>{emoji}</span>
+              </div>
+            )}
 
             <Divider className="!border-red-900 font-bold">Custom rules</Divider>
 
+            {/* custom rules */}
             <Form.Item label="Winner" name="winner" rules={[{ required: true, message: "Select how to decide winners" }]}>
               <Radio.Group onChange={(e) => setWinner(e.target.value)}>
                 <Radio value="descending">High Card Wins (Descending)</Radio>
@@ -165,15 +201,7 @@ const CreateGame = () => {
 
             {handRankType === "custom" && <DraggableList />}
 
-            {isPrivate && (
-              <Form.Item
-                label="Password"
-                name="password"
-                rules={[{ required: isPrivate, message: 'Enter a password' }]}
-              >
-                <Input.Password />
-              </Form.Item>
-            )}
+
 
             <Form.Item>
               <Button type="primary" htmlType="submit" block>

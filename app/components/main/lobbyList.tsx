@@ -81,7 +81,7 @@ const LobbyList = () => {
                             description={
                                 <div className="text-sm text-white">
                                     <div>
-                                        <div>{lobby.public ? (
+                                        <div>{lobby.isPublic ? (
                                             <Tag color="green" >Public</Tag>
                                         ) : (
                                             <Tag color="red">Private</Tag>

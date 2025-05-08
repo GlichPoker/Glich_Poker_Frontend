@@ -34,7 +34,7 @@ interface InGameLayoutProps {
     winningModel?: WinningModel | null;
     currentUser: { id: number; username: string; token: string } | null;
     customRuleText: string | null;
-
+    weatherType?: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY";
 }
 
 const InGameLayout = ({
@@ -57,6 +57,7 @@ const InGameLayout = ({
     winningModel,
     currentUser,
     customRuleText,
+    weatherType,
 }: InGameLayoutProps) => {
     const isMyTurn = roundModel?.playersTurnId === currentPlayer?.userId;
 
@@ -229,7 +230,7 @@ const InGameLayout = ({
                     {/* Center */}
                     <div className="flex flex-col items-center justify-center w-[33.33%] text-center space-y-2">
                         <p className="!mb-5">{customRuleText}</p>
-                        
+
                         {/* Poker Table */}
                         <div className="relative w-[1000px] h-[500px] mb-4">
                             <div className="absolute inset-0 flex items-center justify-center">
@@ -243,15 +244,15 @@ const InGameLayout = ({
                                         clipPath: 'ellipse(50% 50% at 50% 50%)',
                                         overflow: 'hidden',
                                     }}>
-                                        <img 
-                                            src="/images/tables/green-table.jpg" 
-                                            alt="Poker Table" 
+                                        <img
+                                            src="/images/tables/green-table.jpg"
+                                            alt="Poker Table"
                                             className="w-full h-full object-cover"
                                         />
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {/* Community cards on the table above the pot */}
                             {roundModel?.communityCards && roundModel.communityCards.length > 0 && (
                                 <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[120%] z-20 flex justify-center gap-1">
@@ -265,7 +266,7 @@ const InGameLayout = ({
                                     ))}
                                 </div>
                             )}
-                            
+
                             {/* Pot display on top of table */}
                             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
                                 <p className="text-2xl font-bold text-white drop-shadow-lg">Pot: ${roundModel?.potSize}</p>
