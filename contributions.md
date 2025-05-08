@@ -64,9 +64,18 @@ Note: If a team member fails to show continuous progress after using their Joker
 
 ---
 
-## Contributions Week 4 - [17.04.25] to [23.04.25]
+## Contributions M4 Week 1 - [01.05.25] to [08.05.25]
+| **Student**         | **Date**     | **Link to Commit**          | **Description**                                                                                                                                                                       | **Relevance**                                                                            |
+|---------------------|--------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| **[@RealBlueSwan]** | [08.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/99469fad05060013afaaa06096c589dc00a8eb74]          | [Created a pokertable with basic jpg for later swapping of maps #46]                                                                                                                  | [Pokertable for later png/jpg swapping when weather data is correctly retrieved]                                                |
+|                     | [N/S] | [N/S]          | [Presentation, Linting with ardeen333, deployment with ardeen333, researching weather api's, planing for pokertables and visuals]                                                                                                                | [Accumulated work and planing] |
+| **[@ardeen333]**    | [__] | [__]          | [__]                                                                                                                           | [__]                                                      |
+|                     | [__] | [__]          | [__]                                                                                                                                       | [__]                                         |
+| **[__]**       | [__] | [__]          | [__]                        | [__]                        |
+|                     | [__] | [__]          | [__]                 |
+| **[__]**   | [__] | [__]          | [__]                                                                                          | [__]                                          |
+|                     | [__] | [__]          | [__]                                                                                                                                          | [__]             |
 
-*Continue with the same table format as above.*
 
 ---
 
