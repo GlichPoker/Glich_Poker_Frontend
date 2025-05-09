@@ -10,7 +10,7 @@ Our game uses a weather API to determine the current weather conditions of the l
 When the lobby owner's location is experiencing rain, the game loads the "Tear Map" with the following special rules:
 - **Slippery Cards**: Each player may exchange one card from their hand once per round.
 
-- Maybe later: Flood Insurance**: If a player loses with a flush, they receive 25% of their bet back.
+- Maybe later: Flood Insurance: If a player loses with a flush, they receive 25% of their bet back.
 
 
 ### 2. Dry Map (Sunny Weather)
