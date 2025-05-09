@@ -153,7 +153,7 @@ const LobbyPage = () => {
 
         try {
             //request to quit endpoint
-            const quitResponse = await fetch(`${baseURL}/game/quit`, {
+            const quitResponse = await fetch(`${baseURL}/game/leave`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
