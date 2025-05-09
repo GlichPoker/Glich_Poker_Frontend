@@ -15,7 +15,7 @@ When the lobby owner's location is experiencing rain, the game loads the "Tear M
 
 ### 2. Dry Map (Sunny Weather)
 When the lobby owner's location is sunny, the game loads the "Dry Map" with the following special rules:
-- **Mirage**: Once every 5 rounds, a player can bluff by showing a false or real card to one opponent. (will do tmrw)
+- **Mirage**: Once every 5 rounds, a player can bluff by showing a false or real card to one opponent. (should work)
 - **Drought Tax**: The big blind increases by 5% every third round. (should work)
 
 - Maybe later: Heat Wave: High card values (Jack, Queen, King, Ace) are worth 1.5x during showdown comparisons.
