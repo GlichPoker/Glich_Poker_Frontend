@@ -8,28 +8,28 @@ Our game uses a weather API to determine the current weather conditions of the l
 
 ### 1. Tear Map (Rainy Weather)
 When the lobby owner's location is experiencing rain, the game loads the "Tear Map" with the following special rules:
-- **Slippery Cards**: Each player may exchange one card from their hand once per round.
+- **Slippery Cards**: Each player may exchange one card from their hand once per round. (should work)
 
 - Maybe later: Flood Insurance: If a player loses with a flush, they receive 25% of their bet back.
 
 
 ### 2. Dry Map (Sunny Weather)
 When the lobby owner's location is sunny, the game loads the "Dry Map" with the following special rules:
-- **Mirage**: Once every 5 rounds, a player can bluff by showing a false or real card to one opponent.
-- **Drought Tax**: The big blind increases by 5% every third round.
+- **Mirage**: Once every 5 rounds, a player can bluff by showing a false or real card to one opponent. (will do tmrw)
+- **Drought Tax**: The big blind increases by 5% every third round. (should work)
 
 - Maybe later: Heat Wave: High card values (Jack, Queen, King, Ace) are worth 1.5x during showdown comparisons.
 
 
 ### 3. Cloud Map (Cloudy Weather)
 When the lobby owner's location is cloudy, the game loads the "Cloud Map" with the following special rules:
-- **Fog of War**: Two community cards remain face down until the showdown.
+- **Fog of War**: Two community cards remain face down until the showdown. (should work)
 
 - Maybe later: Lightning Strike: Once every 10 rounds, any player can force another player to reveal one of their cards.
 
 ### 4. Frozen Map (Snowy Weather)
 When the lobby owner's location is experiencing snow, the game loads the "Frozen Map" with the following special rules:
-- **Blanket**: Players receive 3 hand cards instead of 2. 
+- **Blanket**: Players receive 3 hand cards instead of 2. (should work)
 
 Maybe later: 
 - **Frozen Assets**: Players can "freeze" one of their hole cards, preventing it from being affected by any special abilities.
