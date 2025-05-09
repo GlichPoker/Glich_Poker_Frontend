@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Card, Button, Spin, message, Tag } from "antd";
+import { Card, Button, Spin, message, Tag, Modal, Input } from "antd";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { getApiDomain } from "@/utils/domain";
@@ -15,6 +15,9 @@ const LobbyList = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [messageApi, contextHolder] = message.useMessage();
+    const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+    const [passwordInput, setPasswordInput] = useState('');
+    const [selectedLobby, setSelectedLobby] = useState<any>(null);
 
     // Fetch lobbies on mount
     useEffect(() => {
@@ -60,6 +63,60 @@ const LobbyList = () => {
     return (
         <div className="w-full min-h-full bg-[#181818] p-4">
             {contextHolder}
+            <Modal
+                open={isPasswordModalOpen}
+                title="Enter Password"
+                onCancel={() => {
+                    setIsPasswordModalOpen(false);
+                    setPasswordInput('');
+                }}
+                onOk={async () => {
+                    if (!selectedLobby) return;
+
+                    try {
+                        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+                        const response = await fetch(`${baseURL}/game/join`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${user.token}`,
+                            },
+                            body: JSON.stringify({
+                                sessionId: selectedLobby.sessionId,
+                                userId: user.id,
+                                password: passwordInput,
+                            }),
+                        });
+
+                        if (!response.ok) {
+                            const errorText = await response.text();
+
+                            if (errorText.includes("password does not match")) {
+                                messageApi.error("Invalid password");
+                            } else {
+                                messageApi.error("Failed to join lobby");
+                            }
+
+                            return;
+                        }
+
+                        router.push(`/lobby/${selectedLobby.sessionId}`);
+                    } catch (err) {
+                        messageApi.error("Something went wrong");
+                    } finally {
+                        setIsPasswordModalOpen(false);
+                        setPasswordInput('');
+                    }
+                }}
+                okText="Join"
+            >
+                <Input.Password
+                    placeholder="Enter lobby password"
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
+                />
+            </Modal>
             <div className="flex flex-wrap gap-4 bg-[#181818]">
                 {lobbies.map((lobby) => (
                     <Card
@@ -69,7 +126,14 @@ const LobbyList = () => {
                             <div key="join" className="w-full flex justify-center bg-[#181818]">
                                 <Button
                                     type="primary"
-                                    onClick={() => router.push(`/lobby/${lobby.sessionId}`)}
+                                    onClick={() => {
+                                        if (!lobby.public) {
+                                            setSelectedLobby(lobby);
+                                            setIsPasswordModalOpen(true);
+                                        } else {
+                                            router.push(`/lobby/${lobby.sessionId}`);
+                                        }
+                                    }}
                                 >
                                     Join
                                 </Button>
@@ -81,12 +145,12 @@ const LobbyList = () => {
                             description={
                                 <div className="text-sm text-white">
                                     <div>
-                                        <div>{lobby.isPublic ? (
+                                        <div>{lobby.public ? (
                                             <Tag color="green" >Public</Tag>
                                         ) : (
                                             <Tag color="red">Private</Tag>
                                         )}</div>
-                                        <strong>Owner:</strong> {lobby.owner?.username ?? ""}
+                                        <strong>Owner:</strong> {lobby.username ?? ""}
 
                                     </div>
                                     <div>

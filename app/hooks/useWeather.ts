@@ -66,7 +66,7 @@ export default function useWeather(
                     rain: data.current.rain,
                     snowfall: data.current.snowfall,
                 };
-
+                console.log("current weather", current)
                 setWeather(current);
 
                 const type = getWeatherType(current);

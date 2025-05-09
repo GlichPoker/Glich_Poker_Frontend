@@ -115,6 +115,7 @@ const LobbyPage = () => {
 
         fetchGameSettings();
     }, [lobbyId, currentUser]);
+
     const {
         players,
         currentPlayer,
@@ -199,6 +200,35 @@ const LobbyPage = () => {
 
     };
 
+    const handleInvitePlayer = async (inviteeUserId: number) => {
+        if (!currentUser || !lobbyId) return;
+
+        try {
+            const response = await fetch(`${baseURL}/game/invite`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${currentUser.token}`,
+                },
+                body: JSON.stringify({
+                    sessionId: lobbyId,
+                    userId: inviteeUserId,
+                }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error("Invite failed:", response.status, errorText);
+                throw new Error('Failed to invite player');
+            }
+
+            alert('Player invited successfully');
+        } catch (err) {
+            console.error(err);
+            alert('Failed to invite player');
+        }
+    };
+
     const renderLayout = () => {
         switch (gameState) {
             case GameState.PRE_GAME:
@@ -210,10 +240,11 @@ const LobbyPage = () => {
                         setShowVoteOverlay={setShowVoteOverlay}
                         lobbyId={lobbyId as string}
                         handleExitGame={handleExitGame}
-                        currentPlayer={currentPlayer}
+                        currentPlayer={currentUser}
                         otherPlayers={otherPlayers}
                         customRuleText={customRuleText}
                         weatherType={safeWeatherType}
+                        handleInvitePlayer={handleInvitePlayer}
                     />
                 );
             case GameState.IN_GAME:

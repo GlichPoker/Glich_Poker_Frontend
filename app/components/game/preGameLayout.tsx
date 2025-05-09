@@ -1,9 +1,11 @@
 //preGameLayout.tsx
-import { Button } from 'antd';
+import { Button, Modal, List } from 'antd';
 import Vote from '@/components/game/voting/vote';
 import MySeat from '@/components/game/mySeat';
 import OtherPlayerSeat from '@/components/game/otherPlayerSeat';
 import WeatherIcon from "@/components/game/weatherIcon";
+import { useState, useEffect } from 'react';
+import { getApiDomain } from '@/utils/domain';
 
 interface PreGameLayoutProps {
     lobbyId: string;
@@ -16,6 +18,7 @@ interface PreGameLayoutProps {
     handleExitGame: () => void;
     customRuleText: string | null;
     weatherType?: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY";
+    handleInvitePlayer: (userId: number) => void;
 }
 
 const PreGameLayout = ({
@@ -29,9 +32,47 @@ const PreGameLayout = ({
     handleExitGame,
     customRuleText,
     weatherType,
+    handleInvitePlayer,
 }: PreGameLayoutProps) => {
     const handleStart = async () => {
         await startGame();
+    };
+
+    const [friends, setFriends] = useState<{ id: number; username: string }[]>([]);
+    const baseURL = getApiDomain();
+    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+
+
+    const fetchFriends = async () => {
+
+        if (!currentPlayer?.id) {
+            console.warn("currentPlayer.id is missing");
+            return;
+        }
+
+        try {
+            const response = await fetch(`${baseURL}/friends/allFriends/${currentPlayer.id}`, {
+                headers: {
+                    Authorization: `Bearer ${currentPlayer.token}`,
+                },
+            });
+
+            const data = await response.json();
+
+            setFriends(data);
+        } catch (err) {
+            console.error("Error fetching friends:", err);
+        }
+    };
+
+    const handleOpenInviteModal = async () => {
+        if (!currentPlayer?.id) {
+            console.warn("Invite blocked: currentPlayer not ready");
+            return;
+        }
+
+        await fetchFriends();
+        setIsInviteModalOpen(true);
     };
 
     return (
@@ -46,6 +87,15 @@ const PreGameLayout = ({
                 {/* right: buttons */}
                 <div className="flex flex-row space-x-4">
                     {weatherType && <WeatherIcon weatherType={weatherType} />}
+                    <div className="flex items-center space-x-2">
+                        <Button
+                            type="link"
+                            className="!text-gray-500 !font-bold"
+                            onClick={handleOpenInviteModal}
+                        >
+                            Invite
+                        </Button>
+                    </div>
                     <Button
                         type="link"
                         className="!text-gray-500 !font-bold"
@@ -68,6 +118,36 @@ const PreGameLayout = ({
                 onClose={() => setShowVoteOverlay(false)}
                 lobbyId={lobbyId}
             />
+            <Modal
+                title="Invite a Friend"
+                open={isInviteModalOpen}
+                onCancel={() => setIsInviteModalOpen(false)}
+                footer={null}
+            >
+                <List
+                    dataSource={friends}
+                    locale={{ emptyText: "You have no friends to invite" }}
+                    renderItem={(friend) => (
+                        <List.Item
+                            actions={[
+                                <Button
+                                    key="invite"
+                                    type="primary"
+                                    size="small"
+                                    onClick={() => {
+                                        handleInvitePlayer(friend.id);
+                                        setIsInviteModalOpen(false);
+                                    }}
+                                >
+                                    Invite
+                                </Button>
+                            ]}
+                        >
+                            {friend.username}
+                        </List.Item>
+                    )}
+                />
+            </Modal>
 
             {/* MAIN GAME VIEW */}
             <div className="bg-[url('/images/poker-table.jpg')] bg-cover bg-center relative min-h-screen">
