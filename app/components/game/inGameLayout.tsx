@@ -61,6 +61,24 @@ const InGameLayout = ({
 }: InGameLayoutProps) => {
     const isMyTurn = roundModel?.playersTurnId === currentPlayer?.userId;
 
+    // Function to get the appropriate table image based on the weather type
+    const getTableImage = () => {
+        if (!weatherType) return "/images/tables/green-table.jpg"; // Default table
+        
+        switch(weatherType) {
+            case "SUNNY":
+                return "/images/tables/SUNNY.png";
+            case "RAINY":
+                return "/images/tables/RAINY.png";
+            case "SNOWY":
+                return "/images/tables/SNOWY.png";
+            case "CLOUDY":
+                return "/images/tables/CLOUDY.png";
+            default:
+                return "/images/tables/green-table.jpg";
+        }
+    };
+
     const allRoundBets = roundModel
         ? [...(roundModel.otherPlayers?.map(p => p.roundBet) ?? []), roundModel.player?.roundBet ?? 0]
         : [];
@@ -232,6 +250,8 @@ const InGameLayout = ({
                         <p className="!mb-5">{customRuleText}</p>
 
                         {/* Poker Table */}
+                        {/*Poker table with community cards and pot, this table should display special maps/png when certain weather conditions are met like: SUNNY, RAINY, SNOWY, CLOUDY*/}
+
                         <div className="relative w-[1000px] h-[500px] mb-4">
                             <div className="absolute inset-0 flex items-center justify-center">
                                 {/* Outer container with brown border */}
@@ -245,7 +265,7 @@ const InGameLayout = ({
                                         overflow: 'hidden',
                                     }}>
                                         <img
-                                            src="/images/tables/green-table.jpg"
+                                            src={getTableImage()}
                                             alt="Poker Table"
                                             className="w-full h-full object-cover"
                                         />
