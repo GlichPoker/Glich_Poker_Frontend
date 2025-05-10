@@ -248,30 +248,50 @@ const InGameLayout = ({
                     {/* Center */}
                     <div className="flex flex-col items-center justify-center w-[33.33%] text-center space-y-2">
                         <p className="!mb-5">{customRuleText}</p>
-
-                        {/* Poker Table */}
-                        {/*Poker table with community cards and pot, this table should display special maps/png when certain weather conditions are met like: SUNNY, RAINY, SNOWY, CLOUDY*/}
-
-                        <div className="relative w-[1000px] h-[500px] mb-4">
-                            <div className="absolute inset-0 flex items-center justify-center">
-                                {/* Outer container with brown border */}
-                                <div className="relative w-full h-full flex items-center justify-center" style={{
-                                    clipPath: 'ellipse(50% 50% at 50% 50%)',
-                                    background: '#8B4513', /* Brown border color */
-                                }}>
-                                    {/* Inner container with green table */}
-                                    <div className="w-[calc(100%-16px)] h-[calc(100%-16px)]" style={{
-                                        clipPath: 'ellipse(50% 50% at 50% 50%)',
-                                        overflow: 'hidden',
-                                    }}>
-                                        <img
-                                            src={getTableImage()}
-                                            alt="Poker Table"
+                        
+                        {/* Main container with relative positioning for overlay effect */}
+                        <div className="relative">
+                            {/* 
+                            // Weather Window (commented out)
+                            <div className="relative w-[600px] h-[300px] rounded-lg overflow-hidden border-4 border-[#8B4513] shadow-lg">
+                                <div className="absolute inset-0 border-8 border-[#6b4612] z-10 pointer-events-none">
+                                    <div className="absolute top-0 bottom-0 left-1/2 w-3 bg-[#6b4612] transform -translate-x-1/2"></div>
+                                    <div className="absolute left-0 right-0 top-1/2 h-3 bg-[#6b4612] transform -translate-y-1/2"></div>
+                                </div>
+                                
+                                <div className="w-full h-full">
+                                    {weatherType && (
+                                        <img 
+                                            src={`/images/weather/${weatherType}.gif`} 
+                                            alt={`${weatherType} weather`}
                                             className="w-full h-full object-cover"
                                         />
-                                    </div>
+                                    )}
                                 </div>
                             </div>
+                            */}
+                            
+                            {/* Poker Table */}
+                            <div className="absolute top-[125px] left-1/2 transform -translate-x-1/2 w-[900px] h-[400px] z-30">
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    {/* Outer container with brown border */}
+                                    <div className="relative w-full h-full flex items-center justify-center" style={{
+                                        clipPath: 'ellipse(50% 50% at 50% 50%)',
+                                        background: '#8B4513', /* Brown border color */
+                                    }}>
+                                        {/* Inner container with table */}
+                                        <div className="w-[calc(100%-16px)] h-[calc(100%-16px)]" style={{
+                                            clipPath: 'ellipse(50% 50% at 50% 50%)',
+                                            overflow: 'hidden',
+                                        }}>
+                                            <img
+                                                src={getTableImage()}
+                                                alt="Poker Table"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
 
                             {/* Community cards on the table above the pot */}
                             {roundModel?.communityCards && roundModel.communityCards.length > 0 && (
@@ -291,6 +311,7 @@ const InGameLayout = ({
                             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
                                 <p className="text-2xl font-bold text-white drop-shadow-lg">Pot: ${roundModel?.potSize}</p>
                             </div>
+                        </div>
                         </div>
                     </div>
 
@@ -314,7 +335,8 @@ const InGameLayout = ({
                     </div>
                 </div>
 
-                <div className="absolute bottom-32 left-0 right-0 flex justify-center">
+                {/* Player container */}
+                <div className="absolute bottom-32 left-0 right-0 flex justify-center z-50">
                     {isMyTurn ? (
                         <Badge.Ribbon text="My Turn" color="red">
                             <MySeat
@@ -333,7 +355,7 @@ const InGameLayout = ({
                 </div>
 
                 {/* Action buttons */}
-                <div className="absolute bottom-10 w-full flex justify-evenly items-end">
+                <div className="absolute bottom-10 w-full flex justify-evenly items-end z-50">
                     <div className="flex flex-col items-center w-28">
                         <div className="w-full">
                             <ActionButton
