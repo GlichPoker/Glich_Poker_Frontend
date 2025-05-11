@@ -73,8 +73,8 @@ Note: If a team member fails to show continuous progress after using their Joker
 |                     | [07.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/3675f702763d54e3647d3117a0a343017f2b6003]          | [implement drawer to display hand rank according to the custom rules]                                                                                                                                       | [It makes it easier for players to understand custom rules]                                         |
 | **[_@BeCre11how_]**       | [_04.05.2025_] | [_https://github.com/GlichPoker/Glich_Poker_Backend/commit/27f33d7baa5a00095b08e028898a5df324e16c06_]          | [_added custom rules_]                        | [__can evaluate in custom orders now]                        |
 |                     | [_08.05.2025_] | [_https://github.com/GlichPoker/Glich_Poker_Backend/commit/9aa1e8c100a10705274a85749802614e96a87a2a_]          | [_added tests in several commits_]                 |[[_to increase and fullfill coverage requirement_] 
-| **[__]**   | [__] | [__]          | [__]                                                                                          | [__]                                          |
-|                     | [__] | [__]          | [__]                                                                                                                                          | [__]             |
+| **[elio]**   | [] | [__]          | [change deployment to flex and fix resulting problems and bugs]                                                                                          | []                                          |
+|                     | [__] | [__]          | [joker]                                                                                                                                          | [__]             |
 
 
 ---
