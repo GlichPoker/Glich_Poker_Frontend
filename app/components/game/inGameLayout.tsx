@@ -18,6 +18,8 @@ import HandRankingsDrawer from "@/components/game/inGame/HandRankingsDrawer";
 import WinnerModal from "@/components/game/inGame/WinnerModal";
 import OtherPlayerSection from "@/components/game/inGame/OtherPlayerSection";
 import PokerTable from "@/components/game/inGame/PokerTable";
+import SlipperyCardModal from './specialactions/SlipperyCardModal';
+import WeatherIcon from "@/components/game/weatherIcon";
 
 
 const baseURL = getApiDomain();
@@ -104,6 +106,8 @@ const InGameLayout = ({
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [showMiragePopup, setShowMiragePopup] = useState(false);
+    const [showSwapModal, setShowSwapModal] = useState(false);
+    const [showSwapButton, setShowSwapButton] = useState(false);
 
     const defaultOrder = [
         "ROYALFLUSH",
@@ -145,11 +149,16 @@ const InGameLayout = ({
 
     const token = localStorage.getItem("token");
 
-    const { handleSpecialAction, handleBluffCardSelected } = useSpecialActions({
-        lobbyId,
-        currentUser,
-        setError,
-    });
+    const { handleSpecialAction,
+        handleBluffCardSelected,
+        canSwap,
+        consumeSwap, } = useSpecialActions({
+            lobbyId,
+            currentUser,
+            setError,
+            weatherType,
+            roundModel,
+        });
 
     // For API calls that need authentication
     const userForAuth = currentUser && token ? {
@@ -175,6 +184,12 @@ const InGameLayout = ({
     useEffect(() => {
         setCallInput(callAmount);
     }, [callAmount]);
+
+    useEffect(() => {
+        if (canSwap) {
+            setShowSwapButton(true);
+        }
+    }, [canSwap]);
 
     const handleCallInputChange = (value: number | null) => {
         setCallInput(value ?? 0);
@@ -220,6 +235,11 @@ const InGameLayout = ({
             console.error("Failed to notify server about next round readiness:", error);
         }
     };
+    const handleSwapCardClick = () => {
+        setShowSwapButton(false);
+        setShowSwapModal(true);
+        consumeSwap();
+    };
     return (
         <div className="flex flex-col w-full h-auto">
             <nav className="flex flex-row h-14 justify-between items-center bg-[#181818] px-4">
@@ -230,6 +250,7 @@ const InGameLayout = ({
 
                 {/* Right: Controls */}
                 <div className="flex flex-row space-x-4">
+                    {weatherType && <WeatherIcon weatherType={weatherType} />}
                     <Button
                         type="link"
                         className="!text-gray-500 !font-bold"
@@ -403,13 +424,28 @@ const InGameLayout = ({
                             <div className="w-full">
                                 <SpecialActionButton
                                     label={weatherSpecialActions[weatherType] || "Special Action"}
-                                    onClick={() => handleSpecialAction(weatherType, () => setShowMiragePopup(true))}
-                                    disabled={!isMyTurn}
+                                    onClick={() => {
+                                        if (weatherType === "RAINY") {
+                                            if (showSwapButton) {
+                                                handleSwapCardClick();
+                                            } else {
+                                                notification.warning({
+                                                    message: "Swap Unavailable",
+                                                    description: "You have already used your swap this round.",
+                                                    placement: "top",
+                                                });
+                                            }
+                                        } else {
+                                            handleSpecialAction(weatherType, () => setShowMiragePopup(true), () => handleSwapCardClick());
+                                        }
+                                    }}
+                                    disabled={!isMyTurn || (weatherType === "RAINY" && !showSwapButton)}
                                     weatherType={weatherType}
                                 />
                             </div>
                         </div>
                     )}
+
                 </div>
 
                 {/* Mirage Action Popup */}
@@ -439,6 +475,18 @@ const InGameLayout = ({
                     handRankOrder={handRankOrder}
                     rankImageMap={rankImageMap}
                     lowerRule={lowerRule}
+                />
+                {/* RANIY - slippery card(swap hand cards) */}
+                <SlipperyCardModal
+                    isVisible={showSwapModal}
+                    onClose={() => setShowSwapModal(false)}
+                    handCards={roundModel?.player?.hand || []}
+                    playerId={currentUser?.id || 0}
+                    sessionId={parseInt(lobbyId, 10)}
+                    token={token || ""}
+                    onSwapped={(newHand) => {
+                        setRoundModel(prev => prev ? ({ ...prev, player: { ...prev.player, hand: newHand } }) : null);
+                    }}
                 />
             </div>
         </div >

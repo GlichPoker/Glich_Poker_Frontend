@@ -1,18 +1,22 @@
-// hooks/useSpecialActions.ts
+import { useEffect, useState, useRef } from "react";
 import { notification } from "antd";
-import { Card } from "@/types/round";
+import { Card, RoundModel } from "@/types/round";
 import { useActionHandlers } from "@/hooks/useActionHandlers";
 
 interface SpecialActionsProps {
     lobbyId: string;
     currentUser: { id: number; token: string } | null;
     setError: (msg: string) => void;
+    weatherType?: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY";
+    roundModel?: RoundModel;
 }
 
 export function useSpecialActions({
     lobbyId,
     currentUser,
-    setError
+    setError,
+    weatherType,
+    roundModel,
 }: SpecialActionsProps) {
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
@@ -22,17 +26,41 @@ export function useSpecialActions({
         setError,
     });
 
-    const handleSpecialAction = (weatherType: string, openMiragePopup: () => void) => {
+
+    const [canSwap, setCanSwap] = useState(false);
+    const prevCommunityLength = useRef(0);
+
+    useEffect(() => {
+        const currentLength = roundModel?.communityCards?.length ?? 0;
+
+        if (weatherType === "RAINY" && currentLength > prevCommunityLength.current) {
+            setCanSwap(true);
+        }
+
+        prevCommunityLength.current = currentLength;
+    }, [weatherType, roundModel?.communityCards]);
+
+    const consumeSwap = () => setCanSwap(false);
+
+    const handleSpecialAction = (
+        weatherType: string,
+        openMiragePopup: () => void,
+        openSwapPopup: () => void
+    ) => {
         switch (weatherType) {
             case "SUNNY":
                 openMiragePopup();
                 break;
             case "RAINY":
-                notification.info({
-                    message: "Swap Card",
-                    description: "This feature is implemented directly in the backend.",
-                    placement: "top"
-                });
+                if (canSwap) {
+                    openSwapPopup();
+                } else {
+                    notification.warning({
+                        message: "Swap Unavailable",
+                        description: "You have already used your swap this round.",
+                        placement: "top",
+                    });
+                }
                 break;
             default:
                 console.warn(`Unhandled weather type: ${weatherType}`);
@@ -61,7 +89,7 @@ export function useSpecialActions({
             message: "Processing Mirage...",
             description: "Sending your card to other players...",
             placement: "top",
-            duration: 2
+            duration: 2,
         });
 
         try {
@@ -69,7 +97,7 @@ export function useSpecialActions({
             notification.success({
                 message: "Mirage Ability Used",
                 description: "You've shown a card to the other players.",
-                placement: "top"
+                placement: "top",
             });
         } catch (error: any) {
             setError(`Failed to use Mirage ability: ${error.message || "Unknown error"}`);
@@ -78,6 +106,8 @@ export function useSpecialActions({
 
     return {
         handleSpecialAction,
-        handleBluffCardSelected
+        handleBluffCardSelected,
+        canSwap,
+        consumeSwap,
     };
 }

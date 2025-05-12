@@ -16,11 +16,11 @@ export const useActionHandlers = ({ lobbyId, currentUser, setError }: ActionHand
     }
 
     // Debug the current user object to ensure it has the correct token
-    console.log("[DEBUG] useActionHandlers - currentUser:", {
-        id: currentUser.id,
-        hasToken: !!currentUser.token,
-        tokenLength: currentUser.token?.length || 0
-    });
+    // console.log("[DEBUG] useActionHandlers - currentUser:", {
+    //     id: currentUser.id,
+    //     hasToken: !!currentUser.token,
+    //     tokenLength: currentUser.token?.length || 0
+    // });
 
     const commonHeaders = {
         'Content-Type': 'application/json',
@@ -38,18 +38,18 @@ export const useActionHandlers = ({ lobbyId, currentUser, setError }: ActionHand
             if (amount !== undefined) {
                 requestBody.amount = amount;
             }
-            
+
             if (card !== undefined) {
                 requestBody.card = card;
             }
 
             // Debug log for all requests
-            console.log(`[DEBUG] ${endpoint} request:`, {
-                url: `${baseURL}/game/${endpoint}`,
-                method: 'POST',
-                headers: { ...commonHeaders, Authorization: 'Bearer ***' }, // Don't log actual token
-                body: JSON.stringify(requestBody)
-            });
+            // console.log(`[DEBUG] ${endpoint} request:`, {
+            //     url: `${baseURL}/game/${endpoint}`,
+            //     method: 'POST',
+            //     headers: { ...commonHeaders, Authorization: 'Bearer ***' }, // Don't log actual token
+            //     body: JSON.stringify(requestBody)
+            // });
 
             const response = await fetch(`${baseURL}/game/${endpoint}`, {
                 method: 'POST',
@@ -58,12 +58,12 @@ export const useActionHandlers = ({ lobbyId, currentUser, setError }: ActionHand
             });
 
             console.log(`[DEBUG] ${endpoint} response status:`, response.status);
-            
+
             if (!response.ok) {
                 let readableMessage = `Unexpected error (${response.status})`;
                 try {
                     const errorJson = await response.json();
-                    console.log(`[DEBUG] ${endpoint} error response:`, errorJson);
+                    // console.log(`[DEBUG] ${endpoint} error response:`, errorJson);
                     readableMessage = errorJson.message || readableMessage;
                 } catch (parseError) {
                     console.warn('Failed to parse error response:', parseError);
@@ -78,14 +78,14 @@ export const useActionHandlers = ({ lobbyId, currentUser, setError }: ActionHand
 
                 throw new Error(readableMessage);
             }
-            
+
             // Try to parse response as JSON if available
             try {
                 const data = await response.json();
-                console.log(`[DEBUG] ${endpoint} success response:`, data);
+                // console.log(`[DEBUG] ${endpoint} success response:`, data);
                 return data;
             } catch (e) {
-                console.log(`[DEBUG] ${endpoint} success (no response body)`);
+                // console.log(`[DEBUG] ${endpoint} success (no response body)`);
                 return true;
             }
 
