@@ -89,11 +89,11 @@ export default function useWeather(
         snowfall: number;
         cloudCover: number;
     }): string {
-        // if (rain >= 1) return "RAINY";
-        // if (snowfall >= 1) return "SNOWY";
-        // if (cloudCover >= 50) return "CLOUDY";
-        // return "SUNNY";
-        return "RAINY"
+        if (rain >= 1) return "RAINY";
+        if (snowfall >= 1) return "SNOWY";
+        if (cloudCover >= 50) return "CLOUDY";
+        return "SUNNY";
+
     }
 
     return {

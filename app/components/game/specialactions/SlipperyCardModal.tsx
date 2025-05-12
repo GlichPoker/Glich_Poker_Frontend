@@ -130,10 +130,13 @@ const SlipperyCardModal: React.FC<SlipperyCardModalProps> = ({
                             <img
                                 src={`https://deckofcardsapi.com/static/img/${card.cardCode}.png`}
                                 alt={card.cardCode}
-                                className="h-24 w-auto rounded"
+                                className="h-24 w-auto rounded !mt-3"
                             />
                         </div>
                     ))}
+                </div>
+                <div className="text-sm text-gray-600 italic !mt-3">
+                    Slippery Cards lets you swap one card from your hand once per round. Use it to improve your hand or keep others guessing.
                 </div>
             </Modal>
         </>
