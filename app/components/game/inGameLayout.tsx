@@ -5,12 +5,14 @@ import Vote from '@/components/game/voting/vote';
 import MySeat from '@/components/game/mySeat';
 import OtherPlayerSeat from '@/components/game/otherPlayerSeat';
 import ActionButton from '@/components/game/actionButton';
-import { RoundModel } from '@/types/round';
+import SpecialActionButton from './specialActionButton';
+import { RoundModel, Card } from '@/types/round';
 import { useActionHandlers } from '@/hooks/useActionHandlers';
 import { Modal } from 'antd';
 import { WinningModel } from '@/types/winning';
 import "@ant-design/v5-patch-for-react-19";
 import { getApiDomain } from '@/utils/domain';
+import MirageAction from './specialactions/Mirage';
 
 const baseURL = getApiDomain();
 
@@ -79,6 +81,12 @@ const InGameLayout = ({
         }
     };
 
+    const weatherSpecialActions: Partial<Record<string, string>> = {
+        "SUNNY": "Mirage",
+        "RAINY": "Swap Card",
+        // Add more weather types with special actions as needed
+    };
+
     const allRoundBets = roundModel
         ? [...(roundModel.otherPlayers?.map(p => p.roundBet) ?? []), roundModel.player?.roundBet ?? 0]
         : [];
@@ -89,6 +97,7 @@ const InGameLayout = ({
     const [raiseInput, setRaiseInput] = useState<number>(callAmount + 1);
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [showMiragePopup, setShowMiragePopup] = useState(false);
 
     const defaultOrder = [
         "ROYALFLUSH",
@@ -130,6 +139,12 @@ const InGameLayout = ({
 
     const token = localStorage.getItem("token");
 
+    // For API calls that need authentication
+    const userForAuth = currentUser && token ? {
+        id: currentUser.id,
+        token: token
+    } : null;
+
     // winner modal
     useEffect(() => {
         if (winningModel) {
@@ -163,9 +178,96 @@ const InGameLayout = ({
 
     const actionHandlers = useActionHandlers({
         lobbyId,
-        currentUser: currentPlayer,
+        currentUser: currentPlayer && token ? { 
+            id: currentPlayer.userId, 
+            token: token 
+        } : null,
         setError: handleActionError
     });
+
+    const handleSpecialAction = (weatherType: string) => {
+        switch(weatherType) {
+            case "SUNNY":
+                // Open mirage popup or modal for showing real or fake hand card
+                setShowMiragePopup(true);
+                break;
+            case "RAINY":
+                // Handle Slippery Cards (swap card) action
+                notification.info({
+                    message: "Swap Card",
+                    description: "This feature is implemented directly in the backend.",
+                    placement: "top"
+                });
+                break;
+            // Add cases for other weather types
+            default:
+                console.error(`No handler for weather type: ${weatherType}`);
+        }
+    };
+    
+    // Handle bluff card selection
+    const handleBluffCardSelected = (selectedCard: Card) => {
+        console.log("[DEBUG] handleBluffCardSelected - Card selected:", selectedCard);
+        
+        if (!actionHandlers.handleBluff) {
+            console.error("[DEBUG] handleBluffCardSelected - handleBluff function not available");
+            return;
+        }
+        
+        // Check if we have the required authorization
+        if (!token || !currentUser) {
+            console.error("[DEBUG] handleBluffCardSelected - Missing token or currentUser:", { 
+                hasToken: !!token, 
+                hasCurrentUser: !!currentUser 
+            });
+            setError("Authentication error: Please refresh the page and try again");
+            setShowMiragePopup(false);
+            return;
+        }
+        
+        // Make a copy of the card to ensure we're sending the right format
+        const cardToSend = {
+            cardCode: selectedCard.cardCode,
+            suit: selectedCard.suit,
+            rank: selectedCard.rank
+        };
+        
+        console.log("[DEBUG] handleBluffCardSelected - Sending card:", cardToSend);
+        
+        // Close popup immediately to prevent multiple submissions
+        setShowMiragePopup(false);
+        
+        // Show temporary notification that we're processing
+        notification.info({
+            message: "Processing Mirage...",
+            description: "Sending your card to other players...",
+            placement: "top",
+            duration: 2
+        });
+        
+        // Call the API
+        try {
+            actionHandlers.handleBluff(cardToSend)
+                .then((result) => {
+                    console.log("[DEBUG] handleBluffCardSelected - Success:", result);
+                    // Success notification
+                    setTimeout(() => {
+                        notification.success({
+                            message: "Mirage Ability Used",
+                            description: "You've shown a card to the other players as part of your bluff strategy.",
+                            placement: "top",
+                        });
+                    }, 500);
+                })
+                .catch(error => {
+                    console.error("[DEBUG] handleBluffCardSelected - Error:", error);
+                    setError(`Failed to use Mirage ability: ${error.message || "Unknown error"}`);
+                });
+        } catch (error) {
+            console.error("[DEBUG] handleBluffCardSelected - Exception:", error);
+            setError("Failed to use Mirage ability. Please try again.");
+        }
+    };
 
     // Modal Handler
     const handleModalClose = async () => {
@@ -421,9 +523,37 @@ const InGameLayout = ({
                             />
                         </div>
                     </div>
-                </div>
 
-                {/* Winner presentation modal  */}
+                    {weatherType && weatherSpecialActions[weatherType] && (
+                        <div className="flex flex-col items-center w-28">
+                            <div className="w-full">
+                                <SpecialActionButton
+                                    label={weatherSpecialActions[weatherType] || "Special Action"}
+                                    onClick={() => {
+                                        handleSpecialAction(weatherType);
+                                    }}
+                                    disabled={!isMyTurn}
+                                    weatherType={weatherType}
+                                />
+                            </div>
+                        </div>
+                    )}
+                </div>
+                
+                {/* Mirage Action Popup */}
+                {showMiragePopup && roundModel && currentUser && (
+                    <MirageAction
+                        isVisible={showMiragePopup}
+                        onClose={() => setShowMiragePopup(false)}
+                        onSelectCard={handleBluffCardSelected}
+                        handCards={roundModel.player?.hand || []}
+                        playerId={currentUser.id}
+                        sessionId={parseInt(lobbyId.toString(), 10)}
+                        token={token || ''}
+                    />
+                )}
+                
+                {/* Winner presentation modal */}
                 <Modal
                     title="🏆 Round Result"
                     open={isModalVisible}

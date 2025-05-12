@@ -1,6 +1,6 @@
 import { Avatar } from 'antd';
 import type { Player } from '@/types/game';
-import { RoundPlayer } from '@/types/round';
+import { RoundPlayer, Card as CardType } from '@/types/round';
 import Card from './card';
 
 type Props = {
@@ -13,6 +13,9 @@ type Props = {
 const OtherPlayerSeat = ({ player, positionLabel, roundPlayer, isRoundOver = false }: Props) => {
     // Use roundPlayer data if available, otherwise fall back to player data
     const playerData = roundPlayer || player;
+    
+    // Check if the player has a bluff card to show
+    const hasBluffCard = roundPlayer?.bluffCard !== undefined && roundPlayer?.bluffCard !== null;
 
     return (
         <div className="bg-black bg-opacity-70 rounded-lg p-4 border-2 border-gray-500 min-w-40 min-h-28 flex flex-col items-center text-white">
@@ -30,9 +33,22 @@ const OtherPlayerSeat = ({ player, positionLabel, roundPlayer, isRoundOver = fal
                         Balance: {playerData.balance ?? 0} | Bet: {playerData.roundBet ?? 0}
                     </div>
 
+                    {/* Show bluff card if available */}
+                    {hasBluffCard && roundPlayer?.bluffCard && (
+                        <div className="mt-2 flex justify-center relative">
+                            <div className="absolute -top-5 left-0 right-0 text-xs text-yellow-300 font-bold text-center">
+                                Showing card
+                            </div>
+                            <Card
+                                cardCode={roundPlayer.bluffCard.cardCode}
+                                width={70}
+                                height={100}
+                            />
+                        </div>
+                    )}
 
                     {/* Show actual cards if round is over and we have roundPlayer data */}
-                    {roundPlayer?.hand && roundPlayer.hand.length > 0 && (
+                    {!hasBluffCard && roundPlayer?.hand && roundPlayer.hand.length > 0 && (
                         <div className="mt-2 flex justify-center">
                             {isRoundOver ? (
                                 // Show actual cards when the round is over
@@ -65,7 +81,7 @@ const OtherPlayerSeat = ({ player, positionLabel, roundPlayer, isRoundOver = fal
                     )}
 
                     {/* Fallback to show card backs for regular player data */}
-                    {!roundPlayer?.hand && player?.hand && player.hand.length > 0 && (
+                    {!hasBluffCard && !roundPlayer?.hand && player?.hand && player.hand.length > 0 && (
                         <div className="mt-2 flex justify-center">
                             <Card
                                 cardCode=""

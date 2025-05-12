@@ -14,6 +14,7 @@ export type RoundPlayer = {
     active: boolean;
     roundBet: number;
     hand?: Card[];
+    bluffCard?: Card; // Card shown for Mirage ability
 };
 
 export type GameSettings = {
