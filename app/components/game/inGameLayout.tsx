@@ -13,6 +13,12 @@ import { WinningModel } from '@/types/winning';
 import "@ant-design/v5-patch-for-react-19";
 import { getApiDomain } from '@/utils/domain';
 import MirageAction from './specialactions/Mirage';
+import { useSpecialActions } from "@/hooks/useSpecialActions";
+import HandRankingsDrawer from "@/components/game/inGame/HandRankingsDrawer";
+import WinnerModal from "@/components/game/inGame/WinnerModal";
+import OtherPlayerSection from "@/components/game/inGame/OtherPlayerSection";
+import PokerTable from "@/components/game/inGame/PokerTable";
+
 
 const baseURL = getApiDomain();
 
@@ -66,8 +72,8 @@ const InGameLayout = ({
     // Function to get the appropriate table image based on the weather type
     const getTableImage = () => {
         if (!weatherType) return "/images/tables/green-table.jpg"; // Default table
-        
-        switch(weatherType) {
+
+        switch (weatherType) {
             case "SUNNY":
                 return "/images/tables/SUNNY.png";
             case "RAINY":
@@ -139,6 +145,12 @@ const InGameLayout = ({
 
     const token = localStorage.getItem("token");
 
+    const { handleSpecialAction, handleBluffCardSelected } = useSpecialActions({
+        lobbyId,
+        currentUser,
+        setError,
+    });
+
     // For API calls that need authentication
     const userForAuth = currentUser && token ? {
         id: currentUser.id,
@@ -178,96 +190,12 @@ const InGameLayout = ({
 
     const actionHandlers = useActionHandlers({
         lobbyId,
-        currentUser: currentPlayer && token ? { 
-            id: currentPlayer.userId, 
-            token: token 
+        currentUser: currentPlayer && token ? {
+            id: currentPlayer.userId,
+            token: token
         } : null,
         setError: handleActionError
     });
-
-    const handleSpecialAction = (weatherType: string) => {
-        switch(weatherType) {
-            case "SUNNY":
-                // Open mirage popup or modal for showing real or fake hand card
-                setShowMiragePopup(true);
-                break;
-            case "RAINY":
-                // Handle Slippery Cards (swap card) action
-                notification.info({
-                    message: "Swap Card",
-                    description: "This feature is implemented directly in the backend.",
-                    placement: "top"
-                });
-                break;
-            // Add cases for other weather types
-            default:
-                console.error(`No handler for weather type: ${weatherType}`);
-        }
-    };
-    
-    // Handle bluff card selection
-    const handleBluffCardSelected = (selectedCard: Card) => {
-        console.log("[DEBUG] handleBluffCardSelected - Card selected:", selectedCard);
-        
-        if (!actionHandlers.handleBluff) {
-            console.error("[DEBUG] handleBluffCardSelected - handleBluff function not available");
-            return;
-        }
-        
-        // Check if we have the required authorization
-        if (!token || !currentUser) {
-            console.error("[DEBUG] handleBluffCardSelected - Missing token or currentUser:", { 
-                hasToken: !!token, 
-                hasCurrentUser: !!currentUser 
-            });
-            setError("Authentication error: Please refresh the page and try again");
-            setShowMiragePopup(false);
-            return;
-        }
-        
-        // Make a copy of the card to ensure we're sending the right format
-        const cardToSend = {
-            cardCode: selectedCard.cardCode,
-            suit: selectedCard.suit,
-            rank: selectedCard.rank
-        };
-        
-        console.log("[DEBUG] handleBluffCardSelected - Sending card:", cardToSend);
-        
-        // Close popup immediately to prevent multiple submissions
-        setShowMiragePopup(false);
-        
-        // Show temporary notification that we're processing
-        notification.info({
-            message: "Processing Mirage...",
-            description: "Sending your card to other players...",
-            placement: "top",
-            duration: 2
-        });
-        
-        // Call the API
-        try {
-            actionHandlers.handleBluff(cardToSend)
-                .then((result) => {
-                    console.log("[DEBUG] handleBluffCardSelected - Success:", result);
-                    // Success notification
-                    setTimeout(() => {
-                        notification.success({
-                            message: "Mirage Ability Used",
-                            description: "You've shown a card to the other players as part of your bluff strategy.",
-                            placement: "top",
-                        });
-                    }, 500);
-                })
-                .catch(error => {
-                    console.error("[DEBUG] handleBluffCardSelected - Error:", error);
-                    setError(`Failed to use Mirage ability: ${error.message || "Unknown error"}`);
-                });
-        } catch (error) {
-            console.error("[DEBUG] handleBluffCardSelected - Exception:", error);
-            setError("Failed to use Mirage ability. Please try again.");
-        }
-    };
 
     // Modal Handler
     const handleModalClose = async () => {
@@ -326,116 +254,62 @@ const InGameLayout = ({
             />
 
             <div className="bg-[url('/images/poker-table.jpg')] bg-cover bg-center relative min-h-screen text-white">
-                {/* Other players */}
                 <div className="flex flex-row w-full pt-20 pb-8">
-                    <div className="flex flex-col items-center w-[33.33%] space-y-8">
-                        {otherPlayers.length > 1 && otherPlayers[1] && (
-                            <OtherPlayerSeat
-                                key={1}
-                                player={otherPlayers[1]}
-                                positionLabel="Top Left"
-                                roundPlayer={roundModel?.otherPlayers?.[1]}
-                            />
-                        )}
-                        {otherPlayers.length > 0 && otherPlayers[0] && (
-                            <OtherPlayerSeat
-                                key={0}
-                                player={otherPlayers[0]}
-                                positionLabel="Top Right"
-                                roundPlayer={roundModel?.otherPlayers?.[0]}
-                            />
-                        )}
+                    {/* Left section */}
+                    <div className="w-[33.33%] flex justify-center">
+                        <OtherPlayerSection
+                            side="left"
+                            otherPlayers={otherPlayers}
+                            roundModel={roundModel}
+                        />
                     </div>
 
-                    {/* Center */}
-                    <div className="flex flex-col items-center justify-center w-[33.33%] text-center space-y-2">
+                    {/* Center section */}
+                    <div className="w-[33.33%] flex flex-col items-center justify-center space-y-2 text-center">
                         <p className="!mb-5">{customRuleText}</p>
-                        
+
                         {/* Main container with relative positioning for overlay effect */}
-                        <div className="relative">
+                        <div className="relative w-full flex justify-center">
                             {/* 
-                            // Weather Window (commented out)
-                            <div className="relative w-[600px] h-[300px] rounded-lg overflow-hidden border-4 border-[#8B4513] shadow-lg">
-                                <div className="absolute inset-0 border-8 border-[#6b4612] z-10 pointer-events-none">
-                                    <div className="absolute top-0 bottom-0 left-1/2 w-3 bg-[#6b4612] transform -translate-x-1/2"></div>
-                                    <div className="absolute left-0 right-0 top-1/2 h-3 bg-[#6b4612] transform -translate-y-1/2"></div>
-                                </div>
-                                
-                                <div className="w-full h-full">
-                                    {weatherType && (
-                                        <img 
-                                            src={`/images/weather/${weatherType}.gif`} 
-                                            alt={`${weatherType} weather`}
-                                            className="w-full h-full object-cover"
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                            */}
-                            
+      // Weather Window (currently not used)
+      <div className="relative w-[600px] h-[300px] rounded-lg overflow-hidden border-4 border-[#8B4513] shadow-lg">
+        <div className="absolute inset-0 border-8 border-[#6b4612] z-10 pointer-events-none">
+          <div className="absolute top-0 bottom-0 left-1/2 w-3 bg-[#6b4612] transform -translate-x-1/2"></div>
+          <div className="absolute left-0 right-0 top-1/2 h-3 bg-[#6b4612] transform -translate-y-1/2"></div>
+        </div>
+        
+        <div className="w-full h-full">
+          {weatherType && (
+            <img 
+              src={`/images/weather/${weatherType}.gif`} 
+              alt={`${weatherType} weather`}
+              className="w-full h-full object-cover"
+            />
+          )}
+        </div>
+      </div>
+      */}
+
                             {/* Poker Table */}
-                            <div className="absolute top-[125px] left-1/2 transform -translate-x-1/2 w-[900px] h-[400px] z-30">
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    {/* Outer container with brown border */}
-                                    <div className="relative w-full h-full flex items-center justify-center" style={{
-                                        clipPath: 'ellipse(50% 50% at 50% 50%)',
-                                        background: '#8B4513', /* Brown border color */
-                                    }}>
-                                        {/* Inner container with table */}
-                                        <div className="w-[calc(100%-16px)] h-[calc(100%-16px)]" style={{
-                                            clipPath: 'ellipse(50% 50% at 50% 50%)',
-                                            overflow: 'hidden',
-                                        }}>
-                                            <img
-                                                src={getTableImage()}
-                                                alt="Poker Table"
-                                                className="w-full h-full object-cover"
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-
-                            {/* Community cards on the table above the pot */}
-                            {roundModel?.communityCards && roundModel.communityCards.length > 0 && (
-                                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-[120%] z-20 flex justify-center gap-1">
-                                    {roundModel.communityCards.map((card, i) => (
-                                        <img
-                                            key={i}
-                                            src={`https://deckofcardsapi.com/static/img/${card.cardCode}.png`}
-                                            alt={card.cardCode}
-                                            className="!h-24 w-auto rounded shadow-lg"
-                                        />
-                                    ))}
-                                </div>
-                            )}
-
-                            {/* Pot display on top of table */}
-                            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-                                <p className="text-2xl font-bold text-white drop-shadow-lg">Pot: ${roundModel?.potSize}</p>
-                            </div>
-                        </div>
+                            <PokerTable
+                                weatherType={weatherType}
+                                communityCards={roundModel?.communityCards}
+                                potSize={roundModel?.potSize}
+                            />
                         </div>
                     </div>
 
-                    <div className="flex flex-col items-center w-[33.33%] space-y-8">
-                        {otherPlayers.length > 2 && otherPlayers[2] && (
-                            <OtherPlayerSeat
-                                key={2}
-                                player={otherPlayers[2]}
-                                positionLabel="Bottom Left"
-                                roundPlayer={roundModel?.otherPlayers?.[2]}
-                            />
-                        )}
-                        {otherPlayers.length > 3 && otherPlayers[3] && (
-                            <OtherPlayerSeat
-                                key={3}
-                                player={otherPlayers[3]}
-                                positionLabel="Bottom Right"
-                                roundPlayer={roundModel?.otherPlayers?.[3]}
-                            />
-                        )}
+                    {/* Right section */}
+                    <div className="w-[33.33%] flex justify-center">
+                        <OtherPlayerSection
+                            side="right"
+                            otherPlayers={otherPlayers}
+                            roundModel={roundModel}
+                        />
                     </div>
                 </div>
+
+
 
                 {/* Player container */}
                 <div className="absolute bottom-32 left-0 right-0 flex justify-center z-50">
@@ -529,9 +403,7 @@ const InGameLayout = ({
                             <div className="w-full">
                                 <SpecialActionButton
                                     label={weatherSpecialActions[weatherType] || "Special Action"}
-                                    onClick={() => {
-                                        handleSpecialAction(weatherType);
-                                    }}
+                                    onClick={() => handleSpecialAction(weatherType, () => setShowMiragePopup(true))}
                                     disabled={!isMyTurn}
                                     weatherType={weatherType}
                                 />
@@ -539,91 +411,37 @@ const InGameLayout = ({
                         </div>
                     )}
                 </div>
-                
+
                 {/* Mirage Action Popup */}
-                {showMiragePopup && roundModel && currentUser && (
-                    <MirageAction
-                        isVisible={showMiragePopup}
-                        onClose={() => setShowMiragePopup(false)}
-                        onSelectCard={handleBluffCardSelected}
-                        handCards={roundModel.player?.hand || []}
-                        playerId={currentUser.id}
-                        sessionId={parseInt(lobbyId.toString(), 10)}
-                        token={token || ''}
-                    />
-                )}
-                
+                {
+                    showMiragePopup && roundModel && currentUser && (
+                        <MirageAction
+                            isVisible={showMiragePopup}
+                            onClose={() => setShowMiragePopup(false)}
+                            onSelectCard={(card) => handleBluffCardSelected(card, () => setShowMiragePopup(false))}
+                            handCards={roundModel.player?.hand || []}
+                            playerId={currentUser.id}
+                            sessionId={parseInt(lobbyId.toString(), 10)}
+                            token={token || ''}
+                        />
+                    )
+                }
+
                 {/* Winner presentation modal */}
-                <Modal
-                    title="🏆 Round Result"
-                    open={isModalVisible}
-                    onCancel={handleModalClose}
-                    footer={[
-                        <Button key="ok" type="primary" onClick={handleModalClose}>
-                            OK
-                        </Button>
-                    ]}
-                    destroyOnClose={true}
-                >
-                    {winningModel && (
-                        <div className="text-center space-y-4">
-                            <p className="text-lg font-semibold">
-                                {Object.entries(winningModel.winnings)
-                                    .filter(([_, amount]) => amount > 0)
-                                    .map(([userId]) => {
-                                        const winner = [winningModel.player, ...winningModel.otherPlayers].find(p => p.userId === parseInt(userId));
-                                        return winner?.name || `Player ${userId}`;
-                                    })
-                                    .join(", ")} won the pot of ${winningModel.potSize}!
-                            </p>
-
-                            <p className="text-base">
-                                My Hand: {winningModel.player.evaluationResult?.handRank ?? "Unknown"}
-                            </p>
-
-                            <div className="flex justify-center gap-2">
-                                {winningModel.player.hand
-                                    .filter(card => card !== null)
-                                    .map((card, i) => (
-                                        <img
-                                            key={i}
-                                            src={`https://deckofcardsapi.com/static/img/${card.cardCode}.png`}
-                                            alt={card.cardCode}
-                                            className="h-20 w-auto rounded"
-                                        />
-                                    ))}
-                            </div>
-                        </div>
-                    )}
-                </Modal>
-                <Drawer
-                    title="Poker Hand Rankings"
-                    placement="right"
-                    width={360}
-                    onClose={() => setIsDrawerOpen(false)}
+                <WinnerModal
+                    isVisible={isModalVisible}
+                    onClose={handleModalClose}
+                    winningModel={winningModel ?? null}
+                />
+                <HandRankingsDrawer
                     open={isDrawerOpen}
-                >
-                    <div className="flex flex-col items-center space-y-4">
-                        {handRankOrder.map((rank) => (
-                            <div key={rank} className="w-full text-center">
-                                <img
-                                    src={rankImageMap[rank]}
-                                    alt={rank}
-                                    className="w-full max-w-[300px] mx-auto rounded shadow"
-                                />
-                            </div>
-                        ))}
-                        <p className="mt-4 text-gray-500 text-sm italic">
-                            {lowerRule.includes("custom")
-                                ? "Custom rule applied"
-                                : lowerRule.includes("reverse")
-                                    ? "Reverse rule applied: High Card is strongest"
-                                    : "Standard rule applied: Royal Flush is strongest"}
-                        </p>
-                    </div>
-                </Drawer>
+                    onClose={() => setIsDrawerOpen(false)}
+                    handRankOrder={handRankOrder}
+                    rankImageMap={rankImageMap}
+                    lowerRule={lowerRule}
+                />
             </div>
-        </div>
+        </div >
     );
 };
 
