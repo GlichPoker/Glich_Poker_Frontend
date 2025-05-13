@@ -1,14 +1,12 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { Button, InputNumber, Badge, notification, Drawer } from 'antd';
+import { Button, InputNumber, Badge, notification, Tooltip } from 'antd';
 import Vote from '@/components/game/voting/vote';
 import MySeat from '@/components/game/mySeat';
-import OtherPlayerSeat from '@/components/game/otherPlayerSeat';
 import ActionButton from '@/components/game/actionButton';
 import SpecialActionButton from './specialActionButton';
 import { RoundModel, Card } from '@/types/round';
 import { useActionHandlers } from '@/hooks/useActionHandlers';
-import { Modal } from 'antd';
 import { WinningModel } from '@/types/winning';
 import "@ant-design/v5-patch-for-react-19";
 import { getApiDomain } from '@/utils/domain';
@@ -250,7 +248,17 @@ const InGameLayout = ({
 
                 {/* Right: Controls */}
                 <div className="flex flex-row space-x-4">
-                    {weatherType && <WeatherIcon weatherType={weatherType} />}
+                    {weatherType && (
+                        weatherType === "SNOWY" ? (
+                            <Tooltip placement="bottom" title="A blanket keeps you warm. You receive 3 hand cards instead of the usual 2.">
+                                <div>
+                                    <WeatherIcon weatherType={weatherType} />
+                                </div>
+                            </Tooltip>
+                        ) : (
+                            <WeatherIcon weatherType={weatherType} />
+                        )
+                    )}
                     <Button
                         type="link"
                         className="!text-gray-500 !font-bold"

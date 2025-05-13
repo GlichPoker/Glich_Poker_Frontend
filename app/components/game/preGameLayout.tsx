@@ -1,5 +1,5 @@
 //preGameLayout.tsx
-import { Button, Modal, List } from 'antd';
+import { Button, Modal, List, Tooltip } from 'antd';
 import Vote from '@/components/game/voting/vote';
 import MySeat from '@/components/game/mySeat';
 import OtherPlayerSeat from '@/components/game/otherPlayerSeat';
@@ -86,7 +86,17 @@ const PreGameLayout = ({
 
                 {/* right: buttons */}
                 <div className="flex flex-row space-x-4">
-                    {weatherType && <WeatherIcon weatherType={weatherType} />}
+                    {weatherType && (
+                        weatherType === "SNOWY" ? (
+                            <Tooltip placement="bottom" title="A blanket keeps you warm. You receive 3 hand cards instead of the usual 2.">
+                                <div>
+                                    <WeatherIcon weatherType={weatherType} />
+                                </div>
+                            </Tooltip>
+                        ) : (
+                            <WeatherIcon weatherType={weatherType} />
+                        )
+                    )}
                     <div className="flex items-center space-x-2">
                         <Button
                             type="link"
