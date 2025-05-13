@@ -119,20 +119,22 @@ const SlipperyCardModal: React.FC<SlipperyCardModalProps> = ({
                 <p>Select one card from your hand to swap:</p>
                 <div className="flex justify-center gap-3 mt-4">
                     {handCards.map((card, index) => (
-                        <div
-                            key={index}
-                            className={`cursor-pointer transition-all ${selectedCardIndex === index
-                                ? "transform scale-110 ring-2 ring-blue-400"
-                                : "hover:scale-105"
-                                }`}
-                            onClick={() => setSelectedCardIndex(index)}
-                        >
-                            <img
-                                src={`https://deckofcardsapi.com/static/img/${card.cardCode}.png`}
-                                alt={card.cardCode}
-                                className="h-24 w-auto rounded !mt-3"
-                            />
-                        </div>
+                        card ? (
+                            <div
+                                key={index}
+                                className={`cursor-pointer transition-all ${selectedCardIndex === index
+                                    ? "transform scale-110 ring-2 ring-blue-400"
+                                    : "hover:scale-105"
+                                    }`}
+                                onClick={() => setSelectedCardIndex(index)}
+                            >
+                                <img
+                                    src={`https://deckofcardsapi.com/static/img/${card.cardCode}.png`}
+                                    alt={card.cardCode}
+                                    className="h-24 w-auto rounded !mt-3"
+                                />
+                            </div>
+                        ) : null
                     ))}
                 </div>
                 <div className="text-sm text-gray-600 italic !mt-3">
