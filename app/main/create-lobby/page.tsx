@@ -31,6 +31,7 @@ const CreateGame = () => {
       "A blanket keeps you warm. You receive 3 hand cards instead of the usual 2.",
     CLOUDY:
       "Fog of war obscures the field. Two community cards stay hidden until the showdown.",
+    DEFAULT: "No special weather rules apply."
   };
 
   useEffect(() => {
@@ -94,7 +95,7 @@ const CreateGame = () => {
           bigBlind: parseInt(bigBlind),
           descending: winner === "descending",
           order,
-          weatherType: weatherType ?? "SUNNY",
+          weatherType: weatherType,
           password: isPrivate ? password : "",
         },
       };
@@ -189,6 +190,11 @@ const CreateGame = () => {
               </div>
             )}
 
+            {!weatherLoading && weatherError && (
+              <div className="text-center text-yellow-500 mt-4">
+                📍 {weatherError}
+              </div>
+            )}
             <Divider className="!border-red-900 font-bold">Custom rules</Divider>
 
             {/* custom rules */}

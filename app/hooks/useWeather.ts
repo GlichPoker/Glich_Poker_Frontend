@@ -21,25 +21,39 @@ export default function useWeather(
         RAINY: "☔",
         SNOWY: "❄️",
         CLOUDY: "☁️",
+        DEFAULT: "♠️",
     };
 
+    // Attempt to get browser location if not provided
     useEffect(() => {
         if (!coords && typeof window !== "undefined" && "geolocation" in navigator) {
+            const timeoutId = setTimeout(() => {
+                if (!location) {
+                    console.warn("Location access timed out.");
+                    setError("Location access timed out.");
+                    applyDefaultWeather();
+                }
+            }, 5000);
+
             navigator.geolocation.getCurrentPosition(
                 (position) => {
+                    clearTimeout(timeoutId);
                     setLocation({
                         latitude: position.coords.latitude,
                         longitude: position.coords.longitude,
                     });
                 },
                 (err) => {
+                    clearTimeout(timeoutId);
                     console.error("Geolocation error:", err);
-                    setError(err.message);
+                    setError("Please allow location access to enjoy weather-based game rules. Even without location access, you can still enjoy a poker game.");
+                    applyDefaultWeather();
                 }
             );
         }
     }, [coords]);
 
+    // Fetch weather once location is available
     useEffect(() => {
         const fetchWeather = async () => {
             if (!location) return;
@@ -59,6 +73,10 @@ export default function useWeather(
                 const res = await fetch(url);
                 const data = await res.json();
 
+                if (!data.current) {
+                    throw new Error("Invalid weather data");
+                }
+
                 const current = {
                     temperature: data.current.temperature_2m,
                     precipitation: data.current.precipitation,
@@ -66,7 +84,7 @@ export default function useWeather(
                     rain: data.current.rain,
                     snowfall: data.current.snowfall,
                 };
-                console.log("current weather", current)
+
                 setWeather(current);
 
                 const type = getWeatherType(current);
@@ -74,6 +92,8 @@ export default function useWeather(
                 setEmoji(weatherEmojiMap[type]);
             } catch (err) {
                 console.error("Failed to fetch weather data:", err);
+                setError("Failed to fetch weather data");
+                applyDefaultWeather();
             }
         };
 
@@ -95,11 +115,18 @@ export default function useWeather(
         return "SUNNY";
     }
 
+    function applyDefaultWeather() {
+        if (!weatherType) {
+            setWeatherType("DEFAULT");
+            setEmoji(weatherEmojiMap["DEFAULT"]);
+        }
+    }
+
     return {
         weather,
         weatherType,
         emoji,
-        loading: !weather && !!location,
+        loading: !weather && !weatherType && !error,
         error,
     };
 }
