@@ -9,8 +9,14 @@ import { GameState } from '@/types/gameState';
 import PreGameLayout from '@/components/game/preGameLayout';
 import InGameLayout from '@/components/game/inGameLayout';
 import { WinningModel } from '@/types/winning';
-import { RoundModel } from '@/types/round';
+import { RoundModel, Card } from '@/types/round'; // Ensure Card is imported if BluffModel uses it directly
 import "@ant-design/v5-patch-for-react-19";
+
+// Define BluffModel interface if not already defined globally or imported
+interface BluffModel { 
+    userId: number;
+    bluffCard: Card; 
+}
 
 const baseURL = getApiDomain();
 
@@ -32,6 +38,7 @@ const LobbyPage = () => {
     const [gameState, setGameState] = useState<GameState>(GameState.PRE_GAME);
     const [customRuleText, setCustomRuleText] = useState<string | null>(null);
     const [weatherType, setWeatherType] = useState<string | null>(null);
+    const [bluffModel, setBluffModel] = useState<BluffModel | null>(null); // Add state for bluff model
     const allowedWeatherTypes = ["SUNNY", "RAINY", "SNOWY", "CLOUDY"] as const;
     type WeatherLiteral = typeof allowedWeatherTypes[number];
 
@@ -130,7 +137,8 @@ const LobbyPage = () => {
         setRoundModel,
         winningModel,
         setWinningModel,
-        setGameState
+        setGameState,
+        setBluffModel // Pass setBluffModel to the hook
     });
 
     // if currentUser and lobbyId exist,

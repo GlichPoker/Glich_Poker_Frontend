@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { webSocketService } from '@/utils/websocket';
 import { GameModel, Player } from '@/types/game';
 import { GameState } from '@/types/gameState';
-import { RoundModel } from '@/types/round';
+import { RoundModel, Card } from '@/types/round';
 import { WinningModel } from '@/types/winning';
 import { getApiDomain } from '@/utils/domain';
 
@@ -13,8 +13,15 @@ type GameWebSocketMessage = {
     players?: Player[];
     data?: GameModel;
     state?: GameState;
+    bluffCard?: Card; // Add bluffCard to the message type
+    userId?: number; // Add userId for BLUFFMODEL event
     [key: string]: any;
 };
+
+interface BluffModel {
+    userId: number;
+    bluffCard: Card;
+}
 
 interface UseGameSocketParams {
     lobbyId: string;
@@ -24,6 +31,7 @@ interface UseGameSocketParams {
     winningModel: WinningModel | null;
     setWinningModel: (winner: WinningModel | null) => void;
     setGameState: (state: GameState) => void;
+    setBluffModel: (bluff: BluffModel | null) => void; // Add setter for bluff model
 }
 
 export const useGameSocket = ({
@@ -33,7 +41,8 @@ export const useGameSocket = ({
     setRoundModel,
     winningModel,
     setWinningModel,
-    setGameState
+    setGameState,
+    setBluffModel // Add setBluffModel to destructuring
 }: UseGameSocketParams) => {
     const [gameModel, setGameModel] = useState<GameModel | null>(null);
     const [players, setPlayers] = useState<Player[]>([]);
@@ -131,6 +140,16 @@ export const useGameSocket = ({
                         const model = message as WinningModel;
                         setWinningModel(model);
                         console.log("Received WINNINGMODEL:", model);
+                        break;
+                    }
+
+                    case 'BLUFFMODEL': { // Add case for BLUFFMODEL
+                        if (message.bluffCard && message.userId) {
+                            console.log("Received BLUFFMODEL:", message);
+                            setBluffModel({ userId: message.userId, bluffCard: message.bluffCard });
+                        } else {
+                            console.warn("Received BLUFFMODEL without bluffCard or userId:", message);
+                        }
                         break;
                     }
 

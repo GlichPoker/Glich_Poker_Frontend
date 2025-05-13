@@ -154,7 +154,7 @@ const MirageAction: React.FC<MirageActionProps> = ({
                     <div>
                         <h4 className="mb-2">Select a card from your hand to show:</h4>
                         <div className="flex justify-center gap-2 flex-wrap">
-                            {handCards.map((card, index) => (
+                            {handCards.filter(card => card).map((card, index) => (
                                 <div
                                     key={index}
                                     className={`cursor-pointer transition-all duration-200 ${selectedHandCardIndex === index
@@ -183,7 +183,7 @@ const MirageAction: React.FC<MirageActionProps> = ({
                             onChange={(value) => setSelectedFakeCard(value)}
                             loading={loading}
                         >
-                            {possibleFakeCards.map((card) => (
+                            {possibleFakeCards.filter(card => card).map((card) => (
                                 <Select.Option key={card.cardCode} value={card.cardCode}>
                                     {card.suit.charAt(0) + card.suit.slice(1).toLowerCase()} {card.rank}
                                 </Select.Option>
