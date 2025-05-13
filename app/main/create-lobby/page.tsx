@@ -22,7 +22,16 @@ const CreateGame = () => {
   const [handRankType, setHandRankType] = useState("default");
   const { emoji, weatherType, loading: weatherLoading, error: weatherError } = useWeather();
 
-
+  const weatherDescriptions: Record<string, string> = {
+    SUNNY:
+      "A desert mirage plays tricks on the mind. Once every 5 rounds, you may bluff with a fake or real card. The big blind also increases by 5% every third round.",
+    RAINY:
+      "Slippery hands lead to mistakes. Once per round, you may exchange one card from your hand.",
+    SNOWY:
+      "A blanket keeps you warm. You receive 3 hand cards instead of the usual 2.",
+    CLOUDY:
+      "Fog of war obscures the field. Two community cards stay hidden until the showdown.",
+  };
 
   useEffect(() => {
     const userStr = localStorage.getItem('user');
@@ -165,18 +174,18 @@ const CreateGame = () => {
               </Form.Item>
             )}
 
+            <Divider className="!border-red-900 font-bold">Weather-Based Special Rules</Divider>
 
             {/* current weather */}
-            {(weatherLoading || weatherError) && (
-              <div className="text-center text-sm text-amber-500">
-                Please allow location access to apply weather-based game rules.
-              </div>
-            )}
-
             {!weatherLoading && !weatherError && emoji && (
-              <div className="text-center text-lg text-white">
+              <div className="text-center text-lg text-white mt-4">
                 <p className="text-sm text-white">Current Weather</p>
-                <span style={{ fontSize: "2.5rem" }}>{emoji}</span>
+                <div className="text-5xl">{emoji}</div>
+                {weatherType && weatherDescriptions[weatherType] && (
+                  <p className="text-sm mt-2 text-gray-500 italic max-w-s mx-auto">
+                    {weatherDescriptions[weatherType]}
+                  </p>
+                )}
               </div>
             )}
 

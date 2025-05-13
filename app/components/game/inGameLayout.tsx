@@ -248,17 +248,7 @@ const InGameLayout = ({
 
                 {/* Right: Controls */}
                 <div className="flex flex-row space-x-4">
-                    {weatherType && (
-                        weatherType === "SNOWY" ? (
-                            <Tooltip placement="bottom" title="A blanket keeps you warm. You receive 3 hand cards instead of the usual 2.">
-                                <div>
-                                    <WeatherIcon weatherType={weatherType} />
-                                </div>
-                            </Tooltip>
-                        ) : (
-                            <WeatherIcon weatherType={weatherType} />
-                        )
-                    )}
+                    {weatherType && <WeatherIcon weatherType={weatherType} />}
                     <Button
                         type="link"
                         className="!text-gray-500 !font-bold"
