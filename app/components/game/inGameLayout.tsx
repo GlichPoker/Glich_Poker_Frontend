@@ -19,6 +19,10 @@ import PokerTable from "@/components/game/inGame/PokerTable";
 import SlipperyCardModal from './specialactions/SlipperyCardModal';
 import WeatherIcon from "@/components/game/weatherIcon";
 
+interface BluffModel {
+    userId: number;
+    bluffCard: Card;
+}
 
 const baseURL = getApiDomain();
 
@@ -43,6 +47,7 @@ interface InGameLayoutProps {
     currentUser: { id: number; username: string; token: string } | null;
     customRuleText: string | null;
     weatherType?: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY";
+    bluffModel?: BluffModel | null;
 }
 
 const InGameLayout = ({
@@ -66,6 +71,7 @@ const InGameLayout = ({
     currentUser,
     customRuleText,
     weatherType,
+    bluffModel,
 }: InGameLayoutProps) => {
     const isMyTurn = roundModel?.playersTurnId === currentPlayer?.userId;
 
@@ -280,6 +286,7 @@ const InGameLayout = ({
                             side="left"
                             otherPlayers={otherPlayers}
                             roundModel={roundModel}
+                            activeBluff={bluffModel}
                         />
                     </div>
 
@@ -324,6 +331,7 @@ const InGameLayout = ({
                             side="right"
                             otherPlayers={otherPlayers}
                             roundModel={roundModel}
+                            activeBluff={bluffModel}
                         />
                     </div>
                 </div>

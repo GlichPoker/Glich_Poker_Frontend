@@ -279,6 +279,7 @@ const LobbyPage = () => {
                         currentUser={currentUser}
                         customRuleText={customRuleText}
                         weatherType={safeWeatherType}
+                        bluffModel={bluffModel} // Pass bluffModel here
                     />
                 );
             default:

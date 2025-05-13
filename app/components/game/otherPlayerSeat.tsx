@@ -3,19 +3,24 @@ import type { Player } from '@/types/game';
 import { RoundPlayer, Card as CardType } from '@/types/round';
 import Card from './card';
 
+interface BluffModel {
+    userId: number;
+    bluffCard: CardType;
+}
+
 type Props = {
     player?: Player;
     positionLabel: string;
     roundPlayer?: RoundPlayer;
     isRoundOver?: boolean;
+    activeBluff?: BluffModel | null;
 };
 
-const OtherPlayerSeat = ({ player, positionLabel, roundPlayer, isRoundOver = false }: Props) => {
-    // Use roundPlayer data if available, otherwise fall back to player data
+const OtherPlayerSeat = ({ player, positionLabel, roundPlayer, isRoundOver = false, activeBluff }: Props) => {
     const playerData = roundPlayer || player;
-    
-    // Check if the player has a bluff card to show
-    const hasBluffCard = roundPlayer?.bluffCard !== undefined && roundPlayer?.bluffCard !== null;
+
+    const showSingleSpecialBluff = roundPlayer?.bluffCard !== undefined && roundPlayer?.bluffCard !== null;
+    const isPlayerMirageBluffing = activeBluff && playerData && activeBluff.userId === playerData.userId;
 
     return (
         <div className="bg-black bg-opacity-70 rounded-lg p-4 border-2 border-gray-500 min-w-40 min-h-28 flex flex-col items-center text-white">
@@ -33,8 +38,27 @@ const OtherPlayerSeat = ({ player, positionLabel, roundPlayer, isRoundOver = fal
                         Balance: {playerData.balance ?? 0} | Bet: {playerData.roundBet ?? 0}
                     </div>
 
-                    {/* Show bluff card if available */}
-                    {hasBluffCard && roundPlayer?.bluffCard && (
+                    {/* Card display area */}
+                    {isPlayerMirageBluffing && activeBluff ? (
+                        // Player is using Mirage: show bluff card + one card back
+                        <div className="mt-2 flex justify-center relative">
+                            <div className="absolute -top-5 left-0 right-0 text-xs text-yellow-300 font-bold text-center">
+                                Mirage
+                            </div>
+                            <Card
+                                cardCode={activeBluff.bluffCard.cardCode}
+                                width={60}
+                                height={90}
+                                className="mr-1"
+                            />
+                            <Card
+                                cardCode="" // Card back
+                                width={60}
+                                height={90}
+                            />
+                        </div>
+                    ) : showSingleSpecialBluff && roundPlayer?.bluffCard ? (
+                        // Original display for a single special bluff card
                         <div className="mt-2 flex justify-center relative">
                             <div className="absolute -top-5 left-0 right-0 text-xs text-yellow-300 font-bold text-center">
                                 Showing card
@@ -45,13 +69,10 @@ const OtherPlayerSeat = ({ player, positionLabel, roundPlayer, isRoundOver = fal
                                 height={100}
                             />
                         </div>
-                    )}
-
-                    {/* Show actual cards if round is over and we have roundPlayer data */}
-                    {!hasBluffCard && roundPlayer?.hand && roundPlayer.hand.length > 0 && (
+                    ) : (roundPlayer?.hand && roundPlayer.hand.length > 0) ? (
+                        // Not Mirage, not singleSpecialBluff: Show normal two cards (actuals or backs)
                         <div className="mt-2 flex justify-center">
                             {isRoundOver ? (
-                                // Show actual cards when the round is over
                                 roundPlayer.hand.map((card, i) => (
                                     <Card
                                         key={i}
@@ -62,38 +83,23 @@ const OtherPlayerSeat = ({ player, positionLabel, roundPlayer, isRoundOver = fal
                                     />
                                 ))
                             ) : (
-                                // Show card backs during active gameplay
                                 <>
-                                    <Card
-                                        cardCode=""
-                                        width={60}
-                                        height={90}
-                                        className="mr-1"
-                                    />
-                                    <Card
-                                        cardCode=""
-                                        width={60}
-                                        height={90}
-                                    />
+                                    <Card cardCode="" width={60} height={90} className="mr-1" />
+                                    <Card cardCode="" width={60} height={90} />
                                 </>
                             )}
                         </div>
-                    )}
-
-                    {/* Fallback to show card backs for regular player data */}
-                    {!hasBluffCard && !roundPlayer?.hand && player?.hand && player.hand.length > 0 && (
+                    ) : (!roundPlayer?.hand || roundPlayer.hand.length === 0) && (player?.hand && player.hand.length > 0) ? (
+                        // Fallback: Not Mirage, not singleSpecialBluff, no roundPlayer.hand, but has player.hand: Show two card backs
                         <div className="mt-2 flex justify-center">
-                            <Card
-                                cardCode=""
-                                width={60}
-                                height={90}
-                                className="mr-1"
-                            />
-                            <Card
-                                cardCode=""
-                                width={60}
-                                height={90}
-                            />
+                            <Card cardCode="" width={60} height={90} className="mr-1" />
+                            <Card cardCode="" width={60} height={90} />
+                        </div>
+                    ) : (
+                        // Default if not Mirage, not singleSpecialBluff, and no hand data for this player: show two card backs
+                        <div className="mt-2 flex justify-center">
+                            <Card cardCode="" width={60} height={90} className="mr-1" />
+                            <Card cardCode="" width={60} height={90} />
                         </div>
                     )}
                 </>
