@@ -178,6 +178,7 @@ const MirageAction: React.FC<MirageActionProps> = ({
                     <div>
                         <h4 className="mb-2">Select a fake card to show:</h4>
                         <Select
+                            value={selectedFakeCard} // Added this line
                             placeholder="Select a card"
                             style={{ width: '100%' }}
                             onChange={(value) => setSelectedFakeCard(value)}
