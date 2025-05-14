@@ -45,7 +45,6 @@ export default function useWeather(
                 },
                 (err) => {
                     clearTimeout(timeoutId);
-                    console.error("Geolocation error:", err);
                     setError("Please allow location access to enjoy weather-based game rules. Even without location access, you can still enjoy a poker game.");
                     applyDefaultWeather();
                 }

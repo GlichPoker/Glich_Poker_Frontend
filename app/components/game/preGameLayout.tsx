@@ -173,19 +173,17 @@ const PreGameLayout = ({
                     {/* Poker Table Details + Host Start Button */}
                     <div className="flex flex-col items-center justify-between w-[33.33%] text-white">
                         <div className="rounded-lg p-4 mb-4 text-center">
-                            <h2 className="text-xl font-bold">Poker Table</h2>
-                            <p className="!mb-10">Lobby ID: {lobbyId}</p>
-                            <p className="!mb-10">{customRuleText}</p>
+                            <p className="!mt-30">{customRuleText}</p>
                             {isHost ? (
                                 <Button
                                     type="primary"
-                                    className="mt-4"
+                                    className="!mt-10"
                                     onClick={handleStart}
                                 >
                                     Start Game
                                 </Button>
                             ) : (
-                                <p className="text-sm text-gray-300">Waiting for host to start the game...</p>
+                                <p className="text-sm text-gray-300 !mt-10">Waiting for host to start the game...</p>
                             )}
                         </div>
                     </div>

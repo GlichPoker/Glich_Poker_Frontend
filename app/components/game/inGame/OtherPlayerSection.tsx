@@ -21,8 +21,8 @@ const OtherPlayerSection = ({
     activeBluff,
 }: OtherPlayerSectionProps) => {
     const positions = side === 'left'
-        ? [1, 0] // LEFT SIDE PLAYERS
-        : [2, 3]; // RIGHT SIDE PLAYERS
+        ? [1, 0]
+        : [2, 3];
 
     return (
         <div className="flex flex-col items-center space-y-8">
@@ -34,8 +34,8 @@ const OtherPlayerSection = ({
                         key={i}
                         player={player}
                         roundPlayer={roundPlayer}
-                        positionLabel={`Side ${i}`}
-                        activeBluff={activeBluff} // Pass activeBluff to OtherPlayerSeat
+                        // positionLabel={`Side ${i}`}
+                        activeBluff={activeBluff}
                     />
                 ) : null;
             })}

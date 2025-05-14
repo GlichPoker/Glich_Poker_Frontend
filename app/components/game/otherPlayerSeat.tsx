@@ -10,7 +10,7 @@ interface BluffModel {
 
 type Props = {
     player?: Player;
-    positionLabel: string;
+    positionLabel?: string;
     roundPlayer?: RoundPlayer;
     isRoundOver?: boolean;
     activeBluff?: BluffModel | null;

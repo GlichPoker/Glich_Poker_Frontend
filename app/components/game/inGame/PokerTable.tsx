@@ -1,5 +1,3 @@
-// components/game/inGame/PokerTable.tsx
-
 import React from "react";
 import { Card } from "@/types/round";
 
@@ -29,7 +27,7 @@ const getTableImage = (weatherType?: string) => {
 const PokerTable: React.FC<PokerTableProps> = ({ weatherType, communityCards, potSize }) => {
     return (
         <div className="relative">
-            <div className="absolute top-[40px] left-1/2 transform -translate-x-1/2 w-[900px] h-[400px] z-30">
+            <div className="absolute top-[0px] left-1/2 transform -translate-x-1/2 w-[900px] h-[400px] z-30">
                 <div className="absolute inset-0 flex items-center justify-center">
                     <div
                         className="relative w-full h-full flex items-center justify-center"
@@ -55,7 +53,7 @@ const PokerTable: React.FC<PokerTableProps> = ({ weatherType, communityCards, po
                 </div>
 
                 {communityCards && communityCards.length > 0 && (
-                    <div className="absolute top-[170px] left-1/2 transform -translate-x-1/2 -translate-y-[120%] z-20 flex justify-center gap-1">
+                    <div className="absolute top-[200px] left-1/2 transform -translate-x-1/2 -translate-y-[120%] z-20 flex justify-center gap-1">
                         {communityCards.map((card, i) => (
                             <img
                                 key={i}
@@ -67,7 +65,7 @@ const PokerTable: React.FC<PokerTableProps> = ({ weatherType, communityCards, po
                     </div>
                 )}
 
-                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                <div className="absolute top-[220px] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
                     <p className="text-2xl font-bold text-white drop-shadow-lg">Pot: ${potSize}</p>
                 </div>
             </div>

@@ -13,9 +13,9 @@ import { RoundModel, Card } from '@/types/round'; // Ensure Card is imported if 
 import "@ant-design/v5-patch-for-react-19";
 
 // Define BluffModel interface if not already defined globally or imported
-interface BluffModel { 
+interface BluffModel {
     userId: number;
-    bluffCard: Card; 
+    bluffCard: Card;
 }
 
 const baseURL = getApiDomain();
@@ -173,9 +173,15 @@ const LobbyPage = () => {
                 }),
             });
 
+            // if (!quitResponse.ok) {
+            //     throw new Error('Failed to leave the game room');
+            // }
             if (!quitResponse.ok) {
+                const errorText = await quitResponse.text(); // 여기서 에러 메시지 확인
+                console.error('Failed to leave the game room:', quitResponse.status, errorText);
                 throw new Error('Failed to leave the game room');
             }
+
 
             // request to delete endpoint
             setTimeout(async () => {

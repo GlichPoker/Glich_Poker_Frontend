@@ -57,7 +57,7 @@ export const useActionHandlers = ({ lobbyId, currentUser, setError }: ActionHand
                 body: JSON.stringify(requestBody),
             });
 
-            console.log(`[DEBUG] ${endpoint} response status:`, response.status);
+            // console.log(`[DEBUG] ${endpoint} response status:`, response.status);
 
             if (!response.ok) {
                 let readableMessage = `Unexpected error (${response.status})`;

@@ -291,8 +291,8 @@ const InGameLayout = ({
                     </div>
 
                     {/* Center section */}
-                    <div className="w-[33.33%] flex flex-col items-center justify-center space-y-2 text-center">
-                        <p className="!mb-5">{customRuleText}</p>
+                    <div className="w-[33.33%] flex flex-col items-center  space-y-2 text-center">
+                        <p className="!mb-20 !mt-10">{customRuleText}</p>
 
                         {/* Main container with relative positioning for overlay effect */}
                         <div className="relative w-full flex justify-center">
