@@ -1,11 +1,12 @@
 //preGameLayout.tsx
-import { Button, Modal, List, Tooltip } from 'antd';
+import { Button, Modal, List } from 'antd';
 import Vote from '@/components/game/voting/vote';
 import MySeat from '@/components/game/mySeat';
 import OtherPlayerSeat from '@/components/game/otherPlayerSeat';
 import WeatherIcon from "@/components/game/weatherIcon";
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { getApiDomain } from '@/utils/domain';
+import VoteMap from '@/components/game/voting/voteMap';
 
 interface PreGameLayoutProps {
     lobbyId: string;
@@ -19,6 +20,7 @@ interface PreGameLayoutProps {
     customRuleText: string | null;
     weatherType?: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY";
     handleInvitePlayer: (userId: number) => void;
+    specialRuleText?: string;
 }
 
 const PreGameLayout = ({
@@ -33,6 +35,7 @@ const PreGameLayout = ({
     customRuleText,
     weatherType,
     handleInvitePlayer,
+    specialRuleText
 }: PreGameLayoutProps) => {
     const handleStart = async () => {
         await startGame();
@@ -41,6 +44,7 @@ const PreGameLayout = ({
     const [friends, setFriends] = useState<{ id: number; username: string }[]>([]);
     const baseURL = getApiDomain();
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
+    const [showVoteMap, setShowVoteMap] = useState(false);
 
 
     const fetchFriends = async () => {
@@ -99,6 +103,13 @@ const PreGameLayout = ({
                     <Button
                         type="link"
                         className="!text-gray-500 !font-bold"
+                        onClick={() => setShowVoteMap(true)}
+                    >
+                        Vote Map
+                    </Button>
+                    <Button
+                        type="link"
+                        className="!text-gray-500 !font-bold"
                         onClick={() => setShowVoteOverlay(true)}
                     >
                         Vote
@@ -112,7 +123,12 @@ const PreGameLayout = ({
                     </Button>
                 </div>
             </nav>
-
+            <VoteMap
+                isVisible={showVoteMap}
+                onClose={() => setShowVoteMap(false)}
+                lobbyId={lobbyId}
+                currentUser={currentPlayer}
+            />
             <Vote
                 isVisible={showVoteOverlay}
                 onClose={() => setShowVoteOverlay(false)}

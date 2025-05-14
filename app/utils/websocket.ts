@@ -12,6 +12,10 @@ class WebSocketService {
         this.baseURL = getWSDomain();
     }
 
+    getSocket(): WebSocket | null {
+        return this.socket;
+    }
+
     public connect(service: string, gameID: string, token: string, userID: string = "") {
         // Don't create multiple connections if one is already in progress
         if (service !== "chat" && service !== "game") {
@@ -100,7 +104,9 @@ class WebSocketService {
     }
 
     public addListener(listener: (data: unknown) => void) {
-        this.listeners.push(listener);
+        if (!this.listeners.includes(listener)) {
+            this.listeners.push(listener);
+        }
     }
 
     public removeListener(listener: (data: unknown) => void) {

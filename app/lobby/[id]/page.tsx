@@ -1,5 +1,6 @@
 //lobby/[id]/page.tsx
 'use client';
+import { message } from "antd";
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { getApiDomain } from '@/utils/domain';
@@ -36,10 +37,12 @@ const LobbyPage = () => {
     const [winningModel, setWinningModel] = useState<WinningModel | null>(null);
     const [roundModel, setRoundModel] = useState<RoundModel | null>(null);
     const [gameState, setGameState] = useState<GameState>(GameState.PRE_GAME);
-    const [customRuleText, setCustomRuleText] = useState<string | null>(null);
-    const [weatherType, setWeatherType] = useState<string | null>(null);
+    const [weatherType, setWeatherType] = useState<"SUNNY" | "RAINY" | "SNOWY" | "CLOUDY" | undefined>();
+    const [customRuleText, setCustomRuleText] = useState<string>("");
     const [bluffModel, setBluffModel] = useState<BluffModel | null>(null); // Add state for bluff model
+    const [specialRuleText, setSpecialRuleText] = useState<string>("");
     const allowedWeatherTypes = ["SUNNY", "RAINY", "SNOWY", "CLOUDY"] as const;
+    const [messageApi, contextHolder] = message.useMessage();
     type WeatherLiteral = typeof allowedWeatherTypes[number];
 
     function isValidWeatherType(value: any): value is WeatherLiteral {
@@ -66,6 +69,18 @@ const LobbyPage = () => {
             console.error('Error retrieving user data:', err);
         }
     }, []);
+
+
+    useEffect(() => {
+        if (specialRuleText) {
+            messageApi.warning({
+                content: specialRuleText,
+                key: "specialRule",
+                duration: 3,
+            });
+        }
+    }, [specialRuleText]);
+
 
     useEffect(() => {
         const fetchGameSettings = async () => {
@@ -138,7 +153,9 @@ const LobbyPage = () => {
         winningModel,
         setWinningModel,
         setGameState,
-        setBluffModel // Pass setBluffModel to the hook
+        setBluffModel, // Pass setBluffModel to the hook
+        setWeatherType,
+        setSpecialRuleText,
     });
 
     // if currentUser and lobbyId exist,
@@ -259,6 +276,7 @@ const LobbyPage = () => {
                         customRuleText={customRuleText}
                         weatherType={safeWeatherType}
                         handleInvitePlayer={handleInvitePlayer}
+                        specialRuleText={specialRuleText}
                     />
                 );
             case GameState.IN_GAME:
@@ -295,6 +313,7 @@ const LobbyPage = () => {
 
     return (
         <div>
+            {contextHolder}
             {renderLayout()}
         </div>
     );

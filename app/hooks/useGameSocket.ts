@@ -1,10 +1,11 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import { webSocketService } from '@/utils/websocket';
 import { GameModel, Player } from '@/types/game';
 import { GameState } from '@/types/gameState';
 import { RoundModel, Card } from '@/types/round';
 import { WinningModel } from '@/types/winning';
 import { getApiDomain } from '@/utils/domain';
+import { message } from "antd";
 
 const baseURL = getApiDomain();
 
@@ -13,8 +14,9 @@ type GameWebSocketMessage = {
     players?: Player[];
     data?: GameModel;
     state?: GameState;
-    bluffCard?: Card; // Add bluffCard to the message type
-    userId?: number; // Add userId for BLUFFMODEL event
+    bluffCard?: Card;
+    userId?: number;
+    weatherType?: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY";
     [key: string]: any;
 };
 
@@ -31,7 +33,9 @@ interface UseGameSocketParams {
     winningModel: WinningModel | null;
     setWinningModel: (winner: WinningModel | null) => void;
     setGameState: (state: GameState) => void;
-    setBluffModel: (bluff: BluffModel | null) => void; // Add setter for bluff model
+    setBluffModel: (bluff: BluffModel | null) => void;
+    setWeatherType: (weather: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY") => void;
+    setSpecialRuleText: (text: string) => void;
 }
 
 export const useGameSocket = ({
@@ -42,12 +46,15 @@ export const useGameSocket = ({
     winningModel,
     setWinningModel,
     setGameState,
-    setBluffModel // Add setBluffModel to destructuring
+    setBluffModel,
+    setWeatherType,
+    setSpecialRuleText,
 }: UseGameSocketParams) => {
     const [gameModel, setGameModel] = useState<GameModel | null>(null);
     const [players, setPlayers] = useState<Player[]>([]);
 
-    // Join Game API
+    const listenerRef = useRef<((data: unknown) => void) | null>(null);
+
     const joinGame = async () => {
         if (!lobbyId || !currentUser) return;
 
@@ -73,7 +80,6 @@ export const useGameSocket = ({
             if (res.players && Array.isArray(res.players)) {
                 setPlayers(res.players);
             }
-
         } catch (error) {
             console.error('Failed to join game:', error);
             throw error;
@@ -100,78 +106,82 @@ export const useGameSocket = ({
         }, 5000);
     };
 
-    // WebSocket listener
     useEffect(() => {
         if (!lobbyId || !currentUser) return;
 
-        const listener = (data: unknown) => {
-            try {
-                const message = typeof data === 'string' ? JSON.parse(data) : (data as GameWebSocketMessage);
+        if (!listenerRef.current) {
+            listenerRef.current = (data: unknown) => {
+                try {
+                    const message = typeof data === 'string' ? JSON.parse(data) : (data as GameWebSocketMessage);
 
-                switch (message.event) {
-                    case 'GAMEMODEL': {
-                        const model = message.data || (message as GameModel);
-                        setGameModel(model);
-                        if (model.players && Array.isArray(model.players)) {
-                            setPlayers(model.players);
-                        }
-                        break;
-                    }
-
-                    case 'GAMESTATECHANGED': {
-                        if (message.state) {
-                            console.log('Game state changed to:', message.state);
-                            setGameState(message.state as GameState);
-
-                            if (message.state === GameState.PRE_GAME) {
-                                setWinningModel(null);
-                                setRoundModel(null);
+                    switch (message.event) {
+                        case 'GAMEMODEL':
+                            const model = message.data || (message as GameModel);
+                            setGameModel(model);
+                            if (model.players && Array.isArray(model.players)) {
+                                setPlayers(model.players);
                             }
+                            break;
+
+                        case 'GAMESTATECHANGED':
+                            if (message.state) {
+                                setGameState(message.state);
+                                if (message.state === GameState.PRE_GAME) {
+                                    setWinningModel(null);
+                                    setRoundModel(null);
+                                }
+                            }
+                            break;
+
+                        case 'ROUNDMODEL':
+                            setRoundModel(message);
+                            break;
+
+                        case 'WINNINGMODEL':
+                            setWinningModel(message as WinningModel);
+                            break;
+
+                        case 'BLUFFMODEL':
+                            if (message.bluffCard && message.userId) {
+                                setBluffModel({ userId: message.userId, bluffCard: message.bluffCard });
+                            }
+                            break;
+
+                        case 'WEATHER_VOTE_RESULT': {
+                            const weather = message.weatherType;
+                            const resultMessage = `The map has been changed to ${weather}.`;
+
+                            setWeatherType(weather);
+                            setSpecialRuleText(resultMessage);
+                            message.open({
+                                key: "vote",
+                                type: "success",
+                                content: resultMessage,
+                                duration: 3, // 3초 후 사라짐
+                            });
+                            setTimeout(() => {
+                                message.success("✅ This should be visible!");
+                            }, 2000);
+
+                            break;
                         }
-                        break;
-                    }
 
-                    case 'ROUNDMODEL': {
-                        setRoundModel(message);
-                        break;
+                        default:
+                            console.warn("Unknown WebSocket event:", message.event);
                     }
-
-                    case 'WINNINGMODEL': {
-                        const model = message as WinningModel;
-                        setWinningModel(model);
-                        console.log("Received WINNINGMODEL:", model);
-                        break;
-                    }
-
-                    case 'BLUFFMODEL': { // Add case for BLUFFMODEL
-                        if (message.bluffCard && message.userId) {
-                            console.log("Received BLUFFMODEL:", message);
-                            setBluffModel({ userId: message.userId, bluffCard: message.bluffCard });
-                        } else {
-                            console.warn("Received BLUFFMODEL without bluffCard or userId:", message);
-                        }
-                        break;
-                    }
-
-                    default:
-                        console.warn("Unknown WebSocket event:", message.event);
+                } catch (err) {
+                    console.error('WebSocket parse error:', err);
                 }
-            } catch (err) {
-                console.error('WebSocket parse error:', err);
-            }
-        };
+            };
+        }
 
         const setup = async () => {
             try {
                 await joinGame();
-                await webSocketService.connect(
-                    'game',
-                    lobbyId,
-                    currentUser.token,
-                    String(currentUser.id),
-                );
+                await webSocketService.connect('game', lobbyId, currentUser.token, String(currentUser.id));
 
-                webSocketService.addListener(listener);
+                webSocketService.removeListener(listenerRef.current!);
+                webSocketService.addListener(listenerRef.current!);
             } catch (err) {
                 console.error('WebSocket setup failed:', err);
             }
@@ -180,7 +190,7 @@ export const useGameSocket = ({
         setup();
 
         return () => {
-            webSocketService.removeListener(listener);
+            webSocketService.removeListener(listenerRef.current!);
         };
     }, [lobbyId, currentUser]);
 
@@ -201,7 +211,7 @@ export const useGameSocket = ({
     const startGame = async () => {
         if (!gameModel || !currentUser) return;
 
-        setWinningModel(null); // reset for new round
+        setWinningModel(null);
         try {
             const response = await fetch(`${baseURL}/game/start`, {
                 method: 'POST',
