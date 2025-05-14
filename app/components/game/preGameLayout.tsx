@@ -7,6 +7,7 @@ import WeatherIcon from "@/components/game/weatherIcon";
 import { useState } from 'react';
 import { getApiDomain } from '@/utils/domain';
 import VoteMap from '@/components/game/voting/voteMap';
+import StartVoteButton from '@/components/game/voting/startVoteButton';
 
 interface PreGameLayoutProps {
     lobbyId: string;
@@ -21,6 +22,11 @@ interface PreGameLayoutProps {
     weatherType?: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY";
     handleInvitePlayer: (userId: number) => void;
     specialRuleText?: string;
+    showVoteMapButton: boolean;
+    triggerVoteMapButton: () => void;
+    pendingWeatherType: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY" | null;
+    isWeatherModalOpen: boolean;
+    setIsWeatherModalOpen: (open: boolean) => void;
 }
 
 const PreGameLayout = ({
@@ -35,8 +41,16 @@ const PreGameLayout = ({
     customRuleText,
     weatherType,
     handleInvitePlayer,
-    specialRuleText
+    specialRuleText,
+    showVoteMapButton,
+    pendingWeatherType,
+    isWeatherModalOpen,
+    setIsWeatherModalOpen
 }: PreGameLayoutProps) => {
+    const [showVoteMap, setShowVoteMap] = useState(false)
+    const [applyError, setApplyError] = useState<string | null>(null);
+
+
     const handleStart = async () => {
         await startGame();
     };
@@ -44,8 +58,6 @@ const PreGameLayout = ({
     const [friends, setFriends] = useState<{ id: number; username: string }[]>([]);
     const baseURL = getApiDomain();
     const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-    const [showVoteMap, setShowVoteMap] = useState(false);
-
 
     const fetchFriends = async () => {
 
@@ -100,20 +112,22 @@ const PreGameLayout = ({
                             Invite
                         </Button>
                     </div>
-                    <Button
-                        type="link"
-                        className="!text-gray-500 !font-bold"
-                        onClick={() => setShowVoteMap(true)}
-                    >
-                        Vote Map
-                    </Button>
-                    <Button
+                    {showVoteMapButton && (
+                        <Button
+                            type="link"
+                            className="!text-amber-300 !font-bold"
+                            onClick={() => setShowVoteMap(true)}
+                        >
+                            Vote Map
+                        </Button>
+                    )}
+                    {/* <Button
                         type="link"
                         className="!text-gray-500 !font-bold"
                         onClick={() => setShowVoteOverlay(true)}
                     >
                         Vote
-                    </Button>
+                    </Button> */}
                     <Button
                         type="link"
                         className="!text-gray-500 !font-bold"
@@ -129,11 +143,11 @@ const PreGameLayout = ({
                 lobbyId={lobbyId}
                 currentUser={currentPlayer}
             />
-            <Vote
+            {/* <Vote
                 isVisible={showVoteOverlay}
                 onClose={() => setShowVoteOverlay(false)}
                 lobbyId={lobbyId}
-            />
+            /> */}
             <Modal
                 title="Invite a Friend"
                 open={isInviteModalOpen}
@@ -165,6 +179,58 @@ const PreGameLayout = ({
                 />
             </Modal>
 
+            {/* vote result modal */}
+            <Modal
+                title="Apply Weather Change"
+                open={isWeatherModalOpen}
+                closable={true}
+                onCancel={() => setIsWeatherModalOpen(false)}
+                footer={
+                    isHost ? [
+                        <Button
+                            key="apply"
+                            type="primary"
+                            onClick={async () => {
+                                if (!pendingWeatherType || !currentPlayer?.token) return;
+
+                                try {
+                                    const res = await fetch(`${baseURL}/game/settings`, {
+                                        method: "POST",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                            Authorization: `Bearer ${currentPlayer.token}`,
+                                        },
+                                        body: JSON.stringify({
+                                            sessionId: lobbyId,
+                                            gameSettings: { weatherType: pendingWeatherType },
+                                        }),
+                                    });
+
+                                    if (!res.ok) {
+                                        setApplyError("Failed to apply weather setting.");
+                                        return;
+                                    }
+
+                                    console.log("Weather setting applied");
+                                    setApplyError(null);
+                                    setIsWeatherModalOpen(false);
+                                } catch (err) {
+                                    setApplyError("Error connecting to server.");
+                                    console.error("Error applying weather:", err);
+                                }
+                            }}
+                        >
+                            Apply
+                        </Button>,
+                    ] : null
+                }
+            >
+                <p>The voted weather is <strong>{pendingWeatherType}</strong>.</p>
+                {!isHost && <p>Waiting for the host to apply the weather...</p>}
+                {applyError && <p className="text-red-500 mt-2">{applyError}</p>}
+            </Modal>
+
+
             {/* MAIN GAME VIEW */}
             <div className="bg-[url('/images/poker-table.jpg')] bg-cover bg-center relative min-h-screen">
                 <div className="flex flex-row w-full pt-20 pb-8">
@@ -191,13 +257,23 @@ const PreGameLayout = ({
                         <div className="rounded-lg p-4 mb-4 text-center">
                             <p className="!mt-30">{customRuleText}</p>
                             {isHost ? (
-                                <Button
-                                    type="primary"
-                                    className="!mt-10"
-                                    onClick={handleStart}
-                                >
-                                    Start Game
-                                </Button>
+                                <>
+                                    <div>
+                                        <Button
+                                            type="primary"
+                                            className="!mt-10"
+                                            onClick={handleStart}
+                                        >
+                                            Start Game
+                                        </Button>
+                                    </div>
+                                    <div>
+                                        <StartVoteButton
+                                            lobbyId={lobbyId}
+                                            currentUser={currentPlayer}
+                                        />
+                                    </div>
+                                </>
                             ) : (
                                 <p className="text-sm text-gray-300 !mt-10">Waiting for host to start the game...</p>
                             )}

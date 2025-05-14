@@ -43,6 +43,9 @@ const LobbyPage = () => {
     const [specialRuleText, setSpecialRuleText] = useState<string>("");
     const allowedWeatherTypes = ["SUNNY", "RAINY", "SNOWY", "CLOUDY"] as const;
     const [messageApi, contextHolder] = message.useMessage();
+    const [showVoteMapButton, setShowVoteMapButton] = useState(false);
+    const [pendingWeatherType, setPendingWeatherType] = useState<"SUNNY" | "RAINY" | "SNOWY" | "CLOUDY" | null>(null);
+    const [isWeatherModalOpen, setIsWeatherModalOpen] = useState(false);
     type WeatherLiteral = typeof allowedWeatherTypes[number];
 
     function isValidWeatherType(value: any): value is WeatherLiteral {
@@ -81,6 +84,11 @@ const LobbyPage = () => {
         }
     }, [specialRuleText]);
 
+    useEffect(() => {
+        if (specialRuleText) {
+            setShowVoteMapButton(false);
+        }
+    }, [specialRuleText]);
 
     useEffect(() => {
         const fetchGameSettings = async () => {
@@ -156,6 +164,9 @@ const LobbyPage = () => {
         setBluffModel, // Pass setBluffModel to the hook
         setWeatherType,
         setSpecialRuleText,
+        setShowVoteMapButton,
+        setPendingWeatherType,
+        setIsWeatherModalOpen,
     });
 
     // if currentUser and lobbyId exist,
@@ -258,6 +269,11 @@ const LobbyPage = () => {
             console.error(err);
             alert('Failed to invite player');
         }
+
+    };
+
+    const triggerVoteMapButton = () => {
+        setShowVoteMapButton(true);
     };
 
     const renderLayout = () => {
@@ -277,6 +293,12 @@ const LobbyPage = () => {
                         weatherType={safeWeatherType}
                         handleInvitePlayer={handleInvitePlayer}
                         specialRuleText={specialRuleText}
+                        showVoteMapButton={showVoteMapButton}
+                        triggerVoteMapButton={triggerVoteMapButton}
+                        pendingWeatherType={pendingWeatherType}
+                        isWeatherModalOpen={isWeatherModalOpen}
+                        setIsWeatherModalOpen={setIsWeatherModalOpen}
+
                     />
                 );
             case GameState.IN_GAME:

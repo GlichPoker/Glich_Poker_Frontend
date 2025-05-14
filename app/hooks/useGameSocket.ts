@@ -36,6 +36,9 @@ interface UseGameSocketParams {
     setBluffModel: (bluff: BluffModel | null) => void;
     setWeatherType: (weather: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY") => void;
     setSpecialRuleText: (text: string) => void;
+    setShowVoteMapButton?: (show: boolean) => void;
+    setPendingWeatherType?: (weather: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY") => void;
+    setIsWeatherModalOpen?: (open: boolean) => void;
 }
 
 export const useGameSocket = ({
@@ -49,11 +52,15 @@ export const useGameSocket = ({
     setBluffModel,
     setWeatherType,
     setSpecialRuleText,
+    setShowVoteMapButton,
+    setPendingWeatherType,
+    setIsWeatherModalOpen
 }: UseGameSocketParams) => {
     const [gameModel, setGameModel] = useState<GameModel | null>(null);
     const [players, setPlayers] = useState<Player[]>([]);
 
     const listenerRef = useRef<((data: unknown) => void) | null>(null);
+
 
     const joinGame = async () => {
         if (!lobbyId || !currentUser) return;
@@ -107,90 +114,107 @@ export const useGameSocket = ({
     };
 
     useEffect(() => {
-        if (!lobbyId || !currentUser) return;
+        listenerRef.current = (data: unknown) => {
+            try {
+                const raw = typeof data === 'string' ? data : JSON.stringify(data);
 
-        if (!listenerRef.current) {
-            listenerRef.current = (data: unknown) => {
-                try {
-                    const message = typeof data === 'string' ? JSON.parse(data) : (data as GameWebSocketMessage);
+                const message = typeof data === 'string' ? JSON.parse(data) : (data as GameWebSocketMessage);
 
-                    switch (message.event) {
-                        case 'GAMEMODEL':
-                            const model = message.data || (message as GameModel);
-                            setGameModel(model);
-                            if (model.players && Array.isArray(model.players)) {
-                                setPlayers(model.players);
-                            }
-                            break;
-
-                        case 'GAMESTATECHANGED':
-                            if (message.state) {
-                                setGameState(message.state);
-                                if (message.state === GameState.PRE_GAME) {
-                                    setWinningModel(null);
-                                    setRoundModel(null);
-                                }
-                            }
-                            break;
-
-                        case 'ROUNDMODEL':
-                            setRoundModel(message);
-                            break;
-
-                        case 'WINNINGMODEL':
-                            setWinningModel(message as WinningModel);
-                            break;
-
-                        case 'BLUFFMODEL':
-                            if (message.bluffCard && message.userId) {
-                                setBluffModel({ userId: message.userId, bluffCard: message.bluffCard });
-                            }
-                            break;
-
-                        case 'WEATHER_VOTE_RESULT': {
-                            const weather = message.weatherType;
-                            const resultMessage = `The map has been changed to ${weather}.`;
-
-                            setWeatherType(weather);
-                            setSpecialRuleText(resultMessage);
-                            message.open({
-                                key: "vote",
-                                type: "success",
-                                content: resultMessage,
-                                duration: 3, // 3초 후 사라짐
-                            });
-                            setTimeout(() => {
-                                message.success("✅ This should be visible!");
-                            }, 2000);
-
-                            break;
+                switch (message.event) {
+                    case 'GAMEMODEL': {
+                        const model = message.data || (message as GameModel);
+                        setGameModel(model);
+                        if (model.players && Array.isArray(model.players)) {
+                            setPlayers(model.players);
                         }
-
-                        default:
-                            console.warn("Unknown WebSocket event:", message.event);
+                        break;
                     }
-                } catch (err) {
-                    console.error('WebSocket parse error:', err);
+
+                    case 'GAMESTATECHANGED':
+                        if (message.state) {
+                            setGameState(message.state);
+                            if (message.state === GameState.PRE_GAME) {
+                                setWinningModel(null);
+                                setRoundModel(null);
+                            }
+                        }
+                        break;
+
+                    case 'ROUNDMODEL':
+                        setRoundModel(message);
+                        break;
+
+                    case 'WINNINGMODEL':
+                        setWinningModel(message as WinningModel);
+                        break;
+
+                    case 'BLUFFMODEL':
+                        if (message.bluffCard && message.userId) {
+                            setBluffModel({ userId: message.userId, bluffCard: message.bluffCard });
+                        }
+                        break;
+
+                    case "SHOW_VOTE_MAP_BUTTON":
+                        if (setShowVoteMapButton) {
+                            setShowVoteMapButton(true);
+                        }
+                        break;
+
+                    case "WEATHER_VOTE_RESULT":
+                        if (setPendingWeatherType && setIsWeatherModalOpen) {
+                            setPendingWeatherType(message.weatherType);
+                            setIsWeatherModalOpen(true);
+                        }
+                        break;
+
+                    case "WEATHER_UPDATED":
+                        if (message.weatherType) {
+                            setWeatherType(message.weatherType);
+                            setSpecialRuleText(`The map has been changed to ${message.weatherType}.`);
+                        } else {
+                            console.warn("Received WEATHER_UPDATED event without valid weatherType");
+                        }
+                        break;
+
+                    default:
+                        console.warn("Unknown WebSocket event:", message.event);
                 }
-            };
-        }
+            } catch (err) {
+                console.error('WebSocket parse error:', err);
+            }
+        };
+    }, [currentUser, lobbyId, gameModel]);
+
+    useEffect(() => {
+        if (!lobbyId || !currentUser) return;
 
         const setup = async () => {
             try {
                 await joinGame();
-                await webSocketService.connect('game', lobbyId, currentUser.token, String(currentUser.id));
 
-                webSocketService.removeListener(listenerRef.current!);
-                webSocketService.addListener(listenerRef.current!);
-            } catch (err) {
-                console.error('WebSocket setup failed:', err);
+                await webSocketService.connect(
+                    'game',
+                    lobbyId,
+                    currentUser.token,
+                    String(currentUser.id)
+                );
+
+                if (listenerRef.current) {
+                    webSocketService.addListener(listenerRef.current);
+                } else {
+                    console.warn("⚠️ listenerRef.current is null — listener not registered");
+                }
+            } catch (error) {
+                console.error("[WebSocket Setup Error]", error);
             }
         };
 
         setup();
 
         return () => {
-            webSocketService.removeListener(listenerRef.current!);
+            if (listenerRef.current) {
+                webSocketService.removeListener(listenerRef.current);
+            }
         };
     }, [lobbyId, currentUser]);
 

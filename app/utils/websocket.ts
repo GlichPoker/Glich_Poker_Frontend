@@ -104,9 +104,8 @@ class WebSocketService {
     }
 
     public addListener(listener: (data: unknown) => void) {
-        if (!this.listeners.includes(listener)) {
-            this.listeners.push(listener);
-        }
+        this.listeners = this.listeners.filter(l => l !== listener);
+        this.listeners.push(listener);
     }
 
     public removeListener(listener: (data: unknown) => void) {
