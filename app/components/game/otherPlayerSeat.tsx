@@ -14,9 +14,10 @@ type Props = {
     roundPlayer?: RoundPlayer;
     isRoundOver?: boolean;
     activeBluff?: BluffModel | null;
+    weatherType?: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY" | "DEFAULT";
 };
 
-const OtherPlayerSeat = ({ player, positionLabel, roundPlayer, isRoundOver = false, activeBluff }: Props) => {
+const OtherPlayerSeat = ({ player, positionLabel, roundPlayer, isRoundOver = false, activeBluff, weatherType }: Props) => {
     const playerData = roundPlayer || player;
 
     const showSingleSpecialBluff = roundPlayer?.bluffCard !== undefined && roundPlayer?.bluffCard !== null;
@@ -73,15 +74,17 @@ const OtherPlayerSeat = ({ player, positionLabel, roundPlayer, isRoundOver = fal
                         // Not Mirage, not singleSpecialBluff: Show normal two cards (actuals or backs)
                         <div className="mt-2 flex justify-center">
                             {isRoundOver ? (
-                                roundPlayer.hand.map((card, i) => (
-                                    <Card
-                                        key={i}
-                                        cardCode={card.cardCode}
-                                        width={60}
-                                        height={90}
-                                        className={i === 0 ? "mr-1" : ""}
-                                    />
-                                ))
+                                roundPlayer.hand
+                                    .slice(0, weatherType === "SNOWY" ? 3 : 2)
+                                    .map((card, i) => (
+                                        <Card
+                                            key={i}
+                                            cardCode={card.cardCode}
+                                            width={60}
+                                            height={90}
+                                            className={i < 2 ? "mr-1" : ""}
+                                        />
+                                    ))
                             ) : (
                                 <>
                                     <Card cardCode="" width={60} height={90} className="mr-1" />

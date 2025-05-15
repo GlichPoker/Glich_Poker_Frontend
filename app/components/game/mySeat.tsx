@@ -63,7 +63,7 @@ const MySeat: React.FC<Props> = ({ player, username, roundPlayer }) => {
                 <div className="mt-4 flex justify-center">
                     {player.hand.map((card, i) => (
                         <span key={i} className="text-white text-sm">
-                            {card?.rank ?? '?'}{card?.suit ?? '?'}{' '}
+                            {card?.rank ?? ''}{card?.suit ?? ''}{' '}
                         </span>
                     ))}
                 </div>

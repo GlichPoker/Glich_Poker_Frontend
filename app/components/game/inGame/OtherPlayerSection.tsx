@@ -12,6 +12,7 @@ interface OtherPlayerSectionProps {
     otherPlayers: any[];
     roundModel?: RoundModel;
     activeBluff?: BluffModel | null;
+    weatherType?: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY" | "DEFAULT";
 }
 
 const OtherPlayerSection = ({
@@ -19,6 +20,7 @@ const OtherPlayerSection = ({
     otherPlayers,
     roundModel,
     activeBluff,
+    weatherType,
 }: OtherPlayerSectionProps) => {
     const positions = side === 'left'
         ? [1, 0]
@@ -34,8 +36,8 @@ const OtherPlayerSection = ({
                         key={i}
                         player={player}
                         roundPlayer={roundPlayer}
-                        // positionLabel={`Side ${i}`}
                         activeBluff={activeBluff}
+                        weatherType={weatherType}
                     />
                 ) : null;
             })}

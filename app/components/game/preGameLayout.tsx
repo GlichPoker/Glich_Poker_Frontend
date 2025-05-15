@@ -8,11 +8,12 @@ import { useState } from 'react';
 import { getApiDomain } from '@/utils/domain';
 import VoteMap from '@/components/game/voting/voteMap';
 import StartVoteButton from '@/components/game/voting/startVoteButton';
-import {GameSettings} from "@/types/round";
+import { GameSettings } from "@/types/round";
 
 interface PreGameLayoutProps {
     lobbyId: string;
     isHost: boolean;
+    currentUser: any;
     currentPlayer: any;
     otherPlayers: any[];
     startGame: () => void;
@@ -28,17 +29,18 @@ interface PreGameLayoutProps {
     pendingWeatherType: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY" | null;
     isWeatherModalOpen: boolean;
     setIsWeatherModalOpen: (open: boolean) => void;
-    gameSettings:any;
+    gameSettings: any;
 }
 
 const PreGameLayout = ({
     lobbyId,
     isHost,
+    currentUser,
     currentPlayer,
     otherPlayers,
     startGame,
-    showVoteOverlay,
-    setShowVoteOverlay,
+    // showVoteOverlay,
+    // setShowVoteOverlay,
     handleExitGame,
     customRuleText,
     weatherType,
@@ -64,15 +66,15 @@ const PreGameLayout = ({
 
     const fetchFriends = async () => {
 
-        if (!currentPlayer?.id) {
+        if (!currentUser?.id) {
             console.warn("currentPlayer.id is missing");
             return;
         }
 
         try {
-            const response = await fetch(`${baseURL}/friends/allFriends/${currentPlayer.id}`, {
+            const response = await fetch(`${baseURL}/friends/allFriends/${currentUser.id}`, {
                 headers: {
-                    Authorization: `Bearer ${currentPlayer.token}`,
+                    Authorization: `Bearer ${currentUser.token}`,
                 },
             });
 
@@ -85,8 +87,8 @@ const PreGameLayout = ({
     };
 
     const handleOpenInviteModal = async () => {
-        if (!currentPlayer?.id) {
-            console.warn("Invite blocked: currentPlayer not ready");
+        if (!currentUser?.id) {
+            console.warn("Invite blocked: currentUser not ready");
             return;
         }
 
@@ -144,7 +146,7 @@ const PreGameLayout = ({
                 isVisible={showVoteMap}
                 onClose={() => setShowVoteMap(false)}
                 lobbyId={lobbyId}
-                currentUser={currentPlayer}
+                currentUser={currentUser}
             />
             {/* <Vote
                 isVisible={showVoteOverlay}
@@ -194,14 +196,14 @@ const PreGameLayout = ({
                             key="apply"
                             type="primary"
                             onClick={async () => {
-                                if (!pendingWeatherType || !currentPlayer?.token) return;
+                                if (!pendingWeatherType || !currentUser?.token) return;
 
                                 try {
                                     const res = await fetch(`${baseURL}/game/settings`, {
                                         method: "POST",
                                         headers: {
                                             "Content-Type": "application/json",
-                                            Authorization: `Bearer ${currentPlayer.token}`,
+                                            Authorization: `Bearer ${currentUser.token}`,
                                         },
                                         body: JSON.stringify({
                                             sessionId: lobbyId,
@@ -244,6 +246,7 @@ const PreGameLayout = ({
                                 key={1}
                                 player={otherPlayers[1]}
                                 positionLabel="Top Left"
+                                weatherType={weatherType}
                             />
                         )}
                         {otherPlayers[0] && (
@@ -251,6 +254,7 @@ const PreGameLayout = ({
                                 key={0}
                                 player={otherPlayers[0]}
                                 positionLabel="Bottom Left"
+                                weatherType={weatherType}
                             />
                         )}
                     </div>
@@ -273,7 +277,7 @@ const PreGameLayout = ({
                                     <div>
                                         <StartVoteButton
                                             lobbyId={lobbyId}
-                                            currentUser={currentPlayer}
+                                            currentUser={currentUser}
                                         />
                                     </div>
                                 </>
@@ -290,6 +294,7 @@ const PreGameLayout = ({
                                 key={2}
                                 player={otherPlayers[2]}
                                 positionLabel="Top Right"
+                                weatherType={weatherType}
                             />
                         )}
                         {otherPlayers[3] && (
@@ -297,6 +302,7 @@ const PreGameLayout = ({
                                 key={3}
                                 player={otherPlayers[3]}
                                 positionLabel="Bottom Right"
+                                weatherType={weatherType}
                             />
                         )}
                     </div>

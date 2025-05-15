@@ -10,7 +10,7 @@ import { GameState } from '@/types/gameState';
 import PreGameLayout from '@/components/game/preGameLayout';
 import InGameLayout from '@/components/game/inGameLayout';
 import { WinningModel } from '@/types/winning';
-import {RoundModel, Card, GameSettings} from '@/types/round'; // Ensure Card is imported if BluffModel uses it directly
+import { RoundModel, Card, GameSettings } from '@/types/round'; // Ensure Card is imported if BluffModel uses it directly
 import "@ant-design/v5-patch-for-react-19";
 
 // Define BluffModel interface if not already defined globally or imported
@@ -154,7 +154,6 @@ const LobbyPage = () => {
         otherPlayers,
         isHost,
         startGame,
-        requestGameModel
     } = useGameSocket({
         currentUser,
         lobbyId: lobbyId as string,
@@ -289,7 +288,8 @@ const LobbyPage = () => {
                         setShowVoteOverlay={setShowVoteOverlay}
                         lobbyId={lobbyId as string}
                         handleExitGame={handleExitGame}
-                        currentPlayer={currentUser}
+                        currentUser={currentUser}
+                        currentPlayer={currentPlayer}
                         otherPlayers={otherPlayers}
                         customRuleText={customRuleText}
                         weatherType={safeWeatherType}
