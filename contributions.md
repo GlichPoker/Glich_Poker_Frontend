@@ -64,7 +64,7 @@ Note: If a team member fails to show continuous progress after using their Joker
 
 ---
 
-## Contributions M4 Week 1 - [01.05.25] to [08.05.25]
+## Contributions M4 Week 1 - [01.05.25] to [07.05.25]
 | **Student**         | **Date**     | **Link to Commit**          | **Description**                                                                                                                                                                       | **Relevance**                                                                            |
 |---------------------|--------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
 | **[@RealBlueSwan]** | [08.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/99469fad05060013afaaa06096c589dc00a8eb74]          | [Created a pokertable with basic jpg for later swapping of maps #46]                                                                                                                  | [Pokertable for later png/jpg swapping when weather data is correctly retrieved]                                                |
@@ -79,14 +79,14 @@ Note: If a team member fails to show continuous progress after using their Joker
 
 ---
 
-## Contributions Week 5 - [Begin Date] to [End Date]
+## Contributions Week 5 - [08.05.2025] to [14.05.2025]
 
 | **Student**         | **Date**     | **Link to Commit**          | **Description**                                                                                                                                                                       | **Relevance**                                                                            |
 |---------------------|--------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
 | **[@RealBlueSwan]** | [13.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/93b20871347c7ed5d49bd0e5a6eac9a291db7a9b] | [DONE: Mirage implementation, #62 #66] | [Implemented frontend logic for Special Action Mirage] |
 |  | [10.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/26fe57ecb4b41836043689a8d7a38340ed5b9d80] | [Add weather-based table images and update table rendering logic #94 #48 #46] | [Added a pokertable with maps, maps look kind of basic but this can be swapped with better pictures, maybe custom art ._ .] |
-| **[@ardeen333]**    | [] | [] | [] | [she did great and did so much] |
-|                     | [] | [] | [] | [] |
+| **[@ardeen333]**    | [12.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/574967acbee7bed8259edc00c79588026d1b5290] | [#47 Implement special rules on rainy and snowy map] | [Sepcial rules diversfy the porker game] |
+|                     | [14.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/04150c81d722a366376bc7dc619903da4f702bff] | [Implemet voting to change map and apply special rules] | [Players can enjoy special rules without being limited to the weather] |
 | **[@elio42]**       | [] | [] | [] | [] |
 |                     | [] | [] | [] | [] |
 | **[@BeCre11how]**   | [] | [] | [] | [] |

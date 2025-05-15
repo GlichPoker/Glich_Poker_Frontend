@@ -19,7 +19,7 @@ interface PreGameLayoutProps {
     setShowVoteOverlay: (show: boolean) => void;
     handleExitGame: () => void;
     customRuleText: string | null;
-    weatherType?: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY";
+    weatherType?: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY" | "DEFAULT";
     handleInvitePlayer: (userId: number) => void;
     specialRuleText?: string;
     showVoteMapButton: boolean;
