@@ -10,7 +10,7 @@ import { GameState } from '@/types/gameState';
 import PreGameLayout from '@/components/game/preGameLayout';
 import InGameLayout from '@/components/game/inGameLayout';
 import { WinningModel } from '@/types/winning';
-import { RoundModel, Card } from '@/types/round'; // Ensure Card is imported if BluffModel uses it directly
+import {RoundModel, Card, GameSettings} from '@/types/round'; // Ensure Card is imported if BluffModel uses it directly
 import "@ant-design/v5-patch-for-react-19";
 
 // Define BluffModel interface if not already defined globally or imported
@@ -36,6 +36,7 @@ const LobbyPage = () => {
     const [error, setError] = useState<string | null>(null);
     const [winningModel, setWinningModel] = useState<WinningModel | null>(null);
     const [roundModel, setRoundModel] = useState<RoundModel | null>(null);
+    const [settings, setSettings] = useState<GameSettings>()
     const [gameState, setGameState] = useState<GameState>(GameState.PRE_GAME);
     const [weatherType, setWeatherType] = useState<"SUNNY" | "RAINY" | "SNOWY" | "CLOUDY" | undefined>();
     const [customRuleText, setCustomRuleText] = useState<string>("");
@@ -130,6 +131,7 @@ const LobbyPage = () => {
                 const reverseOrder = [...defaultOrder].reverse();
                 const currentOrder = currentGame.settings.order;
                 setWeatherType(currentGame.settings.weatherType);
+                setSettings(currentGame.settings);
 
                 if (JSON.stringify(currentOrder) === JSON.stringify(defaultOrder)) {
                     setCustomRuleText("Rule: Standard Hand Rankings");
@@ -298,7 +300,7 @@ const LobbyPage = () => {
                         pendingWeatherType={pendingWeatherType}
                         isWeatherModalOpen={isWeatherModalOpen}
                         setIsWeatherModalOpen={setIsWeatherModalOpen}
-
+                        gameSettings={settings}
                     />
                 );
             case GameState.IN_GAME:

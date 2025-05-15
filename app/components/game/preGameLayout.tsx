@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { getApiDomain } from '@/utils/domain';
 import VoteMap from '@/components/game/voting/voteMap';
 import StartVoteButton from '@/components/game/voting/startVoteButton';
+import {GameSettings} from "@/types/round";
 
 interface PreGameLayoutProps {
     lobbyId: string;
@@ -27,6 +28,7 @@ interface PreGameLayoutProps {
     pendingWeatherType: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY" | null;
     isWeatherModalOpen: boolean;
     setIsWeatherModalOpen: (open: boolean) => void;
+    gameSettings:any;
 }
 
 const PreGameLayout = ({
@@ -45,7 +47,8 @@ const PreGameLayout = ({
     showVoteMapButton,
     pendingWeatherType,
     isWeatherModalOpen,
-    setIsWeatherModalOpen
+    setIsWeatherModalOpen,
+    gameSettings,
 }: PreGameLayoutProps) => {
     const [showVoteMap, setShowVoteMap] = useState(false)
     const [applyError, setApplyError] = useState<string | null>(null);
@@ -202,7 +205,7 @@ const PreGameLayout = ({
                                         },
                                         body: JSON.stringify({
                                             sessionId: lobbyId,
-                                            gameSettings: { weatherType: pendingWeatherType },
+                                            gameSettings: { ...gameSettings, weatherType: pendingWeatherType },
                                         }),
                                     });
 

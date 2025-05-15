@@ -23,6 +23,8 @@ export type GameSettings = {
     initialBalance: number;
     descending: boolean;
     order?: string[];
+    password?:string;
+    weatherType?:string;
 };
 
 export interface RoundModel {
