@@ -89,8 +89,8 @@ Note: If a team member fails to show continuous progress after using their Joker
 |                     | [14.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/04150c81d722a366376bc7dc619903da4f702bff] | [Implemet voting to change map and apply special rules] | [Players can enjoy special rules without being limited to the weather] |
 | **[@elio42]**       | [] | [] | [] | [] |
 |                     | [] | [] | [] | [] |
-| **[@BeCre11how]**   | [] | [] | [] | [] |
-|                     | [] | [] | [] | [] |
+| **[@BeCre11how]**   | [09.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Backend/commit/5e594f59dfb7b095c828648c8e23e6f42a10c464] | [weather specific rules] | [added logic to apply added specific rules and also added required endpoints] |
+|                     | [09.05.2025-15.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Backend/commit/f7881df3d9d62c86ceed9d9057114e32dadb7675] | [several bugfixes and adjustments] | [to fix final game errors and improved game experience] |
 
 ---
 
