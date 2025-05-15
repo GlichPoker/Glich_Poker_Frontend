@@ -1,6 +1,6 @@
 "use client";
 import useLocalStorage from "@/hooks/useLocalStorage";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { webSocketService } from "@/utils/websocket";
 import { Button, Input, App, message as AntdMessage } from "antd";
 
@@ -10,6 +10,8 @@ export default function Chat() {
     const [username, setUsername] = useState("");
     const [isConnected, setIsConnected] = useState(false);
     const { value: token } = useLocalStorage<string>("token", "");
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const [userScrolledUp, setUserScrolledUp] = useState(false);
 
     useEffect(() => {
         const userDataString = localStorage.getItem("user");
@@ -69,6 +71,12 @@ export default function Chat() {
         };
     }, [token]);
 
+    useEffect(() => {
+        if (!userScrolledUp && messagesEndRef.current) {
+            messagesEndRef.current.scrollTop = messagesEndRef.current.scrollHeight;
+        }
+    }, [messages, userScrolledUp]);
+
     const sendMessage = async () => {
         if (!input.trim()) return;
 
@@ -91,10 +99,25 @@ export default function Chat() {
         }
     };
 
+    const handleScroll = () => {
+        if (messagesEndRef.current) {
+            const { scrollTop, scrollHeight, clientHeight } = messagesEndRef.current;
+            if (scrollHeight - scrollTop <= clientHeight + 10) {
+                setUserScrolledUp(false);
+            } else {
+                setUserScrolledUp(true);
+            }
+        }
+    };
+
     return (
         <App>
             <div className="flex flex-col h-full w-[95%] p-4 bg-[#181818]">
-                <div className="flex-1 overflow-y-auto p-2 mb-2 bg-[#181818] text-white rounded-lg space-y-2">
+                <div
+                    ref={messagesEndRef}
+                    onScroll={handleScroll}
+                    className="flex-1 overflow-y-auto p-2 mb-2 bg-[#181818] text-white rounded-lg space-y-2"
+                >
                     {messages.map((msg, index) => {
                         const [sender, ...contentParts] = msg.split(":");
                         const content = contentParts.join(":").trim();

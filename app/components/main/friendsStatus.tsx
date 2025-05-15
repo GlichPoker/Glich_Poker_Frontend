@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { List, Avatar, Badge, Spin, Button, Popover, Divider, Empty, App } from "antd";
-import { UserOutlined, PlusOutlined, CloseOutlined } from "@ant-design/icons";
+import { UserOutlined, ReloadOutlined, CloseOutlined } from "@ant-design/icons";
 import "@ant-design/v5-patch-for-react-19";
 import { useFriends, FriendWithStatus } from "@/hooks/useFriends";
 
@@ -88,12 +88,13 @@ const FriendsStatus: React.FC = () => {
     return (
         <div className="bg-zinc-800 rounded-lg p-4 shadow-lg mb-4 h-full">
             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-white">Friends</h2>
+                <h2 className="text-xl font-bold text-white" style={{ paddingLeft: '12px' }}>Friends</h2> {/* Using inline style for padding */}
                 <Button 
                     type="text" 
-                    icon={<PlusOutlined className="text-white" />} 
+                    icon={<ReloadOutlined className="text-grey" />} 
                     onClick={refreshFriendsData}
-                    className="text-white"
+                    className="text-grey hover:text-grey"
+                    style={{ color: 'white' }}
                     title="Refresh"
                 />
             </div>
@@ -101,6 +102,7 @@ const FriendsStatus: React.FC = () => {
             {friends.length > 0 ? (
                 <List
                     dataSource={friends}
+                    split={false} // Added to remove default separators
                     renderItem={(friend) => (
                         <Popover
                             content={() => renderFriendDetails(friend)}
@@ -116,11 +118,13 @@ const FriendsStatus: React.FC = () => {
                             }}
                         >
                             <List.Item 
-                                className="cursor-pointer hover:bg-zinc-700 rounded-md px-2 py-1"
+                                className="flex items-center cursor-pointer bg-zinc-900 hover:bg-zinc-600 rounded-md px-3 py-2 border border-zinc-600 mb-2" 
                                 onClick={() => setSelectedFriend(friend)}
                             >
-                                <List.Item.Meta
-                                    avatar={
+                                {/* Custom meta structure for vertical alignment */}
+                                <div className="flex items-center w-full">
+                                    {/* Avatar part */}
+                                    <div style={{ marginLeft: '10px', marginRight: '10px' }}>
                                         <Badge 
                                             dot 
                                             color={getStatusColor(friend.status)}
@@ -128,19 +132,20 @@ const FriendsStatus: React.FC = () => {
                                         >
                                             <Avatar icon={<UserOutlined />} />
                                         </Badge>
-                                    }
-                                    title={<span className="text-white">{friend.username}</span>}
-                                    description={
-                                        <span 
+                                    </div>
+                                    {/* Text part (title + description) */}
+                                    <div>
+                                        <div className="text-white text-base font-semibold leading-tight" style={{ marginBottom: '2px' }}>{friend.username}</div>
+                                        <div 
                                             style={{ color: getStatusColor(friend.status) }}
-                                            className="text-xs"
+                                            className="text-xs leading-tight"
                                         >
                                             {getStatusText(friend.status)}
                                             {friend.status && friend.status.toLowerCase() === 'playing' && friend.inGameId && 
                                                 ' (In Game)'}
-                                        </span>
-                                    }
-                                />
+                                        </div>
+                                    </div>
+                                </div>
                             </List.Item>
                         </Popover>
                     )}
@@ -153,18 +158,7 @@ const FriendsStatus: React.FC = () => {
                     className="my-8"
                 />
             )}
-
-            <Divider className="my-3 border-zinc-700" />
             
-            <div className="text-center">
-                <Button 
-                    type="link" 
-                    className="text-gray-300 hover:text-white" 
-                    onClick={() => message.info("Find Friends in Users section")}
-                >
-                    Find Friends
-                </Button>
-            </div>
         </div>
     );
 };

@@ -83,7 +83,7 @@ const MainContent: React.FC = () => {
             <nav className="flex flex-row h-14 justify-between items-center bg-[#181818]">
                 <div className="flex flex-row !w-60 justify-start items-center gap-x-4 !ml-5 text-white text-xl font-bold"> Glitch Poker</div>
 
-                <div className="flex flex-row justify-end w-[90%] h-[40px] bg-[#181818] gap-x-4 !mr-5">
+                <div className="flex flex-row justify-end items-center w-[90%] h-[40px] bg-[#181818] gap-x-4 !mr-5">
 
                     <FriendRequestsNotification />
 
@@ -131,28 +131,36 @@ const MainContent: React.FC = () => {
             </div>
 
             {/* main content - grows to fill available space */}
-            <div className="flex-grow grid grid-cols-1 md:grid-cols-3 gap-4 bg-[#181818]">
-                {/* left side - friends' online status, text chat */}
-                <div className="flex flex-col md:col-span-1 px-3 gap-4">
-                    <FriendsStatus />
-                    <div className="flex justify-center h-[300px] border border-zinc-700">
-                        <Chat />
+            <div className="flex-grow flex justify-center items-start py-4 bg-[#181818]">
+                <div className="grid grid-cols-1 md:grid-cols-16 gap-4 w-full max-w-[1600px]"> {/* Increased width from max-w-screen-xl to max-w-[1600px] */}
+                    {/* left column - friends' online status, text chat */}
+                    <div className="flex flex-col gap-4 md:col-span-3">
+                        <div className="h-[400px] border border-zinc-700 overflow-y-auto rounded-lg">
+                            <FriendsStatus />
+                        </div>
+                        <div className="flex justify-center h-[300px] border border-zinc-700 rounded-lg">
+                            <Chat />
+                        </div>
                     </div>
-                </div>
 
-                {/* right side - leader board, lobby list */}
-                <div className="md:col-span-2 px-3 md:pr-5 bg-[#181818]">
-                    <Leaderboard />
-                    <div className="!mt-10 bg-[#181818]">
+                    {/* middle column - game lobbies */}
+                    <div className="flex flex-col border border-zinc-800 rounded-lg p-4 md:col-span-8">
                         <LobbyList />
+                    </div>
+
+                    {/* right column - leaderboard and future components */}
+                    <div className="flex flex-col gap-4 md:col-span-5">
+                        {/* Leaderboard in a box with same height as friends component */}
+                        <div className="border border-zinc-800 rounded-lg p-4 h-[400px] overflow-hidden">
+                            <Leaderboard />
+                        </div>
+                        {/* Empty space for future components */}
+                        <div className="border border-zinc-800 rounded-lg p-4 flex-grow">
+                            {/* Future component will go here */}
+                        </div>
                     </div>
                 </div>
             </div>
-
-            {/* footer - always stays at bottom */}
-            <footer className="text-center bg-[#181818] text-gray-600 py-4 mt-auto">
-                <p>Glitch Poker. All Rights Reserved.</p>
-            </footer>
         </div>
     );
 };

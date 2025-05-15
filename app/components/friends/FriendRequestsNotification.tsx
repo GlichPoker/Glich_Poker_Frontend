@@ -81,7 +81,7 @@ const FriendRequestsNotification: React.FC = () => {
       ]}
     >
       <List.Item.Meta
-        avatar={<Avatar icon={<UserOutlined />} />}
+        avatar={<Avatar icon={<UserOutlined style={{ color: 'white' }} />} />}
         title={friend.username || "Unknown User"}
       />
     </List.Item>
@@ -108,7 +108,7 @@ const FriendRequestsNotification: React.FC = () => {
         </>
       ) : (
         <Empty
-          description="No pending friend requests"
+          description={<span style={{ color: 'white' }}>No pending friend requests</span>}
           className="py-4"
           image={Empty.PRESENTED_IMAGE_SIMPLE}
         />

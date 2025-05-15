@@ -188,19 +188,66 @@ const GlobalLeaderboard: React.FC = () => {
         return <div className="flex justify-center py-8"><Spin size="large" /></div>;
     }
 
+    // Take top 8 players for a more comprehensive view
+    const topPlayers = leaderboardData.slice(0, 8);
+
     return (
         <>
-            <Table
-                dataSource={leaderboardData}
-                columns={columns}
-                rowKey="id"
-                pagination={{ pageSize: 10 }}
-                className="leaderboard-table"
-                onRow={(record) => ({
-                    onClick: () => setSelectedUser(record),
-                    style: { cursor: 'pointer' }
-                })}
-            />
+            <div className="overflow-y-auto max-h-[350px] custom-scrollbar">
+                <Table
+                    dataSource={topPlayers}
+                    columns={columns}
+                    rowKey="id"
+                    pagination={false}
+                    className="leaderboard-table"
+                    rowClassName="bg-zinc-900 hover:bg-zinc-700"
+                    size="small"
+                    sticky={{ offsetHeader: 0 }}
+                    style={{ 
+                        backgroundColor: '#18181B' // zinc-900
+                    }}
+                    components={{
+                        header: {
+                            cell: (props) => (
+                                <th
+                                    {...props}
+                                    style={{
+                                        backgroundColor: '#27272A', // zinc-800
+                                        color: 'white',
+                                        borderBottom: '1px solid #3F3F46', // zinc-700
+                                        position: 'sticky',
+                                        top: 0,
+                                        zIndex: 2
+                                    }}
+                                />
+                            ),
+                        },
+                        body: {
+                            row: (props) => (
+                                <tr
+                                    {...props}
+                                    style={{
+                                        backgroundColor: '#18181B', // zinc-900
+                                    }}
+                                />
+                            ),
+                            cell: (props) => (
+                                <td
+                                    {...props}
+                                    style={{
+                                        borderBottom: '1px solid #3F3F46', // zinc-700
+                                        color: '#D4D4D8' // zinc-300
+                                    }}
+                                />
+                            ),
+                        },
+                    }}
+                    onRow={(record) => ({
+                        onClick: () => setSelectedUser(record),
+                        style: { cursor: 'pointer' }
+                    })}
+                />
+            </div>
 
             {/* User Profile Popover */}
             <Popover

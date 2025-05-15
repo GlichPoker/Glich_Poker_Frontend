@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Table, Avatar, Spin, Alert } from "antd";
+import { Table, Spin, Alert, Popover } from "antd";
 import { UserOutlined, TrophyOutlined } from "@ant-design/icons";
 import "@ant-design/v5-patch-for-react-19";
 import { useFriends, FriendWithStatus } from "@/hooks/useFriends";
+import UserProfileCard from "@/components/friends/UserProfileCard";
 
 interface FriendLeaderboardUser {
     id: string;
@@ -15,6 +16,7 @@ interface FriendLeaderboardUser {
 
 const FriendLeaderboard: React.FC = () => {
     const [leaderboardData, setLeaderboardData] = useState<FriendLeaderboardUser[]>([]);
+    const [selectedUser, setSelectedUser] = useState<FriendLeaderboardUser | null>(null);
     const { friends, loading, getStatusColor } = useFriends();
 
     // Transform friends data into leaderboard format when friends data changes
@@ -68,11 +70,12 @@ const FriendLeaderboard: React.FC = () => {
             key: "username",
             render: (username: string, record: FriendLeaderboardUser) => (
                 <div className="flex items-center">
-                    <div className="relative">
-                        <Avatar icon={<UserOutlined />} className="mr-2" />
+                    {/* Use a simple div with icon instead of Avatar to match global leaderboard style */}
+                    <div className="flex items-center justify-center w-8 h-8 bg-gray-300 rounded-full mr-2 text-gray-700 relative">
+                        <UserOutlined />
                         {record.status && (
                             <div 
-                                className="absolute bottom-0 right-1 w-3 h-3 rounded-full border border-white"
+                                className="absolute bottom-0 right-0 w-3 h-3 rounded-full border border-white"
                                 style={{ 
                                     backgroundColor: getStatusColor(record.status as any),
                                 }}
@@ -98,22 +101,86 @@ const FriendLeaderboard: React.FC = () => {
     if (leaderboardData.length === 0) {
         return (
             <Alert
-                message="No friends yet!"
-                description="Add friends to see how you compare with them on the leaderboard."
+                message="No friends yet"
+                description="Add friends to compare rankings"
                 type="info"
                 showIcon
+                style={{ fontSize: '0.85rem' }}
             />
         );
     }
 
+    // Take top 8 friends for a more comprehensive view
+    const topFriends = leaderboardData.slice(0, 8);
+
     return (
-        <Table
-            dataSource={leaderboardData}
-            columns={columns}
-            rowKey="id"
-            pagination={{ pageSize: 10 }}
-            className="leaderboard-table"
-        />
+        <>
+            <div className="overflow-y-auto max-h-[350px] custom-scrollbar">
+                <Table
+                    dataSource={topFriends}
+                    columns={columns}
+                    rowKey="id"
+                    pagination={false}
+                    className="leaderboard-table"
+                    rowClassName="bg-zinc-900 hover:bg-zinc-700"
+                    size="small"
+                    sticky={{ offsetHeader: 0 }}
+                    style={{ 
+                        backgroundColor: '#18181B' // zinc-900
+                    }}
+                    components={{
+                        header: {
+                            cell: (props) => (
+                                <th
+                                    {...props}
+                                    style={{
+                                        backgroundColor: '#27272A', // zinc-800
+                                        color: 'white',
+                                        borderBottom: '1px solid #3F3F46', // zinc-700
+                                        position: 'sticky',
+                                        top: 0,
+                                        zIndex: 2
+                                    }}
+                                />
+                            ),
+                        },
+                        body: {
+                            row: (props) => (
+                                <tr
+                                    {...props}
+                                    style={{
+                                        backgroundColor: '#18181B', // zinc-900
+                                    }}
+                                />
+                            ),
+                            cell: (props) => (
+                                <td
+                                    {...props}
+                                    style={{
+                                        borderBottom: '1px solid #3F3F46', // zinc-700
+                                        color: '#D4D4D8' // zinc-300
+                                    }}
+                                />
+                            ),
+                        },
+                    }}
+                    onRow={(record) => ({
+                        onClick: () => setSelectedUser(record),
+                        style: { cursor: 'pointer' }
+                    })}
+                />
+            </div>
+
+            {/* User Profile Popover */}
+            <Popover
+                content={selectedUser && <UserProfileCard user={selectedUser as any} onClose={() => setSelectedUser(null)} />}
+                title="User Profile"
+                open={!!selectedUser}
+                onOpenChange={(visible) => !visible && setSelectedUser(null)}
+                trigger="click"
+                placement="right"
+            />
+        </>
     );
 };
 

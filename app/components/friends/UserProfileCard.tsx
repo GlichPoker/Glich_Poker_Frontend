@@ -259,8 +259,12 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
         size="small" 
         bordered
         className="mb-4"
+        style={{ color: 'white' }}
       >
-        <Descriptions.Item label="Registration Date">
+        <Descriptions.Item 
+          label={<span style={{ color: 'white' }}>Registration Date</span>}
+          style={{ color: 'white' }}
+        >
           {formatDate(displayUser.creationDate)}
         </Descriptions.Item>
       </Descriptions>

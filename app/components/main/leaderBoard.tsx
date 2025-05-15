@@ -11,11 +11,11 @@ const Leaderboard: React.FC = () => {
   const [activeLeaderboard, setActiveLeaderboard] = useState<'global' | 'friends'>('global');
 
   return (
-    <div className="bg-gray-800 rounded-lg p-4 shadow-lg">
-      <div className="flex items-center justify-between mb-4">
+    <div className="bg-gray-800 rounded-lg p-3 shadow-lg">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center">
-          <TrophyOutlined className="text-yellow-500 mr-2 text-xl" />
-          <h2 className="text-xl font-bold text-white">
+          <TrophyOutlined className="text-yellow-500 mr-2 text-lg" />
+          <h2 className="text-lg font-bold text-white">
             {activeLeaderboard === 'global' ? 'Global Leaderboard' : 'Friends Leaderboard'}
           </h2>
         </div>
@@ -23,12 +23,14 @@ const Leaderboard: React.FC = () => {
           <Button
             type={activeLeaderboard === 'global' ? 'primary' : 'default'}
             onClick={() => setActiveLeaderboard('global')}
+            size="small"
           >
             Global
           </Button>
           <Button
             type={activeLeaderboard === 'friends' ? 'primary' : 'default'}
             onClick={() => setActiveLeaderboard('friends')}
+            size="small"
           >
             Friends
           </Button>
