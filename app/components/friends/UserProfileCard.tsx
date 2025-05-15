@@ -113,21 +113,20 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
   useEffect(() => {
     if (!user || !user.id) {
-      console.log("⛔️ user or user.id is missing. Skipping stats fetch.");
       return;
     }
 
     const fetchStats = async () => {
       try {
         const statData = await apiService.get<UserStats>(`/game/stats/${user.id}`);
-        console.log("✅ Stats fetched:", statData);
+
         setStats(statData);
       } catch (error) {
-        console.error("❌ Failed to load user stats", error);
+
       }
     };
 
-    console.log("📢 Fetching stats for user.id =", user.id);
+
     fetchStats();
   }, [user]);
 
@@ -311,65 +310,64 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
   return (
     <div className="user-profile-card p-4 w-full max-w-md">
-      <div className="flex flex-col items-center mb-4">
+      <div className="flex flex-col items-center !mb-5">
         <Avatar size={64} icon={<UserOutlined />} />
         <h2 className="mt-2 text-xl font-semibold">{displayUser.username}</h2>
-        <Tag color={displayUser.status === "ONLINE" ? "green" : "default"}>
+        {/* <Tag color={displayUser.status === "ONLINE" ? "green" : "red"}>
           {displayUser.status || "OFFLINE"}
-        </Tag>
+        </Tag> */}
+      </div>
+      <div className="!mb-7">
+        <Descriptions column={1} size="small" bordered className="mb-4" style={{ color: 'white' }}>
+          <Descriptions.Item label={<span style={{ color: 'white' }}>Registration Date</span>}>
+            {formatDate(displayUser.creationDate)}
+          </Descriptions.Item>
+        </Descriptions>
       </div>
 
-      <Divider />
+      <div>
+        {stats !== null && (
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold mb-2">Poker Statistics</h3>
+            <Row gutter={16}>
+              <Col span={12}>
+                <Statistic title={<span className="text-amber-300 italic">Games Played</span>} value={stats.gamesPlayed} formatter={formatter} />
+              </Col>
+              <Col span={12}>
+                <Statistic title={<span className="text-amber-300 italic">Rounds Played</span>} value={stats.roundsPlayed} formatter={formatter} />
+              </Col>
+              <Col span={12}>
+                <Statistic
+                  title={
+                    <Tooltip title="Big blinds won per 100 hands. A key winrate metric in poker.">
+                      <span className="text-amber-300">BB/100</span>
+                    </Tooltip>
+                  }
+                  value={stats.bb100}
+                  precision={2}
+                  formatter={formatter}
+                />
+              </Col>
 
-      <Descriptions column={1} size="small" bordered className="mb-4" style={{ color: 'white' }}>
-        <Descriptions.Item label={<span style={{ color: 'white' }}>Registration Date</span>}>
-          {formatDate(displayUser.creationDate)}
-        </Descriptions.Item>
-      </Descriptions>
-
-      <Divider />
-
-      {stats !== null && (
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-2">Poker Statistics</h3>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Statistic title={<span className="text-amber-300 italic">Games Played</span>} value={stats.gamesPlayed} formatter={formatter} />
-            </Col>
-            <Col span={12}>
-              <Statistic title={<span className="text-amber-300 italic">Rounds Played</span>} value={stats.roundsPlayed} formatter={formatter} />
-            </Col>
-            <Col span={12}>
-              <Statistic
-                title={
-                  <Tooltip title="Big blinds won per 100 hands. A key winrate metric in poker.">
-                    <span className="text-amber-300">BB/100</span>
-                  </Tooltip>
-                }
-                value={stats.bb100}
-                precision={2}
-                formatter={formatter}
-              />
-            </Col>
-
-            <Col span={12}>
-              <Statistic
-                title={
-                  <Tooltip title="Total number of big blinds you’ve won across all games.">
-                    <span className="text-amber-300">BB Won</span>
-                  </Tooltip>
-                }
-                value={stats.bbWon}
-                precision={2}
-                formatter={formatter}
-              />
-            </Col>
-            <Col span={12}>
-              <Statistic title={<span className="text-amber-300 italic">Bankrupts</span>} value={stats.bankrupts} formatter={formatter} />
-            </Col>
-          </Row>
-        </div>
-      )}
+              <Col span={12}>
+                <Statistic
+                  title={
+                    <Tooltip title="Total number of big blinds you’ve won across all games.">
+                      <span className="text-amber-300">BB Won</span>
+                    </Tooltip>
+                  }
+                  value={stats.bbWon}
+                  precision={2}
+                  formatter={formatter}
+                />
+              </Col>
+              <Col span={12}>
+                <Statistic title={<span className="text-amber-300 italic">Bankrupts</span>} value={stats.bankrupts} formatter={formatter} />
+              </Col>
+            </Row>
+          </div>
+        )}
+      </div>
 
       <div className="flex justify-center mt-4">
         {renderActionButton()}

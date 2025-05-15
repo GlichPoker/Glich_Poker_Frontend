@@ -30,12 +30,29 @@ const LobbyList = () => {
                 },
             });
             setLobbies(response.data);
+            console.log(response.data)
         } catch (error) {
             console.error("Failed to fetch lobbies:", error);
             setErrorMessage("Failed to load lobbies");
         } finally {
             setLoading(false);
         }
+    };
+
+    const disabledStyle: React.CSSProperties = {
+        backgroundColor: '#4d4d4d',
+        color: '#ffffff',
+        borderColor: '#4d4d4d',
+        cursor: 'not-allowed',
+        width: '120px',
+    };
+
+    const enabledStyle: React.CSSProperties = {
+        backgroundColor: '#9f0712',
+        color: '#ffffff',
+        borderColor: '#9f0712',
+        cursor: 'pointer',
+        width: '120px',
     };
 
     // Fetch lobbies on mount
@@ -67,10 +84,10 @@ const LobbyList = () => {
         <div className="w-full min-h-full bg-[#181818] p-4">
             {contextHolder}
             <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-white"style={{ paddingLeft: '12px' }}>Available Lobbies</h2>
-                <Button 
-                    type="text" 
-                    icon={<ReloadOutlined className="text-white" />} 
+                <h2 className="text-xl font-bold text-white">Available Lobbies</h2>
+                <Button
+                    type="text"
+                    icon={<ReloadOutlined className="text-white" />}
                     onClick={fetchLobbies}
                     className="text-white hover:text-white"
                     style={{ color: 'white' }}
@@ -135,8 +152,8 @@ const LobbyList = () => {
                 <div className="flex flex-col items-center justify-center py-10 bg-[#2e2e2e] rounded-lg text-white">
                     <p className="text-lg mb-2">No lobbies are currently available</p>
                     <p className="text-sm text-gray-400 mb-4">Try refreshing or create a new lobby</p>
-                    <Button 
-                        type="primary" 
+                    <Button
+                        type="primary"
                         onClick={() => router.push('/main/create-lobby')}
                     >
                         Create New Lobby
@@ -145,6 +162,7 @@ const LobbyList = () => {
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 bg-[#181818] overflow-y-auto max-h-[calc(100vh-150px)]">
                     {lobbies.map((lobby) => (
+
                         <Card
                             key={lobby.sessionId}
                             className="w-full overflow-hidden rounded-lg bg-[#2e2e2e] text-white shadow-md"
@@ -154,6 +172,8 @@ const LobbyList = () => {
                                     <Button
                                         type="primary"
                                         size="middle"
+                                        disabled={lobby.roundRunning}
+                                        style={lobby.roundRunning ? disabledStyle : enabledStyle}
                                         onClick={() => {
                                             if (!lobby.public) {
                                                 setSelectedLobby(lobby);
