@@ -251,7 +251,11 @@ const GlobalLeaderboard: React.FC = () => {
 
             {/* User Profile Popover */}
             <Popover
-                content={selectedUser && <UserProfileCard user={selectedUser} onClose={() => setSelectedUser(null)} />}
+                content={selectedUser && <UserProfileCard 
+                    user={selectedUser} 
+                    onClose={() => setSelectedUser(null)} 
+                    sourceContext="globalLeaderboard"
+                />}
                 title="User Profile"
                 open={!!selectedUser}
                 onOpenChange={(visible) => !visible && setSelectedUser(null)}

@@ -117,6 +117,7 @@ export default function Chat() {
                     ref={messagesEndRef}
                     onScroll={handleScroll}
                     className="flex-1 overflow-y-auto p-2 mb-2 bg-[#181818] text-white rounded-lg space-y-2"
+                    style={{ paddingLeft: '12px' }}
                 >
                     {messages.map((msg, index) => {
                         const [sender, ...contentParts] = msg.split(":");
@@ -147,7 +148,7 @@ export default function Chat() {
                     })}
                 </div>
 
-                <div className="flex gap-2 bg-[#181818]">
+                <div className="flex gap-2 bg-[#181818] justify-between">
                     <Input
                         value={input}
                         onChange={(e) => setInput(e.target.value)}

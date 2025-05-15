@@ -173,7 +173,11 @@ const FriendLeaderboard: React.FC = () => {
 
             {/* User Profile Popover */}
             <Popover
-                content={selectedUser && <UserProfileCard user={selectedUser as any} onClose={() => setSelectedUser(null)} />}
+                content={selectedUser && <UserProfileCard 
+                    user={selectedUser as any} 
+                    onClose={() => setSelectedUser(null)} 
+                    sourceContext="friendsLeaderboard"
+                />}
                 title="User Profile"
                 open={!!selectedUser}
                 onOpenChange={(visible) => !visible && setSelectedUser(null)}

@@ -201,7 +201,11 @@ const DashboardContent: React.FC = () => {
       
       {/* User Profile Modal */}
       <Popover
-        content={selectedUser && <UserProfileCard user={selectedUser} onClose={() => setSelectedUser(null)} />}
+        content={selectedUser && <UserProfileCard 
+          user={selectedUser} 
+          onClose={() => setSelectedUser(null)}
+          sourceContext="usersList" 
+        />}
         title="User Profile"
         open={!!selectedUser}
         onOpenChange={(visible) => !visible && setSelectedUser(null)}

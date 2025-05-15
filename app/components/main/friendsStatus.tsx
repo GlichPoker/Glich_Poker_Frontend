@@ -4,32 +4,17 @@ import { List, Avatar, Badge, Spin, Button, Popover, Divider, Empty, App } from 
 import { UserOutlined, ReloadOutlined, CloseOutlined } from "@ant-design/icons";
 import "@ant-design/v5-patch-for-react-19";
 import { useFriends, FriendWithStatus } from "@/hooks/useFriends";
+import UserProfileCard from "@/components/friends/UserProfileCard";
 
 const FriendsStatus: React.FC = () => {
     const {
         friends,
         loading,
         getStatusColor,
-        removeFriend,
         refreshFriendsData
     } = useFriends();
     const [selectedFriend, setSelectedFriend] = useState<FriendWithStatus | null>(null);
     const { message } = App.useApp();
-
-    // Handle removing a friend
-    const handleRemoveFriend = async (friendId: string | null) => {
-        if (!friendId) {
-            message.error("Cannot remove friend: Invalid ID");
-            return;
-        }
-        const result = await removeFriend(friendId);
-        if (result.success) {
-            message.success(result.message);
-            setSelectedFriend(null); // Close the popover
-        } else {
-            message.error(result.message);
-        }
-    };
 
     // Get status text based on friend status
     const getStatusText = (status: string | null): string => {
@@ -42,44 +27,6 @@ const FriendsStatus: React.FC = () => {
             default: return 'Unknown';
         }
     };
-
-    // Render friend details content for popover
-    const renderFriendDetails = (friend: FriendWithStatus) => (
-        <div className="p-2 min-w-[200px]">
-            <div className="flex items-center mb-2">
-                <Avatar size="large" icon={<UserOutlined />} />
-                <div className="ml-3">
-                    <div className="font-bold">{friend.username}</div>
-                    <div style={{ color: getStatusColor(friend.status) }}>
-                        {getStatusText(friend.status)}
-                    </div>
-                </div>
-            </div>
-            
-            {friend.status && friend.status.toLowerCase() === 'playing' && friend.inGameId && (
-                <Button 
-                    type="primary" 
-                    size="small" 
-                    className="w-full mb-2"
-                    onClick={() => {
-                        message.info(`Spectate functionality coming soon`);
-                    }}
-                >
-                    Watch Game
-                </Button>
-            )}
-            
-            <Button 
-                danger 
-                size="small" 
-                icon={<CloseOutlined />} 
-                className="w-full"
-                onClick={() => handleRemoveFriend(friend.id)}
-            >
-                Remove Friend
-            </Button>
-        </div>
-    );
 
     if (loading) {
         return <div className="flex justify-center items-center h-full"><Spin /></div>;
@@ -105,8 +52,8 @@ const FriendsStatus: React.FC = () => {
                     split={false} // Added to remove default separators
                     renderItem={(friend) => (
                         <Popover
-                            content={() => renderFriendDetails(friend)}
-                            title="Friend Details"
+                            content={() => <UserProfileCard user={friend} onClose={() => setSelectedFriend(null)} />}
+                            title={null}
                             trigger="click"
                             open={selectedFriend?.id === friend.id}
                             onOpenChange={(visible) => {

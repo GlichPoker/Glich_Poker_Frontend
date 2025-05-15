@@ -18,6 +18,7 @@ import {
   PlusOutlined,
   CloseCircleOutlined,
   CheckCircleOutlined,
+  LoadingOutlined
 } from '@ant-design/icons';
 import { useFriends } from '@/hooks/useFriends';
 import "@ant-design/v5-patch-for-react-19";
@@ -28,6 +29,7 @@ interface UserProfileCardProps {
   user: User;
   onClose?: () => void;
   selectedFromLeaderboard?: boolean;
+  sourceContext?: 'friendsLeaderboard' | 'globalLeaderboard' | 'usersList' | 'profileView';
 }
 
 interface UserStats {
@@ -41,7 +43,8 @@ interface UserStats {
 const UserProfileCard: React.FC<UserProfileCardProps> = ({
   user,
   onClose,
-  selectedFromLeaderboard = false
+  selectedFromLeaderboard = false,
+  sourceContext
 }) => {
   const { message } = App.useApp();
   const {
@@ -51,15 +54,23 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     addFriend,
     acceptFriendRequest,
     denyFriendRequest,
-    removeFriend
+    removeFriend,
+    refreshFriendsData,
+    loading
   } = useFriends();
 
   const [currentUserData, setCurrentUserData] = useState<User | null>(null);
   const [userRelationship, setUserRelationship] = useState<'none' | 'friend' | 'pending' | 'self'>('none');
   const [fullUserData, setFullUserData] = useState<User | null>(null);
   const [stats, setStats] = useState<UserStats | null>(null);
+  const [isLoadingUserData, setIsLoadingUserData] = useState<boolean>(false);
 
   const apiService = new ApiService();
+  
+  // Refresh friends data when component mounts
+  useEffect(() => {
+    refreshFriendsData();
+  }, [refreshFriendsData]);
 
 
   useEffect(() => {
@@ -68,11 +79,13 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
       try {
         const userData = JSON.parse(userStr);
         setCurrentUserData(userData);
+        // Make sure we have fresh friends data
+        refreshFriendsData();
       } catch (e) {
         console.error('Error parsing user data:', e);
       }
     }
-  }, []);
+  }, [refreshFriendsData]);
 
 
   useEffect(() => {
@@ -82,12 +95,15 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     }
 
     const fetchUserData = async () => {
+      setIsLoadingUserData(true);
       try {
         const data = await apiService.get<User>(`/users/${user.id}`);
         setFullUserData({ ...user, ...data });
       } catch (error) {
         console.error('Error fetching complete user data:', error);
         setFullUserData(user);
+      } finally {
+        setIsLoadingUserData(false);
       }
     };
 
@@ -124,18 +140,26 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
       return;
     }
 
-    if (friends.some(friend => friend.id === user.id)) {
+    // Check if they're already friends
+    const isFriend = friends.some(friend => 
+      // Compare as strings to avoid type mismatches
+      String(friend.id) === String(user.id)
+    );
+    console.log('Is friend?', isFriend, 'Friend IDs:', friends.map(f => f.id), 'User ID:', user.id);
+    if (isFriend) {
       setUserRelationship('friend');
       return;
     }
 
-    if (pendingRequests.some(request => request.id === user.id)) {
+    // Check if there's a pending request
+    const isPending = pendingRequests.some(request => request.id === user.id);
+    if (isPending) {
       setUserRelationship('pending');
       return;
     }
 
     setUserRelationship('none');
-  }, [currentUserData, user, friends, pendingRequests, availableUsers]);
+  }, [currentUserData, user, friends, pendingRequests, availableUsers, sourceContext]);
 
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Unknown';
@@ -208,36 +232,69 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   };
 
   const renderActionButton = () => {
+    // If friends data is still loading, show a loading indicator
+    if (loading) {
+      return <Tag icon={<LoadingOutlined />} color="processing">Loading...</Tag>;
+    }
+
+    // Don't show any action for self
     if (userRelationship === 'self') {
       return <Tag color="blue">This is you</Tag>;
     }
-
-    if (userRelationship === 'friend') {
+    
+    // Double-check friends status right at render time
+    const isFriendAtRenderTime = friends.some(friend => String(friend.id) === String(user.id));
+    
+    // If user is a friend (either from state or current check), show remove button
+    if (userRelationship === 'friend' || isFriendAtRenderTime) {
       return (
-        <Button danger icon={<CloseCircleOutlined />} onClick={handleRemoveFriend}>
+        <Button
+          danger
+          icon={<CloseCircleOutlined />}
+          onClick={handleRemoveFriend}
+        >
           Remove Friend
         </Button>
       );
     }
-
+    
+    // Show accept/deny buttons for pending requests
     if (userRelationship === 'pending') {
       return (
         <div className="flex gap-2">
-          <Button type="primary" icon={<CheckCircleOutlined />} onClick={handleAcceptRequest}>
+          <Button
+            type="primary"
+            icon={<CheckCircleOutlined />}
+            onClick={handleAcceptRequest}
+          >
             Accept
           </Button>
-          <Button danger icon={<CloseCircleOutlined />} onClick={handleDenyRequest}>
+          <Button
+            danger
+            icon={<CloseCircleOutlined />}
+            onClick={handleDenyRequest}
+          >
             Deny
           </Button>
         </div>
       );
     }
-
-    return (
-      <Button type="primary" icon={<PlusOutlined />} onClick={handleSendRequest}>
-        Add Friend
-      </Button>
-    );
+    
+    // Show add friend button for non-friends who aren't yourself
+    if (userRelationship === 'none') {
+      return (
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={handleSendRequest}
+        >
+          Add Friend
+        </Button>
+      );
+    }
+    
+    // Default case if none of the above apply
+    return null;
   };
 
   const formatter = (value: string | number) => <CountUp end={Number(value)} separator="," />;
@@ -315,7 +372,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
       )}
 
       <div className="flex justify-center mt-4">
-        {/* {renderActionButton()} */}
+        {renderActionButton()}
       </div>
     </div>
   );

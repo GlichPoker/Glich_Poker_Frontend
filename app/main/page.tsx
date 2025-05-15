@@ -88,7 +88,11 @@ const MainContent: React.FC = () => {
                     <FriendRequestsNotification />
 
                     <Popover
-                        content={user && <UserProfileCard user={user} onClose={() => setProfileVisible(false)} />}
+                        content={user && <UserProfileCard 
+                            user={user} 
+                            onClose={() => setProfileVisible(false)}
+                            sourceContext="profileView" 
+                        />}
                         title="My Profile"
                         trigger="click"
                         open={profileVisible}
