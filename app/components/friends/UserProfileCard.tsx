@@ -61,7 +61,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
   const apiService = new ApiService();
 
-  // 로컬 유저 정보 가져오기
+
   useEffect(() => {
     const userStr = localStorage.getItem('user');
     if (userStr) {
@@ -74,7 +74,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     }
   }, []);
 
-  // 유저 상세 정보 불러오기
+
   useEffect(() => {
     if (!user?.id || (user.creationDate && user.creationDate !== 'Unknown')) {
       setFullUserData(user);
@@ -94,7 +94,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     fetchUserData();
   }, [user]);
 
-  // 🧠 리팩토링된: 통계 요청
+
   useEffect(() => {
     if (!user || !user.id) {
       console.log("⛔️ user or user.id is missing. Skipping stats fetch.");
@@ -113,9 +113,9 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
     console.log("📢 Fetching stats for user.id =", user.id);
     fetchStats();
-  }, [user]); // 전체 user 객체로 의존성 변경
+  }, [user]);
 
-  // 친구 관계 설정
+
   useEffect(() => {
     if (!currentUserData || !user?.id) return;
 
