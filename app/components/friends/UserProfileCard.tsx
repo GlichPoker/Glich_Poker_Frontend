@@ -1,10 +1,27 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { User } from '@/types/user';
-import { Avatar, Button, Divider, Descriptions, Tag, App, Tooltip } from 'antd';
-import { UserOutlined, PlusOutlined, CloseCircleOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import {
+  Avatar,
+  Button,
+  Divider,
+  Descriptions,
+  Tag,
+  App,
+  Statistic,
+  Row,
+  Col,
+  Tooltip
+} from 'antd';
+import {
+  UserOutlined,
+  PlusOutlined,
+  CloseCircleOutlined,
+  CheckCircleOutlined,
+} from '@ant-design/icons';
 import { useFriends } from '@/hooks/useFriends';
 import "@ant-design/v5-patch-for-react-19";
+import CountUp from 'react-countup';
 import { ApiService } from '@/api/apiService';
 
 interface UserProfileCardProps {
@@ -13,32 +30,38 @@ interface UserProfileCardProps {
   selectedFromLeaderboard?: boolean;
 }
 
-const UserProfileCard: React.FC<UserProfileCardProps> = ({ 
-  user, 
+interface UserStats {
+  gamesPlayed: number;
+  roundsPlayed: number;
+  bb100: number;
+  bbWon: number;
+  bankrupts: number;
+}
+
+const UserProfileCard: React.FC<UserProfileCardProps> = ({
+  user,
   onClose,
   selectedFromLeaderboard = false
 }) => {
   const { message } = App.useApp();
-  const { 
-    friends, 
-    pendingRequests, 
+  const {
+    friends,
+    pendingRequests,
     availableUsers,
     addFriend,
     acceptFriendRequest,
     denyFriendRequest,
-    removeFriend,
-    loading 
+    removeFriend
   } = useFriends();
 
   const [currentUserData, setCurrentUserData] = useState<User | null>(null);
   const [userRelationship, setUserRelationship] = useState<'none' | 'friend' | 'pending' | 'self'>('none');
   const [fullUserData, setFullUserData] = useState<User | null>(null);
-  const [isLoadingUserData, setIsLoadingUserData] = useState<boolean>(false);
-  
-  // Create API service instance for fetching complete user data
+  const [stats, setStats] = useState<UserStats | null>(null);
+
   const apiService = new ApiService();
 
-  // Load current user data
+  // 로컬 유저 정보 가져오기
   useEffect(() => {
     const userStr = localStorage.getItem('user');
     if (userStr) {
@@ -51,50 +74,62 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     }
   }, []);
 
-  // Fetch complete user data if needed
+  // 유저 상세 정보 불러오기
   useEffect(() => {
-    // If user data is already complete or no user ID, don't fetch
     if (!user?.id || (user.creationDate && user.creationDate !== 'Unknown')) {
       setFullUserData(user);
       return;
     }
-    
+
     const fetchUserData = async () => {
-      setIsLoadingUserData(true);
       try {
         const data = await apiService.get<User>(`/users/${user.id}`);
-        setFullUserData({...user, ...data});
+        setFullUserData({ ...user, ...data });
       } catch (error) {
         console.error('Error fetching complete user data:', error);
         setFullUserData(user);
-      } finally {
-        setIsLoadingUserData(false);
       }
     };
-    
+
     fetchUserData();
   }, [user]);
 
-  // Determine relationship with this user
+  // 🧠 리팩토링된: 통계 요청
+  useEffect(() => {
+    if (!user || !user.id) {
+      console.log("⛔️ user or user.id is missing. Skipping stats fetch.");
+      return;
+    }
+
+    const fetchStats = async () => {
+      try {
+        const statData = await apiService.get<UserStats>(`/game/stats/${user.id}`);
+        console.log("✅ Stats fetched:", statData);
+        setStats(statData);
+      } catch (error) {
+        console.error("❌ Failed to load user stats", error);
+      }
+    };
+
+    console.log("📢 Fetching stats for user.id =", user.id);
+    fetchStats();
+  }, [user]); // 전체 user 객체로 의존성 변경
+
+  // 친구 관계 설정
   useEffect(() => {
     if (!currentUserData || !user?.id) return;
 
-    // Check if this is the current user
     if (currentUserData.id === user.id) {
       setUserRelationship('self');
       return;
     }
 
-    // Check if they're already friends
-    const isFriend = friends.some(friend => friend.id === user.id);
-    if (isFriend) {
+    if (friends.some(friend => friend.id === user.id)) {
       setUserRelationship('friend');
       return;
     }
 
-    // Check if there's a pending request
-    const isPending = pendingRequests.some(request => request.id === user.id);
-    if (isPending) {
+    if (pendingRequests.some(request => request.id === user.id)) {
       setUserRelationship('pending');
       return;
     }
@@ -102,7 +137,6 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     setUserRelationship('none');
   }, [currentUserData, user, friends, pendingRequests, availableUsers]);
 
-  // Format registration date nicely if available
   const formatDate = (dateString: string | null) => {
     if (!dateString) return 'Unknown';
     try {
@@ -113,13 +147,12 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     }
   };
 
-  // Handle sending a friend request
   const handleSendRequest = async () => {
     if (!user.id) {
       message.error('Cannot send friend request: Invalid user ID');
       return;
     }
-    
+
     const result = await addFriend(user.id);
     if (result.success) {
       message.success(result.message);
@@ -129,13 +162,12 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     }
   };
 
-  // Handle accepting a friend request
   const handleAcceptRequest = async () => {
     if (!user.id) {
       message.error('Cannot accept request: Invalid user ID');
       return;
     }
-    
+
     const result = await acceptFriendRequest(user.id);
     if (result.success) {
       message.success(result.message);
@@ -145,13 +177,12 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     }
   };
 
-  // Handle denying a friend request
   const handleDenyRequest = async () => {
     if (!user.id) {
       message.error('Cannot deny request: Invalid user ID');
       return;
     }
-    
+
     const result = await denyFriendRequest(user.id);
     if (result.success) {
       message.success(result.message);
@@ -161,13 +192,12 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     }
   };
 
-  // Handle removing a friend
   const handleRemoveFriend = async () => {
     if (!user.id) {
       message.error('Cannot remove friend: Invalid user ID');
       return;
     }
-    
+
     const result = await removeFriend(user.id);
     if (result.success) {
       message.success(result.message);
@@ -177,61 +207,41 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     }
   };
 
-  // Render the appropriate action button based on relationship
   const renderActionButton = () => {
-    // Don't show any action for self
     if (userRelationship === 'self') {
       return <Tag color="blue">This is you</Tag>;
     }
-    
-    // Show remove button for friends
+
     if (userRelationship === 'friend') {
       return (
-        <Button
-          danger
-          icon={<CloseCircleOutlined />}
-          onClick={handleRemoveFriend}
-        >
+        <Button danger icon={<CloseCircleOutlined />} onClick={handleRemoveFriend}>
           Remove Friend
         </Button>
       );
     }
-    
-    // Show accept/deny buttons for pending requests
+
     if (userRelationship === 'pending') {
       return (
         <div className="flex gap-2">
-          <Button
-            type="primary"
-            icon={<CheckCircleOutlined />}
-            onClick={handleAcceptRequest}
-          >
+          <Button type="primary" icon={<CheckCircleOutlined />} onClick={handleAcceptRequest}>
             Accept
           </Button>
-          <Button
-            danger
-            icon={<CloseCircleOutlined />}
-            onClick={handleDenyRequest}
-          >
+          <Button danger icon={<CloseCircleOutlined />} onClick={handleDenyRequest}>
             Deny
           </Button>
         </div>
       );
     }
-    
-    // Show add friend button by default
+
     return (
-      <Button
-        type="primary"
-        icon={<PlusOutlined />}
-        onClick={handleSendRequest}
-      >
+      <Button type="primary" icon={<PlusOutlined />} onClick={handleSendRequest}>
         Add Friend
       </Button>
     );
   };
 
-  // Show a loading state if user data isn't available
+  const formatter = (value: string | number) => <CountUp end={Number(value)} separator="," />;
+
   if (!user || !user.username) {
     return (
       <div className="p-4 text-center">
@@ -254,23 +264,58 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
       <Divider />
 
-      <Descriptions 
-        column={1} 
-        size="small" 
-        bordered
-        className="mb-4"
-        style={{ color: 'white' }}
-      >
-        <Descriptions.Item 
-          label={<span style={{ color: 'white' }}>Registration Date</span>}
-          style={{ color: 'white' }}
-        >
+      <Descriptions column={1} size="small" bordered className="mb-4" style={{ color: 'white' }}>
+        <Descriptions.Item label={<span style={{ color: 'white' }}>Registration Date</span>}>
           {formatDate(displayUser.creationDate)}
         </Descriptions.Item>
       </Descriptions>
 
+      <Divider />
+
+      {stats !== null && (
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold mb-2">Poker Statistics</h3>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Statistic title={<span className="text-amber-300 italic">Games Played</span>} value={stats.gamesPlayed} formatter={formatter} />
+            </Col>
+            <Col span={12}>
+              <Statistic title={<span className="text-amber-300 italic">Rounds Played</span>} value={stats.roundsPlayed} formatter={formatter} />
+            </Col>
+            <Col span={12}>
+              <Statistic
+                title={
+                  <Tooltip title="Big blinds won per 100 hands. A key winrate metric in poker.">
+                    <span className="text-amber-300">BB/100</span>
+                  </Tooltip>
+                }
+                value={stats.bb100}
+                precision={2}
+                formatter={formatter}
+              />
+            </Col>
+
+            <Col span={12}>
+              <Statistic
+                title={
+                  <Tooltip title="Total number of big blinds you’ve won across all games.">
+                    <span className="text-amber-300">BB Won</span>
+                  </Tooltip>
+                }
+                value={stats.bbWon}
+                precision={2}
+                formatter={formatter}
+              />
+            </Col>
+            <Col span={12}>
+              <Statistic title={<span className="text-amber-300 italic">Bankrupts</span>} value={stats.bankrupts} formatter={formatter} />
+            </Col>
+          </Row>
+        </div>
+      )}
+
       <div className="flex justify-center mt-4">
-        <div>{renderActionButton()}</div>
+        {/* {renderActionButton()} */}
       </div>
     </div>
   );
