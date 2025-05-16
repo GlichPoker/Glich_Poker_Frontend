@@ -48,6 +48,7 @@ interface InGameLayoutProps {
     customRuleText: string | null;
     weatherType?: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY";
     bluffModel?: BluffModel | null;
+    isInGame: boolean;
 }
 
 const InGameLayout = ({
@@ -72,6 +73,7 @@ const InGameLayout = ({
     customRuleText,
     weatherType,
     bluffModel,
+    isInGame,
 }: InGameLayoutProps) => {
     const isMyTurn = roundModel?.playersTurnId === currentPlayer?.userId;
 
@@ -346,6 +348,7 @@ const InGameLayout = ({
                                 player={currentPlayer}
                                 username={currentPlayer?.username}
                                 roundPlayer={roundModel?.player}
+                                isInGame={isInGame}
                             />
                         </Badge.Ribbon>
                     ) : (
@@ -353,6 +356,7 @@ const InGameLayout = ({
                             player={currentPlayer}
                             username={currentPlayer?.username}
                             roundPlayer={roundModel?.player}
+                            isInGame={isInGame}
                         />
                     )}
                 </div>

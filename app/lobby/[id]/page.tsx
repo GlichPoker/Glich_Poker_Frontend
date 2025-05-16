@@ -328,6 +328,7 @@ const LobbyPage = () => {
                         customRuleText={customRuleText}
                         weatherType={safeWeatherType}
                         bluffModel={bluffModel} // Pass bluffModel here
+                        isInGame={gameState === GameState.IN_GAME}
                     />
                 );
             default:

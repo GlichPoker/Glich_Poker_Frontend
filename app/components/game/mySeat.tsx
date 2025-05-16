@@ -8,15 +8,17 @@ type Player = {
     balance?: number;
     roundBet?: number;
     hand?: { suit: string; rank: string }[];
-};
+}
+
 
 interface Props {
     player?: Player;
     username?: string;
     roundPlayer?: RoundPlayer;
+    isInGame?: boolean;
 }
 
-const MySeat: React.FC<Props> = ({ player, username, roundPlayer }) => {
+const MySeat: React.FC<Props> = ({ player, username, roundPlayer, isInGame }) => {
     // Use roundPlayer data if available, otherwise fall back to player data
     const displayName = roundPlayer?.name || player?.name || username || '';
     const balance = roundPlayer?.balance ?? player?.balance ?? 0;
@@ -44,7 +46,7 @@ const MySeat: React.FC<Props> = ({ player, username, roundPlayer }) => {
             </div>
 
             {/* Display cards from roundPlayer if available */}
-            {roundPlayer?.hand && roundPlayer.hand.length > 0 && (
+            {isInGame && roundPlayer?.hand && roundPlayer.hand.length > 0 && (
                 <div className="mt-4 flex justify-center">
                     {roundPlayer.hand
                         .filter(card => card !== null)
@@ -59,7 +61,7 @@ const MySeat: React.FC<Props> = ({ player, username, roundPlayer }) => {
             )}
 
             {/* Fallback to player hand if roundPlayer not available */}
-            {!roundPlayer?.hand && player?.hand && (
+            {isInGame && !roundPlayer?.hand && player?.hand && (
                 <div className="mt-4 flex justify-center">
                     {player.hand.map((card, i) => (
                         <span key={i} className="text-white text-sm">
