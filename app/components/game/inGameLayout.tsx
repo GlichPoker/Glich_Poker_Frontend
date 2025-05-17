@@ -18,6 +18,7 @@ import OtherPlayerSection from "@/components/game/inGame/OtherPlayerSection";
 import PokerTable from "@/components/game/inGame/PokerTable";
 import SlipperyCardModal from './specialactions/SlipperyCardModal';
 import WeatherIcon from "@/components/game/weatherIcon";
+import { useInactivityTimer } from "@/hooks/useInactivityTimer";
 
 interface BluffModel {
     userId: number;
@@ -155,6 +156,37 @@ const InGameLayout = ({
 
     const token = localStorage.getItem("token");
 
+    // Automatically fold if the player is inactive for 30 seconds
+    useInactivityTimer({
+        isMyTurn,
+        timeoutMs: 30000,
+        onTimeout: () => {
+
+            fetch(`${baseURL}/game/forceFold`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({
+                    sessionId: parseInt(lobbyId),
+                    userId: currentUser?.id,
+                }),
+            })
+                .then((res) => {
+                    if (!res.ok) {
+                        console.warn("[AUTO-FOLD] forceFold failed:", res.statusText);
+                    }
+                })
+                .catch((err) => {
+                    console.error("[AUTO-FOLD] forceFold request failed:", err);
+                });
+        },
+        userId: currentUser?.id || 0,
+        sessionId: parseInt(lobbyId),
+        forceFoldUrl: `${baseURL}/game/forceFold`,
+    });
+
     const { handleSpecialAction,
         handleBluffCardSelected,
         canSwap,
@@ -218,6 +250,7 @@ const InGameLayout = ({
         setError: handleActionError
     });
 
+
     // Modal Handler
     const handleModalClose = async () => {
         setIsModalVisible(false);
@@ -257,13 +290,13 @@ const InGameLayout = ({
                 {/* Right: Controls */}
                 <div className="flex flex-row space-x-4">
                     {weatherType && <WeatherIcon weatherType={weatherType} />}
-                    <Button
+                    {/* <Button
                         type="link"
                         className="!text-gray-500 !font-bold"
                         onClick={() => setShowVoteOverlay(true)}
                     >
                         Vote
-                    </Button>
+                    </Button> */}
                     <Button
                         type="link"
                         className="!text-gray-500 !font-bold"
