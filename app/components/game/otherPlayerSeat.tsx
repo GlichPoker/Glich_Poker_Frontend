@@ -22,6 +22,7 @@ const OtherPlayerSeat = ({ player, positionLabel, roundPlayer, isRoundOver = fal
 
     const showSingleSpecialBluff = roundPlayer?.bluffCard !== undefined && roundPlayer?.bluffCard !== null;
     const isPlayerMirageBluffing = activeBluff && playerData && activeBluff.userId === playerData.userId;
+    const roundBet = roundPlayer?.totalBet ?? player?.roundBet ?? 0;
 
     return (
         <div className="bg-black bg-opacity-70 rounded-lg p-4 border-2 border-gray-500 min-w-40 min-h-28 flex flex-col items-center text-white">
@@ -36,7 +37,7 @@ const OtherPlayerSeat = ({ player, positionLabel, roundPlayer, isRoundOver = fal
                     </Avatar>
                     <div className="font-bold mt-2">{playerData.name}</div>
                     <div className="text-xs mt-1">
-                        Balance: {playerData.balance ?? 0} | Bet: {playerData.roundBet ?? 0}
+                        Balance: {playerData.balance ?? 0} | Bet: {roundBet}
                     </div>
 
                     {/* Card display area */}

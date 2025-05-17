@@ -13,6 +13,7 @@ export type RoundPlayer = {
     online: boolean;
     active: boolean;
     roundBet: number;
+    totalBet: number;
     hand?: Card[];
     bluffCard?: Card; // Card shown for Mirage ability
 };

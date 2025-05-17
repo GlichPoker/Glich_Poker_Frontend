@@ -22,7 +22,7 @@ const MySeat: React.FC<Props> = ({ player, username, roundPlayer, isInGame }) =>
     // Use roundPlayer data if available, otherwise fall back to player data
     const displayName = roundPlayer?.name || player?.name || username || '';
     const balance = roundPlayer?.balance ?? player?.balance ?? 0;
-    const roundBet = roundPlayer?.roundBet ?? player?.roundBet ?? 0;
+    const roundBet = roundPlayer?.totalBet ?? player?.roundBet ?? 0;
 
     const avatarChar = displayName.trim().length > 0
         ? displayName.charAt(0).toUpperCase()
