@@ -13,6 +13,7 @@ import LobbyList from "@/components/main/lobbyList";
 import Chat from "@/components/main/chat";
 import FriendsStatus from "@/components/main/friendsStatus";
 import FriendRequestsNotification from "@/components/friends/FriendRequestsNotification";
+import LobbyInvitationNotification from "@/components/friends/LobbyInvitationNotification";
 import UserProfileCard from "@/components/friends/UserProfileCard";
 
 const MainContent: React.FC = () => {
@@ -84,6 +85,8 @@ const MainContent: React.FC = () => {
                 <div className="flex flex-row !w-60 justify-start items-center gap-x-4 !ml-5 text-white text-xl font-bold"> Glitch Poker</div>
 
                 <div className="flex flex-row justify-end items-center w-[90%] h-[40px] bg-[#181818] gap-x-4 !mr-5">
+
+                    <LobbyInvitationNotification />
 
                     <FriendRequestsNotification />
 

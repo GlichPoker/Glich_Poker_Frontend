@@ -254,8 +254,9 @@ const LobbyPage = () => {
                     Authorization: `Bearer ${currentUser.token}`,
                 },
                 body: JSON.stringify({
-                    sessionId: lobbyId,
                     userId: inviteeUserId,
+                    senderId: currentUser.id,
+                    sessionId: lobbyId,
                 }),
             });
 
