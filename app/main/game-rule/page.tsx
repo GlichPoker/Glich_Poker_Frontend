@@ -1,12 +1,21 @@
 "use client";
 import "@ant-design/v5-patch-for-react-19";
 import React, { useEffect, useState } from "react";
-import { Button, Divider, message } from "antd";
+import { Button, Card, Typography, message, Divider } from "antd";
 import { useRouter } from "next/navigation";
+
+const { Title, Paragraph } = Typography;
+
+const tabList = [
+    { key: "standard", label: "Standard Rules" },
+    { key: "custom", label: "Custom Rules" },
+    { key: "weather", label: "Weather-Based Special Rules" },
+];
 
 const GameRule: React.FC = () => {
     const router = useRouter();
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+    const [activeTabKey, setActiveTabKey] = useState<string>("standard");
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -18,73 +27,119 @@ const GameRule: React.FC = () => {
         }
     }, [router]);
 
-    if (isAuthorized === null) {
+    if (isAuthorized === null) return null;
 
-        return null;
-    }
+    const contentList: Record<string, React.ReactNode> = {
+        standard: (
+            <div className="text-gray-300 space-y-6">
+                <Paragraph>
+                    The goal of poker is to win chips by either having the best hand at showdown or by convincing other players to fold.
+                </Paragraph>
+                <div>
+                    <Title level={5} className="!text-white">Poker Hand Rankings (Highest to Lowest)</Title>
+                    <ul className="list-decimal pl-5 !ml-10">
+                        <li>Royal Flush: A, K, Q, J, 10, all of the same suit.</li>
+                        <li>Straight Flush: Five consecutive cards of the same suit.</li>
+                        <li>Four of a Kind: Four cards of the same rank.</li>
+                        <li>Full House: Three of a kind plus a pair.</li>
+                        <li>Flush: Five cards of the same suit, not in sequence.</li>
+                        <li>Straight: Five consecutive cards of any suit.</li>
+                        <li>Three of a Kind: Three cards of the same rank.</li>
+                        <li>Two Pair: Two pairs of cards of the same rank.</li>
+                        <li>One Pair: Two cards of the same rank.</li>
+                        <li>High Card: If no hand qualifies, highest card wins.</li>
+                    </ul>
+                </div>
+                <Divider />
+                <div>
+                    <Title level={5} className="!text-white !mt-5">Game Phases</Title>
+                    <ol className="list-decimal pl-5 space-y-2 !ml-10">
+                        <li>
+                            <b>Deal:</b> Each player receives two hole cards.
+                        </li>
+                        <li>
+                            <b>Betting Rounds:</b>
+                            <ul className="list-disc pl-5 mt-1 !ml-5">
+                                <li>Pre-flop</li>
+                                <li>Flop</li>
+                                <li>Turn</li>
+                                <li>River</li>
+                            </ul>
+                        </li>
+                        <li>
+                            <b>Showdown:</b> Remaining players reveal hands to determine the winner.
+                        </li>
+                    </ol >
+                </div >
+                <Divider />
+                <div>
+                    <Title level={5} className="!text-white">Betting Options</Title>
+                    <ul className="list-decimal pl-5 !ml-10">
+                        <li>Check – No bet, pass to next player.</li>
+                        <li>Bet – Put chips into the pot.</li>
+                        <li>Call – Match a current bet.</li>
+                        <li>Raise – Increase the bet amount.</li>
+                        <li>Fold – Forfeit your hand.</li>
+                    </ul>
+                </div>
+            </div >
+        ),
+        custom: (
+            <div className="text-gray-300 space-y-6">
+                <Paragraph className="text-sm text-gray-400">
+                    Custom rules are configured when you <b>create a lobby</b>.
+                </Paragraph>
+
+                <div>
+                    <Title level={5} className="!text-white">Winner Rule</Title>
+                    <ul className="list-disc pl-5 !ml-5">
+                        <li><b>High Card Wins:</b> Traditional rule – highest hand wins.</li>
+                        <li><b>Low Card Wins:</b> Lowest ranked hand wins (e.g. 7-5-4-3-2 beats 9-8-6-5-4).</li>
+                    </ul>
+                </div>
+                <div>
+                    <Title level={5} className="!text-white !mt-5">Hand Rank Type</Title>
+                    <ul className="list-disc pl-5 !ml-5">
+                        <li><b>Default:</b> Uses standard hand ranking.</li>
+                        <li><b>Reverse:</b> Low-value hands beat higher ones.</li>
+                        <li><b>Custom:</b> Host defines custom hand ranking order.</li>
+                    </ul>
+                </div>
+            </div>
+        ),
+        weather: (
+            <div className="text-gray-300 space-y-6">
+                <Paragraph>Special rules are initially determined based on the <b>lobby host's location</b>.
+                    Before the game starts, players can <b>vote</b> to change the weather (and the rule).</Paragraph>
+                <ul className="list-disc pl-5 !ml-5">
+                    <li><b>SUNNY:</b> Bluff once every 5 rounds; big blind increases by 5% every third round.</li>
+                    <li><b>RAINY:</b> Exchange one card from your hand once per round.</li>
+                    <li><b>SNOWY:</b> Receive 3 hole cards instead of 2.</li>
+                    <li><b>CLOUDY:</b> Two community cards remain hidden until showdown.</li>
+                    <li><b>DEFAULT:</b> No weather rule is applied.</li>
+                </ul>
+            </div>
+        ),
+    };
 
     return (
-        <div className="w-screen h-screen flex justify-center bg-[#181818] overflow-auto">
-            <div className="w-[90%] h-dvh">
+        <div className="min-h-screen bg-[#181818] text-white px-4 py-10 flex justify-center">
+            <div className="w-full max-w-5xl">
+                <div className="flex justify-between items-center mb-6">
+                    <Title level={2} className="!text-red-800">Glitch Poker Game Rules</Title>
+                    <Button type="primary" onClick={() => router.push("/main")}>Back to Main Page</Button>
+                </div>
 
-                {/* title and back to main button */}
-                <section>
-                    <div className="h-20 flex justify-between items-center">
-                        <h1 className="text-red-800 text-3xl font-bold">Glitch Poker Game Rules</h1>
-                        <Button type="primary" onClick={() => router.push("/main")}>Back to Main Page</Button>
-                    </div>
-                </section>
-
-                {/* poker game rules */}
-                <section className="!mt-10">
-                    <p className=" text-gray-400">
-                        The goal of poker is to win chips by either having the best hand at
-                        showdown or by convincing other players to fold their hands.
-                    </p>
-                </section>
-                <Divider className="!border-red-900 font-bold">Poker Hand Rankings (From Highest to Lowest)</Divider>
-                <section>
-                    <ul className="text-gray-400">
-                        <li>1. Royal Flush: A, K, Q, J, 10, all of the same suit.</li>
-                        <li>2. Straight Flush: Five consecutive cards of the same suit.</li>
-                        <li>3. Four of a Kind: Four cards of the same rank.</li>
-                        <li>4. Full House: Three of a kind plus a pair.</li>
-                        <li>5. Flush: Five cards of the same suit, not in sequence.</li>
-                        <li>6. Straight: Five consecutive cards of any suit.</li>
-                        <li>7. Three of a Kind: Three cards of the same rank.</li>
-                        <li>8. Two Pair: Two pairs of cards of the same rank.</li>
-                        <li>9. One Pair: Two cards of the same rank.</li>
-                        <li>10. High Card: If no one has a hand above, the highest card wins.</li>
-                    </ul>
-                </section>
-                <Divider className="!border-red-900 font-bold">Game Phrases</Divider>
-                <section className="text-gray-400">
-                    <p>
-                        1. <b>The Deal</b>: Each player is dealt two private cards (also known as hole cards).
-                    </p>
-                    <p>
-                        2. <b>The Betting Rounds</b>: There are four betting rounds:
-                    </p>
-                    <ul className="!pl-8 list-disc">
-                        <li>Pre-flop: After hole cards are dealt.</li>
-                        <li>The Flop: Three community cards are dealt face-up.</li>
-                        <li>The Turn: A fourth community card is dealt.</li>
-                        <li>The River: A fifth community card is dealt.</li>
-                    </ul>
-                    <p>
-                        3. <b>Showdown</b>: If more than one player remains after the final round of betting, the hands are revealed, and the best hand wins.
-                    </p>
-                </section>
-                <Divider className="!border-red-900 font-bold">Betting Options</Divider>
-                <section>
-                    <ul className="list-decimal !pl-4 text-gray-400">
-                        <li>Check: Passing the action to the next player without betting.</li>
-                        <li>Bet: Putting chips into the pot.</li>
-                        <li>Call: Matching the current bet.</li>
-                        <li>Raise: Increasing the bet.</li>
-                        <li>Fold: Discarding the hand and forfeiting the round.</li>
-                    </ul>
-                </section>
+                <Card
+                    variant="borderless"
+                    className="bg-[#1f1f1f] text-white shadow-none rounded-lg"
+                    tabList={tabList}
+                    activeTabKey={activeTabKey}
+                    onTabChange={(key) => setActiveTabKey(key)}
+                    tabProps={{ size: "large" }}
+                >
+                    {contentList[activeTabKey]}
+                </Card>
             </div>
         </div>
     );

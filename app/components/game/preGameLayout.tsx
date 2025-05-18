@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { getApiDomain } from '@/utils/domain';
 import VoteMap from '@/components/game/voting/voteMap';
 import StartVoteButton from '@/components/game/voting/startVoteButton';
-import { GameSettings } from "@/types/round";
+
 
 interface PreGameLayoutProps {
     lobbyId: string;
