@@ -1,7 +1,7 @@
 "use client";
 import "@ant-design/v5-patch-for-react-19";
 import React, { useEffect, useState } from "react";
-import { Button, Card, Typography, message, Divider } from "antd";
+import { Button, Typography, message, Divider, Tabs } from "antd";
 import { useRouter } from "next/navigation";
 
 const { Title, Paragraph } = Typography;
@@ -16,6 +16,21 @@ const GameRule: React.FC = () => {
     const router = useRouter();
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
     const [activeTabKey, setActiveTabKey] = useState<string>("standard");
+    const { Title, Paragraph } = Typography;
+    const tabItems = [
+        {
+            key: "standard",
+            label: "Standard Rules",
+        },
+        {
+            key: "custom",
+            label: "Custom Rules",
+        },
+        {
+            key: "weather",
+            label: "Weather-Based Special Rules",
+        },
+    ];
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -127,19 +142,28 @@ const GameRule: React.FC = () => {
             <div className="w-full max-w-5xl">
                 <div className="flex justify-between items-center mb-6">
                     <Title level={2} className="!text-red-800">Glitch Poker Game Rules</Title>
-                    <Button type="primary" onClick={() => router.push("/main")}>Back to Main Page</Button>
+                    <Button type="primary" onClick={() => router.push("/main")}>
+                        Back to Main Page
+                    </Button>
                 </div>
 
-                <Card
-                    variant="borderless"
-                    className="bg-[#1f1f1f] text-white shadow-none rounded-lg"
-                    tabList={tabList}
-                    activeTabKey={activeTabKey}
-                    onTabChange={(key) => setActiveTabKey(key)}
-                    tabProps={{ size: "large" }}
+                <Tabs
+                    activeKey={activeTabKey}
+                    onChange={setActiveTabKey}
+                    type="line"
+                    tabBarGutter={32}
+                    className="
+    [&_.ant-tabs-tab]:text-white 
+    [&_.ant-tabs-tab-active_.ant-tabs-tab-btn]:!text-white 
+    [&_.ant-tabs-ink-bar]:!bg-[#9f0712]
+  "
                 >
-                    {contentList[activeTabKey]}
-                </Card>
+                    {tabItems.map((tab) => (
+                        <Tabs.TabPane tab={tab.label} key={tab.key}>
+                            {contentList[tab.key]}
+                        </Tabs.TabPane>
+                    ))}
+                </Tabs>
             </div>
         </div>
     );
