@@ -19,3 +19,6 @@ export function getWSDomain(): string {
   const devUrl = "ws://localhost:8080";
   return isProduction() ? prodUrl : devUrl;
 }
+
+console.log("NODE_ENV:", process.env.NODE_ENV);         // 예상: "development"
+console.log("API Domain:", getApiDomain());

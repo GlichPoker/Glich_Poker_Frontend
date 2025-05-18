@@ -7,13 +7,17 @@ import { Button, message, Popover, App } from "antd";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { User } from "@/types/user";
 import { webSocketService } from "@/utils/websocket";
-
+import { getApiDomain } from '@/utils/domain';
+import axios from "axios";
 import Leaderboard from "@/components/main/leaderboard/leaderboard";
 import LobbyList from "@/components/main/lobbyList";
 import Chat from "@/components/main/chat";
 import FriendsStatus from "@/components/main/friendsStatus";
 import UnifiedNotificationCenter from "@/components/friends/UnifiedNotificationCenter";
 import UserProfileCard from "@/components/friends/UserProfileCard";
+
+
+const baseURL = getApiDomain();
 
 const MainContent: React.FC = () => {
     const router = useRouter();
@@ -59,17 +63,24 @@ const MainContent: React.FC = () => {
         return null; // Or render a loading spinner if you prefer
     }
 
-    const handleLogout = () => {
+    const handleLogout = async () => {
         if (user && user.username) {
             webSocketService.sendLogoutMessage(user.username);
+
+            try {
+                await axios.post(`${baseURL}/users/logout`, {
+                    username: user.username,
+                });
+            } catch (error) {
+                console.error("Logout API failed:", error);
+            }
         }
 
-        // Clear token and user data
         clearToken();
         localStorage.removeItem("user");
 
         messageApi.success("Logged out successfully");
-        router.push("/"); // Redirect to login page
+        router.push("/");
     };
 
     const handleProfileClick = () => {
@@ -88,10 +99,10 @@ const MainContent: React.FC = () => {
                     <UnifiedNotificationCenter />
 
                     <Popover
-                        content={user && <UserProfileCard 
-                            user={user} 
+                        content={user && <UserProfileCard
+                            user={user}
                             onClose={() => setProfileVisible(false)}
-                            sourceContext="profileView" 
+                            sourceContext="profileView"
                         />}
                         title="My Profile"
                         trigger="click"
