@@ -12,8 +12,7 @@ import Leaderboard from "@/components/main/leaderboard/leaderboard";
 import LobbyList from "@/components/main/lobbyList";
 import Chat from "@/components/main/chat";
 import FriendsStatus from "@/components/main/friendsStatus";
-import FriendRequestsNotification from "@/components/friends/FriendRequestsNotification";
-import LobbyInvitationNotification from "@/components/friends/LobbyInvitationNotification";
+import UnifiedNotificationCenter from "@/components/friends/UnifiedNotificationCenter";
 import UserProfileCard from "@/components/friends/UserProfileCard";
 
 const MainContent: React.FC = () => {
@@ -86,9 +85,7 @@ const MainContent: React.FC = () => {
 
                 <div className="flex flex-row justify-end items-center w-[90%] h-[40px] bg-[#181818] gap-x-4 !mr-5">
 
-                    <LobbyInvitationNotification />
-
-                    <FriendRequestsNotification />
+                    <UnifiedNotificationCenter />
 
                     <Popover
                         content={user && <UserProfileCard 

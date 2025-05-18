@@ -64,31 +64,32 @@ export function useLobbyInvitations() {
 
   // Fetch all invitations data
   const fetchInvitationsData = useCallback(async () => {
-    // Prevent multiple simultaneous fetch requests
     if (isFetchingRef.current) {
       return;
     }
     
     const currentUser = getCurrentUser();
     if (!currentUser || !currentUser.id) {
-      setLoading(false);
       setInvitations([]);
-      // Don't set error for missing user to avoid UI disruption
+      // No setLoading(true) here as it's a quick exit, error/loading state handled by caller or defaults
       return;
     }
     
-    // Set fetching flag to prevent duplicate requests
     isFetchingRef.current = true;
-    setLoading(true);
     setError(null);
-    
+
+    // Timer to delay showing the loader, preventing flicker for fast responses
+    const loaderTimer = setTimeout(() => {
+      setLoading(true);
+    }, 200); // Only show loader if fetching takes more than 200ms
+
     try {
       // Fetch open invitations - using the correct endpoint format
       // Wrap in a timeout to handle potential errors gracefully
       const fetchPromise = new Promise<number[]>((resolve) => {
         // Add a timeout to prevent hanging if the API doesn't respond
         const timeoutId = setTimeout(() => {
-          console.warn('API request timed out');
+          console.warn('API request timed out for openInvitations');
           resolve([]);
         }, 5000);
         
@@ -99,9 +100,9 @@ export function useLobbyInvitations() {
             resolve(data || []);
           })
           .catch(err => {
-            console.error('API error:', err);
+            console.error('API error fetching openInvitations:', err);
             clearTimeout(timeoutId);
-            resolve([]);
+            resolve([]); // Resolve with empty on error to allow flow to continue
           });
       });
       
@@ -114,14 +115,14 @@ export function useLobbyInvitations() {
       setInvitations(invitationsWithDetails);
     } catch (err) {
       console.error('Failed to fetch invitations data:', err);
-      // Don't set error state for now, just use empty array to prevent UI crash
-      setInvitations([]);
+      setInvitations([]); // Set to empty on error
+      // setError('Failed to load invitations.'); // Optionally set a user-facing error
     } finally {
-      setLoading(false);
-      // Reset fetching flag after a short delay to prevent rapid consecutive calls
-      setTimeout(() => {
-        isFetchingRef.current = false;
-      }, 500);
+      clearTimeout(loaderTimer); // Important: clear the timer regardless of outcome
+      setLoading(false); // Always set loading to false when operation finishes
+      
+      // Reset fetching flag immediately so subsequent calls aren't blocked unnecessarily
+      isFetchingRef.current = false;
     }
   }, [apiService, fetchUserDetails]);
 
