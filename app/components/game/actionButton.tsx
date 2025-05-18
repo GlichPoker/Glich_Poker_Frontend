@@ -8,7 +8,7 @@ interface Props {
 }
 
 const ActionButton: React.FC<Props> = ({ label, onClick, disabled }) => {
-    // disabled button stayle
+    // disabled button style
     const disabledStyle: React.CSSProperties = {
         backgroundColor: '#4d4d4d',
         color: '#ffffff',
@@ -17,7 +17,7 @@ const ActionButton: React.FC<Props> = ({ label, onClick, disabled }) => {
         width: '120px',
     };
 
-    // button style
+    // enabled button style
     const enabledStyle: React.CSSProperties = {
         backgroundColor: '#9f0712',
         color: '#ffffff',
@@ -28,7 +28,13 @@ const ActionButton: React.FC<Props> = ({ label, onClick, disabled }) => {
 
     return (
         <Button
-            onClick={onClick}
+            onClick={(e) => {
+                if (disabled) {
+                    e.preventDefault();
+                    return;
+                }
+                onClick();
+            }}
             disabled={disabled}
             style={disabled ? disabledStyle : enabledStyle}
             type="primary"

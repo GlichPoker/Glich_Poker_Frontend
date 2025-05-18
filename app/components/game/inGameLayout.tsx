@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect } from 'react';
-import { Button, InputNumber, Badge, notification, Tooltip } from 'antd';
+import { Button, InputNumber, Badge, message } from 'antd';
 import Vote from '@/components/game/voting/vote';
 import MySeat from '@/components/game/mySeat';
 import ActionButton from '@/components/game/actionButton';
@@ -77,6 +77,7 @@ const InGameLayout = ({
     isInGame,
 }: InGameLayoutProps) => {
     const isMyTurn = roundModel?.playersTurnId === currentPlayer?.userId;
+    const [messageApi, contextHolder] = message.useMessage();
 
     // Function to get the appropriate table image based on the weather type
     const getTableImage = () => {
@@ -281,6 +282,7 @@ const InGameLayout = ({
     };
     return (
         <div className="flex flex-col w-full h-auto">
+            {contextHolder}
             <nav className="flex flex-row h-14 justify-between items-center bg-[#181818] px-4">
                 {/* Left: Logo */}
                 <div className="text-sm text-gray-500">
@@ -437,7 +439,7 @@ const InGameLayout = ({
 
                     <div className="flex flex-col items-center w-28">
                         <InputNumber
-                            min={callAmount + 1}
+                            // min={callAmount + 1}
                             onChange={handleRaiseInputChange}
                             disabled={!isMyTurn}
                             placeholder=""
@@ -447,17 +449,19 @@ const InGameLayout = ({
                             <ActionButton
                                 label="Raise"
                                 onClick={() => {
-                                    if (raiseInput < callAmount + 1) {
-                                        notification.error({
-                                            message: "Invalid Raise Amount",
-                                            description: `Raise must be greater than $${callAmount}`,
-                                            duration: 3,
-                                        });
+                                    if (!isMyTurn) {
+                                        messageApi.error("It's not your turn.");
                                         return;
                                     }
+
+                                    if (raiseInput < callAmount + 1) {
+                                        messageApi.error(`Raise must be greater than $${callAmount}`);
+                                        return;
+                                    }
+
                                     handleRaise(raiseInput);
                                 }}
-                                disabled={!isMyTurn || raiseInput < callAmount + 1}
+                                disabled={!isMyTurn}
                             />
                         </div>
                     </div>
@@ -472,14 +476,14 @@ const InGameLayout = ({
                                             if (showSwapButton) {
                                                 handleSwapCardClick();
                                             } else {
-                                                notification.warning({
-                                                    message: "Swap Unavailable",
-                                                    description: "You have already used your swap this round.",
-                                                    placement: "top",
-                                                });
+                                                messageApi.warning("You have already used your swap this round.");
                                             }
                                         } else {
-                                            handleSpecialAction(weatherType, () => setShowMiragePopup(true), () => handleSwapCardClick());
+                                            handleSpecialAction(
+                                                weatherType,
+                                                () => setShowMiragePopup(true),
+                                                () => handleSwapCardClick()
+                                            );
                                         }
                                     }}
                                     disabled={!isMyTurn || (weatherType === "RAINY" && !showSwapButton)}

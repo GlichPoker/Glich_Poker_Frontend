@@ -202,39 +202,63 @@ const LobbyPage = () => {
                 }),
             });
 
-            // if (!quitResponse.ok) {
-            //     throw new Error('Failed to leave the game room');
-            // }
             if (!quitResponse.ok) {
-                const errorText = await quitResponse.text(); // 여기서 에러 메시지 확인
+                const errorText = await quitResponse.text();
                 console.error('Failed to leave the game room:', quitResponse.status, errorText);
                 throw new Error('Failed to leave the game room');
-            }
 
 
-            // request to delete endpoint
-            setTimeout(async () => {
-                if (playerCount <= 1 && isHost && gameState === GameState.PRE_GAME) {
-                    const deleteResponse = await fetch(`${baseURL}/game/delete?sessionId=${lobbyId}&userId=${currentUser.id}`, {
-                        method: 'POST',
-                        headers: {
-                            Authorization: `Bearer ${currentUser.token}`,
-                        },
-                    });
 
-                    if (!deleteResponse.ok) {
-                        const errorText = await deleteResponse.text();
-                        console.warn('Failed to delete the lobby:', deleteResponse.status, errorText);
-                    } else {
-                        console.log('Lobby deleted');
-                    }
-                }
+                // automatically delete lobby when nobody is there
+                // setTimeout(async () => {
+                //     if (playerCount <= 1 && isHost && gameState === GameState.PRE_GAME) {
+                //         const deleteResponse = await fetch(`${baseURL}/game/delete?sessionId=${lobbyId}&userId=${currentUser.id}`, {
+                //             method: 'POST',
+                //             headers: {
+                //                 Authorization: `Bearer ${currentUser.token}`,
+                //             },
+                //         });
 
-                router.push('/main');
-            }, 500);
+                //         if (!deleteResponse.ok) {
+                //             const errorText = await deleteResponse.text();
+                //             console.warn('Failed to delete the lobby:', deleteResponse.status, errorText);
+                //         } else {
+                //             console.log('Lobby deleted');
+                //         }
+                //     }
+
+
+            };
+            router.push('/main');
         } catch (error) {
             console.error('Error leaving the game room:', error);
             alert('Failed to leave the game room');
+        }
+    };
+
+    // mannually delete lobby(only owner can delete it)
+    const handleDeleteLobby = async () => {
+        if (!lobbyId || !currentUser) return;
+
+        try {
+            const deleteResponse = await fetch(`${baseURL}/game/delete?sessionId=${lobbyId}&userId=${currentUser.id}`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${currentUser.token}`,
+                },
+            });
+
+            if (!deleteResponse.ok) {
+                const errorText = await deleteResponse.text();
+                console.warn('Failed to delete the lobby:', deleteResponse.status, errorText);
+                alert('Failed to delete the lobby');
+            } else {
+                console.log('Lobby deleted');
+                router.push('/main');
+            }
+        } catch (error) {
+            console.error('Error deleting the lobby:', error);
+            alert('Error deleting the lobby');
         }
     };
 
@@ -302,6 +326,9 @@ const LobbyPage = () => {
                         isWeatherModalOpen={isWeatherModalOpen}
                         setIsWeatherModalOpen={setIsWeatherModalOpen}
                         gameSettings={settings}
+                        handleDeleteLobby={handleDeleteLobby}
+
+
                     />
                 );
             case GameState.IN_GAME:
