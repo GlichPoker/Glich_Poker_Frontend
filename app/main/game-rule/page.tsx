@@ -127,7 +127,7 @@ const GameRule: React.FC = () => {
                 <Paragraph>Special rules are initially determined based on the <b>lobby host's location</b>.
                     Before the game starts, players can <b>vote</b> to change the weather (and the rule).</Paragraph>
                 <ul className="list-disc pl-5 !ml-5">
-                    <li><b>SUNNY:</b> Bluff once every 5 rounds; big blind increases by 5% every third round.</li>
+                    <li><b>SUNNY:</b> Bluff once every round; big blind increases by 5% every third round.</li>
                     <li><b>RAINY:</b> Exchange one card from your hand once per round.</li>
                     <li><b>SNOWY:</b> Receive 3 hole cards instead of 2.</li>
                     <li><b>CLOUDY:</b> Two community cards remain hidden until showdown.</li>
