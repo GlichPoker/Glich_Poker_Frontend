@@ -230,6 +230,18 @@ const InGameLayout = ({
         }
     }, [canSwap]);
 
+    useEffect(() => {
+        if (error) {
+            if (error.includes("cannot check")) {
+                messageApi.error("You can't check when a bet is required. Please call or raise instead.");
+            } else {
+                messageApi.error(error);
+            }
+
+            setError(null);
+        }
+    }, [error, messageApi, setError]);
+
     const handleCallInputChange = (value: number | null) => {
         setCallInput(value ?? 0);
     };

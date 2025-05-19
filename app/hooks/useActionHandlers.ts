@@ -1,6 +1,4 @@
-//useActionHandlers.ts
 import { getApiDomain } from '@/utils/domain';
-import { notification } from 'antd';
 
 const baseURL = getApiDomain();
 
@@ -15,18 +13,10 @@ export const useActionHandlers = ({ lobbyId, currentUser, setError }: ActionHand
         throw new Error("useActionHandlers: Missing lobbyId or currentUser");
     }
 
-    // Debug the current user object to ensure it has the correct token
-    // console.log("[DEBUG] useActionHandlers - currentUser:", {
-    //     id: currentUser.id,
-    //     hasToken: !!currentUser.token,
-    //     tokenLength: currentUser.token?.length || 0
-    // });
-
     const commonHeaders = {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${currentUser.token}`,
     };
-
 
     const postAction = async (endpoint: string, event: string, amount?: number, card?: any) => {
         try {
@@ -43,56 +33,39 @@ export const useActionHandlers = ({ lobbyId, currentUser, setError }: ActionHand
                 requestBody.card = card;
             }
 
-            // Debug log for all requests
-            // console.log(`[DEBUG] ${endpoint} request:`, {
-            //     url: `${baseURL}/game/${endpoint}`,
-            //     method: 'POST',
-            //     headers: { ...commonHeaders, Authorization: 'Bearer ***' }, // Don't log actual token
-            //     body: JSON.stringify(requestBody)
-            // });
-
             const response = await fetch(`${baseURL}/game/${endpoint}`, {
                 method: 'POST',
                 headers: commonHeaders,
                 body: JSON.stringify(requestBody),
             });
 
-            // console.log(`[DEBUG] ${endpoint} response status:`, response.status);
-
             if (!response.ok) {
                 let readableMessage = `Unexpected error (${response.status})`;
                 try {
                     const errorJson = await response.json();
-                    // console.log(`[DEBUG] ${endpoint} error response:`, errorJson);
                     readableMessage = errorJson.message || readableMessage;
                 } catch (parseError) {
                     console.warn('Failed to parse error response:', parseError);
                 }
-                notification.error({
-                    message: 'Action Error',
-                    description: readableMessage,
-                    placement: 'top',
-                });
-                console.error(`Error in ${endpoint}:`, readableMessage);
-                setError(`Action failed: ${readableMessage}`);
 
-                throw new Error(readableMessage);
+                // console.error(`Error in ${endpoint}:`, readableMessage);
+                setError(readableMessage);
+
+                return null;
             }
 
-            // Try to parse response as JSON if available
             try {
                 const data = await response.json();
-                // console.log(`[DEBUG] ${endpoint} success response:`, data);
                 return data;
             } catch (e) {
-                // console.log(`[DEBUG] ${endpoint} success (no response body)`);
                 return true;
             }
 
         } catch (err: any) {
-            console.error(`Error in ${endpoint}:`, err);
-            setError(`Something went wrong: ${err.message || err}`);
-            throw err; // Re-throw to allow caller to handle
+            const fallbackMessage = err?.message || "Unknown error occurred.";
+            // console.error(`Error in ${endpoint}:`, err);
+            setError(fallbackMessage);
+            return null;
         }
     };
 
