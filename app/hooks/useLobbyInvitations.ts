@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { ApiService } from '@/api/apiService';
 import { User } from '@/types/user';
 
@@ -20,8 +20,8 @@ export function useLobbyInvitations() {
   const [error, setError] = useState<string | null>(null);
   const isFetchingRef = useRef<boolean>(false);
   
-  // Create API service instance
-  const apiService = new ApiService();
+  // Create API service instance, memoized to prevent re-creation on re-renders
+  const apiService = useMemo(() => new ApiService(), []);
   
   // Get the current user from localStorage
   const getCurrentUser = (): { id: string | null; username: string | null } | null => {
