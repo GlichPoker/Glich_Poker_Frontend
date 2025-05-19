@@ -107,11 +107,12 @@ export function useFriends() {
         apiService.get<any[]>(`/friends/pendingRequests/${currentUser.id}`),
         apiService.get<any[]>(`/friends/availableUsers/${currentUser.id}`)
       ]);
-      
+
       // Normalize the data to ensure all objects have the fields we need
       const normalizedFriends = normalizeUserData(friendsData || [], userMap);
       const normalizedPending = normalizeUserData(pendingData || [], userMap);
       const normalizedAvailable = normalizeUserData(availableData || [], userMap);
+
       
       setFriends(normalizedFriends);
       setPendingRequests(normalizedPending);
@@ -205,7 +206,8 @@ export function useFriends() {
         await apiService.post(`/friends/accept?userId=${currentUser.id}&friendId=${friendId}`, {});
       } catch (firstError) {
         // Second try: current user is the request sender
-        await apiService.post(`/friends/accept?userId=${friendId}&friendId=${currentUser.id}`, {});
+        return { success: false, message: 'Cannot accept sent friend request' };
+
       }
       
       await fetchFriendsData();
@@ -254,7 +256,7 @@ export function useFriends() {
         await apiService.post(`/friends/deny?userId=${currentUser.id}&friendId=${friendId}`, {});
       } catch (firstError) {
         // Second try: current user is the request sender
-        await apiService.post(`/friends/deny?userId=${friendId}&friendId=${currentUser.id}`, {});
+        return { success: false, message: 'Cannot deny sent friend request' };
       }
       
       await fetchFriendsData();
@@ -302,8 +304,8 @@ export function useFriends() {
         // First try: current user is user1
         await apiService.post(`/friends/remove?userId=${currentUser.id}&friendId=${friendId}`, {});
       } catch (firstError) {
-        // Second try: current user is user2
-        await apiService.post(`/friends/remove?userId=${friendId}&friendId=${currentUser.id}`, {});
+        return { success: false, message: 'Something went wrong while removing the friend' };
+
       }
       
       await fetchFriendsData();
