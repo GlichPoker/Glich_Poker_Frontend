@@ -5,7 +5,7 @@ import { message } from 'antd';
 
 // Define types
 export interface FriendWithStatus extends User {
-  status: 'ONLINE' | 'OFFLINE' | 'IN_GAME' | string | null;
+  status: 'ONLINE' | 'OFFLINE' | 'IN_GAME' | string | null; 
   inGameId?: string | null;
 }
 
@@ -77,11 +77,12 @@ export function useFriends() {
                     (user.username && userMap.has(user.username)) ? 
                     String(userMap.get(user.username)) : null;
       
-      return {
+      const normalizedUser = {
         ...user,
         id: userId,
         username: user.username || `User_${index}`
       };
+      return normalizedUser;
     });
   };
 
@@ -112,7 +113,7 @@ export function useFriends() {
       const normalizedFriends = normalizeUserData(friendsData || [], userMap);
       const normalizedPending = normalizeUserData(pendingData || [], userMap);
       const normalizedAvailable = normalizeUserData(availableData || [], userMap);
-      
+
       setFriends(normalizedFriends);
       setPendingRequests(normalizedPending);
       setAvailableUsers(normalizedAvailable);
@@ -318,15 +319,19 @@ export function useFriends() {
   };
 
   // Helper function to get status color
-  const getStatusColor = (status: string | null): string => {
-    if (!status) return '#999'; // Default gray
+  const getStatusColor = (friend: FriendWithStatus): string => {
+    if (friend.userLobbyStatus === 'IN_LOBBY') {
+      return '#7e22ce'; // Purple for IN_LOBBY
+    }
+    if (!friend.status) return '#999'; // Default gray
     
-    switch (status) {
+    switch (friend.status.toUpperCase()) {
       case 'ONLINE':
-        return '#52c41a'; // Green
-      case 'IN_GAME':
-        return '#1890ff'; // Blue
+        return '#22c55e'; // Green for ONLINE
       case 'OFFLINE':
+        return '#ef4444'; // Red for OFFLINE
+      case 'IN_GAME': 
+        return '#f97316'; // Orange for IN_GAME (fallback)
       default:
         return '#999'; // Gray
     }

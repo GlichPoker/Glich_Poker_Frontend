@@ -132,6 +132,27 @@ const LobbyList = () => {
                             return;
                         }
 
+                        try {
+                            const updateUserResponse = await fetch(`${baseURL}/users/${user.id}`, {
+                                method: 'PUT',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    Authorization: `Bearer ${user.token}`,
+                                },
+                                body: JSON.stringify({
+                                    userLobbyStatus: 'IN_LOBBY',
+                                    currentLobbyId: selectedLobby.sessionId,
+                                }),
+                            });
+                            if (!updateUserResponse.ok) {
+                                console.error("Failed to update user lobby status after joining lobby:", await updateUserResponse.text());
+                            } else {
+                                console.log("User lobby status updated to IN_LOBBY for lobby:", selectedLobby.sessionId);
+                            }
+                        } catch (statusUpdateError) {
+                            console.error("Error updating user lobby status:", statusUpdateError);
+                        }
+
                         router.push(`/lobby/${selectedLobby.sessionId}`);
                     } catch (err) {
                         messageApi.error("Something went wrong");
@@ -182,7 +203,32 @@ const LobbyList = () => {
                                                 setSelectedLobby(lobby);
                                                 setIsPasswordModalOpen(true);
                                             } else {
-                                                router.push(`/lobby/${lobby.sessionId}`);
+                                                const joinPublicLobby = async () => {
+                                                    try {
+                                                        const user = JSON.parse(localStorage.getItem('user') || '{}');
+                                                        const updateUserResponse = await fetch(`${baseURL}/users/${user.id}`, {
+                                                            method: 'PUT',
+                                                            headers: {
+                                                                'Content-Type': 'application/json',
+                                                                Authorization: `Bearer ${user.token}`,
+                                                            },
+                                                            body: JSON.stringify({
+                                                                userLobbyStatus: 'IN_LOBBY',
+                                                                currentLobbyId: lobby.sessionId,
+                                                            }),
+                                                        });
+                                                        if (!updateUserResponse.ok) {
+                                                            console.error("Failed to update user lobby status for public lobby:", await updateUserResponse.text());
+                                                        } else {
+                                                            console.log("User lobby status updated to IN_LOBBY for public lobby:", lobby.sessionId);
+                                                        }
+                                                        router.push(`/lobby/${lobby.sessionId}`);
+                                                    } catch (error) {
+                                                        console.error("Error joining public lobby or updating status:", error);
+                                                        messageApi.error("Failed to join public lobby.");
+                                                    }
+                                                };
+                                                joinPublicLobby();
                                             }
                                         }}
                                     >

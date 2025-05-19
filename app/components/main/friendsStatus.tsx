@@ -17,13 +17,17 @@ const FriendsStatus: React.FC = () => {
     const { message } = App.useApp();
 
     // Get status text based on friend status
-    const getStatusText = (status: string | null): string => {
-        if (!status) return 'Unknown';
+    const getStatusText = (friend: FriendWithStatus): string => {
+        if (friend.userLobbyStatus === 'IN_LOBBY' && friend.currentLobbyId) {
+            return `In Lobby ${friend.currentLobbyId}`;
+        }
+        if (!friend.status) return 'Unknown';
         
-        switch (status.toLowerCase()) {
+        switch (friend.status.toLowerCase()) {
             case 'online': return 'Online';
-            case 'playing': return 'Playing';
             case 'offline': return 'Offline';
+            // Fallback for 'playing' if userLobbyStatus is not IN_LOBBY
+            case 'playing': return 'Playing'; 
             default: return 'Unknown';
         }
     };
@@ -74,7 +78,7 @@ const FriendsStatus: React.FC = () => {
                                     <div style={{ marginLeft: '10px', marginRight: '10px' }}>
                                         <Badge 
                                             dot 
-                                            color={getStatusColor(friend.status)}
+                                            color={getStatusColor(friend)}
                                             offset={[-5, 28]}
                                         >
                                             <Avatar icon={<UserOutlined />} />
@@ -84,12 +88,10 @@ const FriendsStatus: React.FC = () => {
                                     <div>
                                         <div className="text-white text-base font-semibold leading-tight" style={{ marginBottom: '2px' }}>{friend.username}</div>
                                         <div 
-                                            style={{ color: getStatusColor(friend.status) }}
+                                            style={{ color: getStatusColor(friend) }}
                                             className="text-xs leading-tight"
                                         >
-                                            {getStatusText(friend.status)}
-                                            {friend.status && friend.status.toLowerCase() === 'playing' && friend.inGameId && 
-                                                ' (In Game)'}
+                                            {getStatusText(friend)}
                                         </div>
                                     </div>
                                 </div>

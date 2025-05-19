@@ -18,12 +18,14 @@ import {
   PlusOutlined,
   CloseCircleOutlined,
   CheckCircleOutlined,
-  LoadingOutlined
+  LoadingOutlined,
+  LoginOutlined,
 } from '@ant-design/icons';
 import { useFriends } from '@/hooks/useFriends';
 import "@ant-design/v5-patch-for-react-19";
 import CountUp from 'react-countup';
 import { ApiService } from '@/api/apiService';
+import { useRouter } from 'next/navigation';
 
 interface UserProfileCardProps {
   user: User;
@@ -47,6 +49,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   sourceContext
 }) => {
   const { message } = App.useApp();
+  const router = useRouter();
   const {
     friends,
     pendingRequests,
@@ -224,84 +227,18 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     const result = await removeFriend(user.id);
     if (result.success) {
       message.success(result.message);
-      setUserRelationship('none');
+      setUserRelationship('none'); // Update relationship status
+      if (onClose) onClose(); // Close card after removing friend
     } else {
       message.error(result.message);
     }
   };
 
-  const renderActionButton = () => {
-    // If friends data is still loading, show a loading indicator
-    if (loading) {
-      return <Tag icon={<LoadingOutlined />} color="processing">Loading...</Tag>;
-    }
 
-    // Don't show any action for self
-    if (userRelationship === 'self') {
-      return <Tag color="blue">This is you</Tag>;
-    }
-    
-    // Double-check friends status right at render time
-    const isFriendAtRenderTime = friends.some(friend => String(friend.id) === String(user.id));
-    
-    // If user is a friend (either from state or current check), show remove button
-    if (userRelationship === 'friend' || isFriendAtRenderTime) {
-      return (
-        <Button
-          danger
-          icon={<CloseCircleOutlined />}
-          onClick={handleRemoveFriend}
-        >
-          Remove Friend
-        </Button>
-      );
-    }
-    
-    // Show accept/deny buttons for pending requests
-    if (userRelationship === 'pending') {
-      return (
-        <div className="flex gap-2">
-          <Button
-            type="primary"
-            icon={<CheckCircleOutlined />}
-            onClick={handleAcceptRequest}
-          >
-            Accept
-          </Button>
-          <Button
-            danger
-            icon={<CloseCircleOutlined />}
-            onClick={handleDenyRequest}
-          >
-            Deny
-          </Button>
-        </div>
-      );
-    }
-    
-    // Show add friend button for non-friends who aren't yourself
-    if (userRelationship === 'none') {
-      return (
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={handleSendRequest}
-        >
-          Add Friend
-        </Button>
-      );
-    }
-    
-    // Default case if none of the above apply
-    return null;
-  };
-
-  const formatter = (value: string | number) => <CountUp end={Number(value)} separator="," />;
-
-  if (!user || !user.username) {
+  if (isLoadingUserData || !fullUserData) {
     return (
       <div className="p-4 text-center">
-        <p>User profile not available</p>
+        <p>Loading user data...</p>
       </div>
     );
   }
@@ -331,10 +268,10 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
             <h3 className="text-lg font-semibold mb-2">Poker Statistics</h3>
             <Row gutter={16}>
               <Col span={12}>
-                <Statistic title={<span className="text-amber-300 italic">Games Played</span>} value={stats.gamesPlayed} formatter={formatter} />
+                <Statistic title={<span className="text-amber-300 italic">Games Played</span>} value={stats.gamesPlayed} />
               </Col>
               <Col span={12}>
-                <Statistic title={<span className="text-amber-300 italic">Rounds Played</span>} value={stats.roundsPlayed} formatter={formatter} />
+                <Statistic title={<span className="text-amber-300 italic">Rounds Played</span>} value={stats.roundsPlayed} />
               </Col>
               <Col span={12}>
                 <Statistic
@@ -345,7 +282,6 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
                   }
                   value={stats.bb100}
                   precision={2}
-                  formatter={formatter}
                 />
               </Col>
 
@@ -358,11 +294,10 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
                   }
                   value={stats.bbWon}
                   precision={2}
-                  formatter={formatter}
                 />
               </Col>
               <Col span={12}>
-                <Statistic title={<span className="text-amber-300 italic">Bankrupts</span>} value={stats.bankrupts} formatter={formatter} />
+                <Statistic title={<span className="text-amber-300 italic">Bankrupts</span>} value={stats.bankrupts} />
               </Col>
             </Row>
           </div>
@@ -370,7 +305,69 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
       </div>
 
       <div className="flex justify-center mt-4">
-        {renderActionButton()}
+        {userRelationship === 'none' && sourceContext !== 'profileView' && (
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={handleSendRequest}
+            loading={loading}
+            style={{ marginTop: '10px', width: '100%' }}
+          >
+            Add Friend
+          </Button>
+        )}
+        {userRelationship === 'pending' && sourceContext !== 'profileView' && ( //This does not work at the moment
+          <>
+            <Button
+              type="primary"
+              icon={<CheckCircleOutlined />}
+              onClick={handleAcceptRequest}
+              loading={loading}
+              style={{ marginTop: '10px', width: '100%' }}
+            >
+              Accept Request
+            </Button>
+            <Button
+              danger
+              icon={<CloseCircleOutlined />}
+              onClick={handleDenyRequest} // Assuming handleDenyRequest exists or will be added
+              loading={loading}
+              style={{ marginTop: '10px', width: '100%' }}
+            >
+              Deny Request
+            </Button>
+          </>
+        )}
+        {userRelationship === 'friend' && sourceContext !== 'profileView' && (
+          <Button
+            danger
+            icon={<CloseCircleOutlined />}
+            onClick={handleRemoveFriend}
+            loading={loading} // Make sure loading state is appropriate here
+            style={{ marginTop: '10px', width: '100%' }}
+          >
+            Remove Friend
+          </Button>
+        )}
+        {userRelationship === 'friend' &&
+          fullUserData?.userLobbyStatus === 'IN_LOBBY' &&
+          fullUserData.currentLobbyId != null && (
+          <Button
+            type="primary"
+            icon={<LoginOutlined />}
+            onClick={() => {
+              if (fullUserData.currentLobbyId != null) {
+                router.push(`/lobby/${fullUserData.currentLobbyId}`);
+                if (onClose) {
+                  onClose();
+                }
+              }
+            }}
+            style={{ marginTop: '10px', width: '100%', backgroundColor: '#7e57c2' }} // Purple color for join
+          >
+            Join Lobby ({fullUserData.currentLobbyId})
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -205,34 +205,38 @@ const LobbyPage = () => {
             if (!quitResponse.ok) {
                 const errorText = await quitResponse.text();
                 console.error('Failed to leave the game room:', quitResponse.status, errorText);
-                throw new Error('Failed to leave the game room');
+                message.error(`Failed to leave the game room: ${errorText || quitResponse.statusText}`);
+                return;
+            }
 
+            try {
+                const updateUserStatusResponse = await fetch(`${baseURL}/users/${currentUser.id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${currentUser.token}`,
+                    },
+                    body: JSON.stringify({
+                        userLobbyStatus: 'IDLE',
+                        currentLobbyId: null,
+                    }),
+                });
 
+                if (!updateUserStatusResponse.ok) {
+                    const errorText = await updateUserStatusResponse.text();
+                    console.error('Failed to update user lobby status:', updateUserStatusResponse.status, errorText);
+                    message.warning('Left the lobby, but status update may have failed.');
+                }
+            } catch (statusUpdateError) {
+                console.error('Error updating user lobby status:', statusUpdateError);
+                message.warning('Left the lobby, but an error occurred during status update.');
+            }
 
-                // automatically delete lobby when nobody is there
-                // setTimeout(async () => {
-                //     if (playerCount <= 1 && isHost && gameState === GameState.PRE_GAME) {
-                //         const deleteResponse = await fetch(`${baseURL}/game/delete?sessionId=${lobbyId}&userId=${currentUser.id}`, {
-                //             method: 'POST',
-                //             headers: {
-                //                 Authorization: `Bearer ${currentUser.token}`,
-                //             },
-                //         });
-
-                //         if (!deleteResponse.ok) {
-                //             const errorText = await deleteResponse.text();
-                //             console.warn('Failed to delete the lobby:', deleteResponse.status, errorText);
-                //         } else {
-                //             console.log('Lobby deleted');
-                //         }
-                //     }
-
-
-            };
             router.push('/main');
-        } catch (error) {
-            console.error('Error leaving the game room:', error);
-            alert('Failed to leave the game room');
+        } catch (error) { // This catch is for errors in the game/leave call or other unexpected errors
+            console.error('Error in handleExitGame:', error);
+            const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+            message.error(`Error leaving game: ${errorMessage}`);
         }
     };
 
@@ -251,14 +255,40 @@ const LobbyPage = () => {
             if (!deleteResponse.ok) {
                 const errorText = await deleteResponse.text();
                 console.warn('Failed to delete the lobby:', deleteResponse.status, errorText);
-                alert('Failed to delete the lobby');
+                await message.error(`Failed to delete the lobby: ${errorText || deleteResponse.statusText}`);
             } else {
                 console.log('Lobby deleted');
+                // Update user lobby status to IDLE after successful deletion
+                try {
+                    const updateUserStatusResponse = await fetch(`${baseURL}/users/${currentUser.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${currentUser.token}`,
+                        },
+                        body: JSON.stringify({
+                            userLobbyStatus: 'IDLE',
+                            currentLobbyId: null,
+                        }),
+                    });
+
+                    if (!updateUserStatusResponse.ok) {
+                        const errorText = await updateUserStatusResponse.text();
+                        console.error('Failed to update user lobby status after deleting lobby:', updateUserStatusResponse.status, errorText);
+                        await message.warning('Lobby deleted, but status update may have failed.'); 
+                    } else {
+                        await message.success('Lobby deleted and status updated.'); 
+                    }
+                } catch (statusUpdateError) {
+                    console.error('Error updating user lobby status after deleting lobby:', statusUpdateError);
+                    await message.warning('Lobby deleted, but an error occurred during status update.'); 
+                }
                 router.push('/main');
             }
         } catch (error) {
             console.error('Error deleting the lobby:', error);
-            alert('Error deleting the lobby');
+            const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+            await message.error(`Error deleting lobby: ${errorMessage}`);
         }
     };
 
