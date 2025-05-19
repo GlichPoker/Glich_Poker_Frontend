@@ -26,7 +26,7 @@ interface PreGameLayoutProps {
     specialRuleText?: string;
     showVoteMapButton: boolean;
     triggerVoteMapButton: () => void;
-    pendingWeatherType: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY" | "DEFAULT";
+    pendingWeatherType: "SUNNY" | "RAINY" | "SNOWY" | "CLOUDY" | "DEFAULT" | null;
     isWeatherModalOpen: boolean;
     setIsWeatherModalOpen: (open: boolean) => void;
     gameSettings: any;
