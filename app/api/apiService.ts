@@ -10,7 +10,7 @@ export class ApiService {
 
   private get defaultHeaders(): HeadersInit {
     const token = this.getToken();
-    return{
+    return {
       "Content-Type": "application/json",
       "Access-Control-Allow-Origin": "*",
       "Authorization": `Bearer ${token}`,
@@ -79,6 +79,7 @@ export class ApiService {
     const res = await fetch(url, {
       method: "GET",
       headers: this.defaultHeaders,
+      cache: "no-store"
     });
     return this.processResponse<T>(
       res,
