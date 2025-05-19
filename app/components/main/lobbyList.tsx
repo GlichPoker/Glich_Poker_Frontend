@@ -147,6 +147,9 @@ const LobbyList = () => {
                     value={passwordInput}
                     onChange={(e) => setPasswordInput(e.target.value)}
                 />
+                <p style={{ marginTop: '8px', fontSize: '12px', color: 'gray' }}>
+                    Note: If you were invited or have joined this lobby before, you might not need to enter the password.
+                </p>
             </Modal>
             {lobbies.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-10 bg-[#2e2e2e] rounded-lg text-white">

@@ -1,6 +1,6 @@
 //preGameLayout.tsx
-import { Button, Modal, List } from 'antd';
-import Vote from '@/components/game/voting/vote';
+import { Button, Modal, List, Tooltip } from 'antd';
+// import Vote from '@/components/game/voting/vote';
 import MySeat from '@/components/game/mySeat';
 import OtherPlayerSeat from '@/components/game/otherPlayerSeat';
 import WeatherIcon from "@/components/game/weatherIcon";
@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { getApiDomain } from '@/utils/domain';
 import VoteMap from '@/components/game/voting/voteMap';
 import StartVoteButton from '@/components/game/voting/startVoteButton';
-import { GameSettings } from "@/types/round";
+
 
 interface PreGameLayoutProps {
     lobbyId: string;
@@ -30,6 +30,7 @@ interface PreGameLayoutProps {
     isWeatherModalOpen: boolean;
     setIsWeatherModalOpen: (open: boolean) => void;
     gameSettings: any;
+    handleDeleteLobby: () => void;
 }
 
 const PreGameLayout = ({
@@ -51,18 +52,17 @@ const PreGameLayout = ({
     isWeatherModalOpen,
     setIsWeatherModalOpen,
     gameSettings,
+    handleDeleteLobby,
 }: PreGameLayoutProps) => {
     const [showVoteMap, setShowVoteMap] = useState(false)
     const [applyError, setApplyError] = useState<string | null>(null);
-
+    const [friends, setFriends] = useState<{ id: number; username: string }[]>([]);
+    const baseURL = getApiDomain();
+    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
     const handleStart = async () => {
         await startGame();
     };
-
-    const [friends, setFriends] = useState<{ id: number; username: string }[]>([]);
-    const baseURL = getApiDomain();
-    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
     const fetchFriends = async () => {
 
@@ -108,23 +108,29 @@ const PreGameLayout = ({
                 {/* right: buttons */}
                 <div className="flex flex-row space-x-4">
                     {weatherType && <WeatherIcon weatherType={weatherType} />}
-                    <div className="flex items-center space-x-2">
-                        <Button
-                            type="link"
-                            className="!text-gray-500 !font-bold"
-                            onClick={handleOpenInviteModal}
-                        >
-                            Invite
-                        </Button>
-                    </div>
+                    {isHost && (
+                        <div className="flex items-center space-x-2">
+                            <Tooltip title="Invite your friends to the lobby" color="gray">
+                                <Button
+                                    type="link"
+                                    className="!text-gray-500 !font-bold"
+                                    onClick={handleOpenInviteModal}
+                                >
+                                    Invite
+                                </Button>
+                            </Tooltip>
+                        </div>
+                    )}
                     {showVoteMapButton && (
-                        <Button
-                            type="link"
-                            className="!text-amber-300 !font-bold"
-                            onClick={() => setShowVoteMap(true)}
-                        >
-                            Vote Map
-                        </Button>
+                        <Tooltip title="Vote for the map you want to play" color="gray">
+                            <Button
+                                type="link"
+                                className="!text-amber-300 !font-bold"
+                                onClick={() => setShowVoteMap(true)}
+                            >
+                                Vote Map
+                            </Button>
+                        </Tooltip>
                     )}
                     {/* <Button
                         type="link"
@@ -133,15 +139,34 @@ const PreGameLayout = ({
                     >
                         Vote
                     </Button> */}
-                    <Button
-                        type="link"
-                        className="!text-gray-500 !font-bold"
-                        onClick={handleExitGame}
-                    >
-                        Exit
-                    </Button>
+                    {isHost && (
+                        <Tooltip title="Delete the lobby" color="gray">
+                            <Button
+                                type="link"
+                                className="!text-gray-500 !font-bold"
+                                onClick={handleDeleteLobby}
+                            >
+                                Delete
+                            </Button>
+                        </Tooltip>
+                    )}
+                    <Tooltip title="Leave the lobby and go back to main" color="gray">
+                        <Button
+                            type="link"
+                            className="!text-gray-500 !font-bold"
+                            onClick={handleExitGame}
+                        >
+                            Exit
+                        </Button>
+                    </Tooltip>
                 </div>
             </nav>
+
+            {showVoteMapButton && (
+                <div className="bg-yellow-100 text-yellow-800 p-2 text-center text-sm font-medium border-b border-yellow-300">
+                    Map voting has started! Cast your vote.
+                </div>
+            )}
             <VoteMap
                 isVisible={showVoteMap}
                 onClose={() => setShowVoteMap(false)}

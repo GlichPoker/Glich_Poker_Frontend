@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Modal, Select, Typography, Button, message } from "antd";
 import { webSocketService } from "@/utils/websocket";
 
-const { Text } = Typography;
+const { Text, Paragraph } = Typography;
 const { Option } = Select;
 
 interface VoteMapProps {
@@ -14,7 +14,15 @@ interface VoteMapProps {
     currentUser: { id: number; token: string };
 }
 
-const weatherOptions = ["SUNNY", "RAINY", "SNOWY", "CLOUDY"];
+const weatherOptions = ["SUNNY", "RAINY", "SNOWY", "CLOUDY", "DEFAULT"];
+
+const weatherDescriptions: Record<string, string> = {
+    SUNNY: "☀️ A desert mirage plays tricks on the mind. Once every 5 rounds, you may bluff with a fake or real card. The big blind also increases by 5% every third round.",
+    RAINY: "☔️ Slippery hands lead to mistakes. Once per round, you may exchange one card from your hand.",
+    SNOWY: "❄️ A blanket keeps you warm. You receive 3 hand cards instead of the usual 2.",
+    CLOUDY: "☁️ Fog of war obscures the field. Two community cards stay hidden until the showdown.",
+    DEFAULT: "♠️♥️ Weather-based rules are not applied. Standard poker game rules are applied. ",
+};
 
 const VoteMap: React.FC<VoteMapProps> = ({ isVisible, onClose, lobbyId, currentUser }) => {
     const [selectedWeather, setSelectedWeather] = useState<string>("");
@@ -56,7 +64,6 @@ const VoteMap: React.FC<VoteMapProps> = ({ isVisible, onClose, lobbyId, currentU
             lobbyId,
             gameID: lobbyId,
         };
-        console.log(payload)
 
         webSocketService.sendMessage(JSON.stringify(payload));
         messageApi.success(`Vote submitted for ${selectedWeather}`);
@@ -87,6 +94,12 @@ const VoteMap: React.FC<VoteMapProps> = ({ isVisible, onClose, lobbyId, currentU
                             </Option>
                         ))}
                     </Select>
+
+                    {selectedWeather && (
+                        <Paragraph className="mt-2 text-gray-600 italic">
+                            {weatherDescriptions[selectedWeather] || weatherDescriptions.DEFAULT}
+                        </Paragraph>
+                    )}
 
                     <div className="flex justify-end gap-2 mt-6">
                         <Button onClick={onClose}>Cancel</Button>
