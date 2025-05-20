@@ -47,6 +47,7 @@ const LobbyPage = () => {
     const [showVoteMapButton, setShowVoteMapButton] = useState(false);
     const [pendingWeatherType, setPendingWeatherType] = useState<"SUNNY" | "RAINY" | "SNOWY" | "CLOUDY" | null>(null);
     const [isWeatherModalOpen, setIsWeatherModalOpen] = useState(false);
+    const [authChecked, setAuthChecked] = useState(false);
     type WeatherLiteral = typeof allowedWeatherTypes[number];
 
     function isValidWeatherType(value: any): value is WeatherLiteral {
@@ -57,23 +58,33 @@ const LobbyPage = () => {
 
 
     useEffect(() => {
-        try {
-            const userData = localStorage.getItem('user');
-            if (userData) {
-                const parsedUser = JSON.parse(userData);
-                setCurrentUser({
-                    id: parsedUser.id,
-                    username: parsedUser.username,
-                    token: parsedUser.token,
-                });
-            } else {
-                console.warn('User data not found in localStorage');
-            }
-        } catch (err) {
-            console.error('Error retrieving user data:', err);
-        }
-    }, []);
+        const localStorageToken = localStorage.getItem("token");
 
+        if (!localStorageToken) {
+            messageApi.error("Please login first");
+            router.replace("/");
+            return;
+        }
+
+        const userDataString = localStorage.getItem("user");
+        if (userDataString) {
+            try {
+                const userData = JSON.parse(userDataString);
+                setCurrentUser(userData);
+            } catch (error) {
+                console.error("Failed to parse user data:", error);
+                messageApi.error("Error loading user data");
+                localStorage.removeItem("user");
+                localStorage.removeItem("token");
+                router.replace("/");
+                return;
+            }
+        }
+
+        setAuthChecked(true);
+    }, [router, messageApi]);
+
+    if (!authChecked) return null;
 
     useEffect(() => {
         if (specialRuleText) {
