@@ -77,15 +77,18 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     const userStr = localStorage.getItem('user');
     if (userStr) {
       try {
-        const userData = JSON.parse(userStr);
-        setCurrentUserData(userData);
-        // Make sure we have fresh friends data
-        refreshFriendsData();
+        const parsedUser = JSON.parse(userStr);
+        // Ensure currentUserData.id is a string if it exists
+        if (parsedUser.id !== undefined && parsedUser.id !== null) {
+          parsedUser.id = String(parsedUser.id);
+        }
+        setCurrentUserData(parsedUser);
       } catch (e) {
-        console.error('Error parsing user data:', e);
+        console.error("Failed to parse current user data from localStorage", e);
+        setCurrentUserData(null);
       }
     }
-  }, [refreshFriendsData]);
+  }, []); // Changed dependency to run once on mount
 
 
   useEffect(() => {
@@ -132,9 +135,14 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
 
 
   useEffect(() => {
-    if (!currentUserData || !user?.id) return;
+    if (!currentUserData || !currentUserData.id || !user || !user.id) {
+      // Default to 'none' or some other appropriate state if essential data is missing
+      setUserRelationship('none');
+      return;
+    }
 
-    if (currentUserData.id === user.id) {
+    // Ensure comparison is string vs string for 'self' check
+    if (String(currentUserData.id) === String(user.id)) {
       setUserRelationship('self');
       return;
     }
