@@ -9,21 +9,21 @@ import FriendLeaderboard from "@/components/main/leaderboard/friends";
 const { Option } = Select;
 
 // Define the types for the statistics
-export type LeaderboardStatistic = 'gamesPlayed' | 'roundsPlayed' | 'bbPer100' | 'bbWon' | 'bankrupts';
+export type LeaderboardStatistic = 'bb100' | 'bankrupts' | 'totalBBWon' | 'totalGamesPlayed' | 'totalRoundsPlayed';
 
 // Define display names for the statistics
 export const statisticDisplayNames: Record<LeaderboardStatistic, string> = {
-    gamesPlayed: 'Games Played',
-    roundsPlayed: 'Rounds Played',
-    bbPer100: 'BB/100',
-    bbWon: 'BB Won',
+    bb100: 'BB/100',
     bankrupts: 'Bankrupts',
+    totalBBWon: 'Total BB Won',
+    totalGamesPlayed: 'Games Played',
+    totalRoundsPlayed: 'Rounds Played',
 };
 
 const Leaderboard = () => {
     const [activeLeaderboard, setActiveLeaderboard] = useState<'global' | 'friends'>('global');
     const [refreshKey, setRefreshKey] = useState(0);
-    const [selectedStatistic, setSelectedStatistic] = useState<LeaderboardStatistic>('gamesPlayed'); // Default to 'gamesPlayed'
+    const [selectedStatistic, setSelectedStatistic] = useState<LeaderboardStatistic>('bb100'); // Default to bb100
     
     const handleRefresh = () => {
         setRefreshKey(prevKey => prevKey + 1);
