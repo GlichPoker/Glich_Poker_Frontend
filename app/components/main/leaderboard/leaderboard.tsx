@@ -66,17 +66,19 @@ const Leaderboard = () => {
                 const currentSortStat = selectedStatistic || 'bb100'; // Fallback if selectedStatistic isn't ready
 
                 const sortedData = [...data].sort((a, b) => {
-                    const statA = a[currentSortStat as keyof BackendPlayerStat] as number || 0;
-                    const statB = b[currentSortStat as keyof BackendPlayerStat] as number || 0;
+                    const getStat = (item: BackendPlayerStat): number => {
+                        const val = item[currentSortStat as keyof BackendPlayerStat];
+                        return typeof val === 'number' && isFinite(val) ? val : -Infinity;
+                    };
 
-                    if (statB !== statA) {
-                        return statB - statA;
-                    }
+                    const statA = getStat(a);
+                    const statB = getStat(b);
 
-                    const usernameCompare = a.username.localeCompare(b.username);
-                    if (usernameCompare !== 0) {
-                        return usernameCompare;
-                    }
+                    if (statB !== statA) return statB - statA;
+
+                    // Tie-breakers
+                    const nameCompare = a.username.localeCompare(b.username);
+                    if (nameCompare !== 0) return nameCompare;
 
                     return a.userId - b.userId;
                 });
@@ -90,6 +92,7 @@ const Leaderboard = () => {
                         typeof stat.bb100 === "number" && isFinite(stat.bb100)
                             ? Number(stat.bb100.toFixed(1))
                             : 0,
+
                     totalBBWon:
                         typeof stat.totalBBWon === "number" && isFinite(stat.totalBBWon)
                             ? Number(stat.totalBBWon.toFixed(1))
