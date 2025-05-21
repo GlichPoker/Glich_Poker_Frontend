@@ -52,6 +52,7 @@ const FriendLeaderboard: React.FC = () => {
             dataIndex: "rank",
             key: "rank",
             width: "80px",
+            sorter: (a: FriendLeaderboardUser, b: FriendLeaderboardUser) => a.rank - b.rank,
             render: (rank: number) => (
                 <div className="flex items-center">
                     {rank <= 3 ? (
@@ -90,7 +91,6 @@ const FriendLeaderboard: React.FC = () => {
             title: "Score",
             dataIndex: "score",
             key: "score",
-            sorter: (a: FriendLeaderboardUser, b: FriendLeaderboardUser) => a.score - b.score,
         },
     ];
 

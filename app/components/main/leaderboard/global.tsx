@@ -144,6 +144,7 @@ const GlobalLeaderboard: React.FC = () => {
             dataIndex: "rank",
             key: "rank",
             width: "80px",
+            sorter: (a: LeaderboardUser, b: LeaderboardUser) => a.rank - b.rank,
             render: (rank: number) => (
                 <div className="flex items-center">
                     {rank <= 3 ? (
@@ -174,7 +175,6 @@ const GlobalLeaderboard: React.FC = () => {
             title: "Score",
             dataIndex: "score",
             key: "score",
-            sorter: (a: LeaderboardUser, b: LeaderboardUser) => a.score - b.score,
         },
         {
             title: "Action",
