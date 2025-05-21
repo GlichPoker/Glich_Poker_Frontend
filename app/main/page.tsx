@@ -159,12 +159,12 @@ const MainContent: React.FC = () => {
                     </div>
 
                     {/* middle column - game lobbies */}
-                    <div className="flex flex-col border border-zinc-800 rounded-lg p-4 md:col-span-8">
+                    <div className="flex flex-col border border-zinc-800 rounded-lg p-4 md:col-span-7">
                         <LobbyList />
                     </div>
 
                     {/* right column - leaderboard and future components */}
-                    <div className="flex flex-col gap-4 md:col-span-5">
+                    <div className="flex flex-col gap-4 md:col-span-6">
                         {/* Leaderboard in a box with same height as friends component */}
                         <div className="border border-zinc-800 rounded-lg p-4 h-[400px] overflow-hidden">
                             <Leaderboard />

@@ -34,8 +34,8 @@ interface BackendPlayerStat {
 }
 
 export interface LeaderboardUser extends User {
-    id: string; 
-    username: string; 
+    id: string;
+    username: string;
     rank: number;
     // status, birthDate, creationDate, token are inherited from User
     bb100: number;
@@ -54,36 +54,48 @@ const Leaderboard = () => {
     const [loadingData, setLoadingData] = useState(true);
     const apiService = useApi();
     const { message } = App.useApp();
-    const { friends, loading: friendsLoading, error: friendsError } = useFriends(); 
+    const { friends, loading: friendsLoading, error: friendsError } = useFriends();
 
     useEffect(() => {
         const fetchLeaderboardData = async () => {
             setLoadingData(true);
             try {
                 const data = await apiService.get<BackendPlayerStat[]>("/game/stats/all");
-                
+                console.log("Raw leaderboard data from server:", data);
+
                 const currentSortStat = selectedStatistic || 'bb100'; // Fallback if selectedStatistic isn't ready
 
                 const sortedData = [...data].sort((a, b) => {
                     const statA = a[currentSortStat as keyof BackendPlayerStat] as number || 0;
                     const statB = b[currentSortStat as keyof BackendPlayerStat] as number || 0;
-                    return statB - statA; // Sort descending for most stats
+
+                    if (statB !== statA) {
+                        return statB - statA;
+                    }
+
+                    const usernameCompare = a.username.localeCompare(b.username);
+                    if (usernameCompare !== 0) {
+                        return usernameCompare;
+                    }
+
+                    return a.userId - b.userId;
                 });
+
 
                 const transformedData: LeaderboardUser[] = sortedData.map((stat, index) => ({
                     id: String(stat.userId),
                     username: stat.username,
                     rank: index + 1, // Assign rank based on the sorted order
-                    bb100: stat.bb100,
-                    totalBBWon: stat.totalBBWon,
+                    bb100: Number(stat.bb100?.toFixed(1)),
+                    totalBBWon: Number(stat.totalBBWon?.toFixed(1)),
                     totalRoundsPlayed: stat.totalRoundsPlayed,
                     totalGamesPlayed: stat.totalGamesPlayed,
                     bankrupts: stat.bankrupts,
                     // Initialize inherited User fields
-                    birthDate: null, 
-                    status: null, 
-                    creationDate: null, 
-                    token: null 
+                    birthDate: null,
+                    status: null,
+                    creationDate: null,
+                    token: null
                 }));
                 setLeaderboardData(transformedData);
             } catch (error) {
@@ -96,7 +108,7 @@ const Leaderboard = () => {
         };
 
         fetchLeaderboardData();
-    }, [apiService, refreshKey, message, selectedStatistic]); 
+    }, [apiService, refreshKey, message, selectedStatistic]);
 
     const handleRefresh = () => {
         setRefreshKey(prevKey => prevKey + 1);
@@ -116,7 +128,7 @@ const Leaderboard = () => {
                         value={selectedStatistic}
                         onChange={(value) => setSelectedStatistic(value)}
                         style={{ width: 150, marginRight: 8 }}
-                        className="custom-select-style" 
+                        className="custom-select-style"
                     >
                         {(Object.keys(statisticDisplayNames) as LeaderboardStatistic[]).map(key => (
                             <Option key={key} value={key}>
@@ -136,9 +148,9 @@ const Leaderboard = () => {
                     >
                         Friends
                     </Button>
-                    <Button 
-                        type="text" 
-                        icon={<ReloadOutlined className="text-white" />} 
+                    <Button
+                        type="text"
+                        icon={<ReloadOutlined className="text-white" />}
                         onClick={handleRefresh}
                         className="text-white hover:text-white"
                         style={{ color: 'white' }}
