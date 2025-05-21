@@ -5,46 +5,53 @@ import { UserOutlined, TrophyOutlined } from "@ant-design/icons";
 import "@ant-design/v5-patch-for-react-19";
 import { useFriends, FriendWithStatus } from "@/hooks/useFriends";
 import UserProfileCard from "@/components/friends/UserProfileCard";
-import { LeaderboardStatistic, statisticDisplayNames } from "./leaderboard"; // Import new types
+import { LeaderboardStatistic, statisticDisplayNames, LeaderboardUser } from "./leaderboard"; // Import LeaderboardUser
 
-interface FriendLeaderboardUser {
-    id: string;
-    username: string;
-    rank: number;
-    status?: string | null;
-    gamesPlayed?: number;
-    roundsPlayed?: number;
-    bbPer100?: number;
-    bbWon?: number;
-    bankrupts?: number;
+interface FriendLeaderboardUser extends LeaderboardUser { // Extend LeaderboardUser
+    // id, username, rank, and stats are inherited
+    // status is already in LeaderboardUser
 }
 
 interface FriendLeaderboardProps {
     selectedStatistic: LeaderboardStatistic;
+    allLeaderboardData: LeaderboardUser[]; 
+    friendsList: FriendWithStatus[];      
+    isLoading: boolean;                   
+    friendsError: string | null;          
 }
 
-const FriendLeaderboard: React.FC<FriendLeaderboardProps> = ({ selectedStatistic }) => {
+const FriendLeaderboard: React.FC<FriendLeaderboardProps> = ({ 
+    selectedStatistic, 
+    allLeaderboardData, 
+    friendsList, 
+    isLoading, 
+    friendsError 
+}) => {
     const [leaderboardData, setLeaderboardData] = useState<FriendLeaderboardUser[]>([]);
     const [selectedUser, setSelectedUser] = useState<FriendLeaderboardUser | null>(null);
-    const { friends, loading, getStatusColor } = useFriends();
+    const { getStatusColor } = useFriends(); 
 
     useEffect(() => {
-        if (friends && friends.length > 0) {
-            const friendLeaderboardUsers: FriendLeaderboardUser[] = friends.map((friend, index) => ({
-                id: friend.id || `friend-${index}`,
-                username: friend.username || `Friend ${index}`,
-                rank: 0, // Will be calculated after sorting
-                status: friend.status,
-                // Add mock data for new stats, replace with actual data later
-                gamesPlayed: Math.floor(Math.random() * 100),
-                roundsPlayed: Math.floor(Math.random() * 500),
-                bbPer100: parseFloat((Math.random() * 20).toFixed(2)),
-                bbWon: Math.floor(Math.random() * 10000),
-                bankrupts: Math.floor(Math.random() * 5),
-            }));
+        if (!isLoading && friendsList && friendsList.length > 0 && allLeaderboardData && allLeaderboardData.length > 0) {
+            const friendIds = new Set(friendsList.map(f => f.id));
+            
+            const friendStats = allLeaderboardData.filter(user => friendIds.has(user.id));
+
+            const friendLeaderboardUsers: FriendLeaderboardUser[] = friendStats.map(stat => {
+                const friendDetails = friendsList.find(f => f.id === stat.id);
+                return {
+                    ...stat, 
+                    status: friendDetails?.status || null,
+                    rank: 0, 
+                };
+            });
 
             // Sort by the selected statistic (highest first)
-            friendLeaderboardUsers.sort((a, b) => (b[selectedStatistic] || 0) - (a[selectedStatistic] || 0));
+            friendLeaderboardUsers.sort((a, b) => {
+                const statA = a[selectedStatistic as keyof FriendLeaderboardUser] as number | undefined || 0;
+                const statB = b[selectedStatistic as keyof FriendLeaderboardUser] as number | undefined || 0;
+                return statB - statA;
+            });
 
             // Update rank based on sorted order
             friendLeaderboardUsers.forEach((user, index) => {
@@ -52,10 +59,10 @@ const FriendLeaderboard: React.FC<FriendLeaderboardProps> = ({ selectedStatistic
             });
 
             setLeaderboardData(friendLeaderboardUsers);
-        } else {
+        } else if (!isLoading) { 
             setLeaderboardData([]);
         }
-    }, [friends, selectedStatistic]); // Added selectedStatistic to dependency array
+    }, [allLeaderboardData, friendsList, selectedStatistic, isLoading]);
 
     const columns = [
         {
@@ -99,14 +106,26 @@ const FriendLeaderboard: React.FC<FriendLeaderboardProps> = ({ selectedStatistic
             ),
         },
         {
-            title: statisticDisplayNames[selectedStatistic], // Dynamic title
-            dataIndex: selectedStatistic, // Dynamic data index
-            key: selectedStatistic, // Dynamic key
+            title: statisticDisplayNames[selectedStatistic],
+            dataIndex: selectedStatistic,
+            key: selectedStatistic,
+            render: (value: number | undefined) => value !== undefined ? value : 'N/A', // should always be present but acts as a failsave
         },
     ];
 
-    if (loading) {
+    if (isLoading) {
         return <div className="flex justify-center py-8"><Spin size="large" /></div>;
+    }
+
+    if (friendsError) {
+        return (
+            <Alert
+                message="Error loading friends data"
+                description={friendsError}
+                type="error"
+                showIcon
+            />
+        );
     }
 
     if (leaderboardData.length === 0) {
@@ -121,14 +140,12 @@ const FriendLeaderboard: React.FC<FriendLeaderboardProps> = ({ selectedStatistic
         );
     }
 
-    // Take top 8 friends for a more comprehensive view
-    const topFriends = leaderboardData.slice(0, 8);
-
+    // Remove slicing of leaderboardData to display all friends
     return (
         <>
             <div className="overflow-y-auto max-h-[350px] custom-scrollbar">
                 <Table
-                    dataSource={topFriends}
+                    dataSource={leaderboardData} 
                     columns={columns}
                     rowKey="id"
                     pagination={false}
@@ -185,7 +202,7 @@ const FriendLeaderboard: React.FC<FriendLeaderboardProps> = ({ selectedStatistic
             {/* User Profile Popover */}
             <Popover
                 content={selectedUser && <UserProfileCard 
-                    user={selectedUser as any} 
+                    user={selectedUser as any} // Casting to any for now, should be fixed if UserProfileCard expects a specific User type
                     onClose={() => setSelectedUser(null)} 
                     sourceContext="friendsLeaderboard"
                 />}

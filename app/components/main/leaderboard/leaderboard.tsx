@@ -1,10 +1,13 @@
 "use client";
-import React, { useState } from "react";
-import { Button, Select } from "antd";
+import React, { useState, useEffect } from "react";
+import { Button, Select, App } from "antd";
 import { TrophyOutlined, ReloadOutlined } from "@ant-design/icons";
 import "@ant-design/v5-patch-for-react-19";
 import GlobalLeaderboard from "@/components/main/leaderboard/global";
 import FriendLeaderboard from "@/components/main/leaderboard/friends";
+import { useApi } from "@/hooks/useApi";
+import { useFriends, FriendWithStatus } from "@/hooks/useFriends";
+import { User } from "@/types/user";
 
 const { Option } = Select;
 
@@ -20,11 +23,81 @@ export const statisticDisplayNames: Record<LeaderboardStatistic, string> = {
     totalRoundsPlayed: 'Rounds Played',
 };
 
+interface BackendPlayerStat {
+    userId: number;
+    username: string;
+    totalBBWon: number;
+    totalRoundsPlayed: number;
+    bb100: number;
+    totalGamesPlayed: number;
+    bankrupts: number;
+}
+
+export interface LeaderboardUser extends User {
+    id: string; 
+    username: string; 
+    rank: number;
+    // status, birthDate, creationDate, token are inherited from User
+    bb100: number;
+    bankrupts: number;
+    totalBBWon: number;
+    totalGamesPlayed: number;
+    totalRoundsPlayed: number;
+}
+
+
 const Leaderboard = () => {
     const [activeLeaderboard, setActiveLeaderboard] = useState<'global' | 'friends'>('global');
     const [refreshKey, setRefreshKey] = useState(0);
-    const [selectedStatistic, setSelectedStatistic] = useState<LeaderboardStatistic>('bb100'); // Default to bb100
-    
+    const [selectedStatistic, setSelectedStatistic] = useState<LeaderboardStatistic>('bb100');
+    const [leaderboardData, setLeaderboardData] = useState<LeaderboardUser[]>([]);
+    const [loadingData, setLoadingData] = useState(true);
+    const apiService = useApi();
+    const { message } = App.useApp();
+    const { friends, loading: friendsLoading, error: friendsError } = useFriends(); 
+
+    useEffect(() => {
+        const fetchLeaderboardData = async () => {
+            setLoadingData(true);
+            try {
+                const data = await apiService.get<BackendPlayerStat[]>("/game/stats/all");
+                
+                const currentSortStat = selectedStatistic || 'bb100'; // Fallback if selectedStatistic isn't ready
+
+                const sortedData = [...data].sort((a, b) => {
+                    const statA = a[currentSortStat as keyof BackendPlayerStat] as number || 0;
+                    const statB = b[currentSortStat as keyof BackendPlayerStat] as number || 0;
+                    return statB - statA; // Sort descending for most stats
+                });
+
+                const transformedData: LeaderboardUser[] = sortedData.map((stat, index) => ({
+                    id: String(stat.userId),
+                    username: stat.username,
+                    rank: index + 1, // Assign rank based on the sorted order
+                    bb100: stat.bb100,
+                    totalBBWon: stat.totalBBWon,
+                    totalRoundsPlayed: stat.totalRoundsPlayed,
+                    totalGamesPlayed: stat.totalGamesPlayed,
+                    bankrupts: stat.bankrupts,
+                    // Initialize inherited User fields
+                    birthDate: null, 
+                    status: null, 
+                    creationDate: null, 
+                    token: null 
+                }));
+                setLeaderboardData(transformedData);
+            } catch (error) {
+                console.error("Failed to fetch leaderboard data:", error);
+                message.error("Could not load leaderboard data.");
+                setLeaderboardData([]); // Set to empty array on error
+            } finally {
+                setLoadingData(false);
+            }
+        };
+
+        fetchLeaderboardData();
+    }, [apiService, refreshKey, message, selectedStatistic]); 
+
     const handleRefresh = () => {
         setRefreshKey(prevKey => prevKey + 1);
     };
@@ -74,9 +147,21 @@ const Leaderboard = () => {
                 </div>
             </div>
             {activeLeaderboard === 'global' ? (
-                <GlobalLeaderboard key={`global-${refreshKey}-${selectedStatistic}`} selectedStatistic={selectedStatistic} />
+                <GlobalLeaderboard
+                    key={`global-${refreshKey}-${selectedStatistic}`}
+                    selectedStatistic={selectedStatistic}
+                    leaderboardData={leaderboardData}
+                    isLoading={loadingData}
+                />
             ) : (
-                <FriendLeaderboard key={`friends-${refreshKey}-${selectedStatistic}`} selectedStatistic={selectedStatistic} />
+                <FriendLeaderboard
+                    key={`friends-${refreshKey}-${selectedStatistic}`}
+                    selectedStatistic={selectedStatistic}
+                    allLeaderboardData={leaderboardData} // Pass all data
+                    friendsList={friends} // Pass friends list
+                    isLoading={loadingData || friendsLoading} // Combine loading states
+                    friendsError={friendsError} // Pass friends error
+                />
             )}
         </div>
     );
