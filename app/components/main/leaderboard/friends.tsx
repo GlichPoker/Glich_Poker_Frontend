@@ -5,46 +5,57 @@ import { UserOutlined, TrophyOutlined } from "@ant-design/icons";
 import "@ant-design/v5-patch-for-react-19";
 import { useFriends, FriendWithStatus } from "@/hooks/useFriends";
 import UserProfileCard from "@/components/friends/UserProfileCard";
+import { LeaderboardStatistic, statisticDisplayNames } from "./leaderboard"; // Import new types
 
 interface FriendLeaderboardUser {
     id: string;
     username: string;
-    score: number;
     rank: number;
     status?: string | null;
+    gamesPlayed?: number;
+    roundsPlayed?: number;
+    bbPer100?: number;
+    bbWon?: number;
+    bankrupts?: number;
 }
 
-const FriendLeaderboard: React.FC = () => {
+interface FriendLeaderboardProps {
+    selectedStatistic: LeaderboardStatistic;
+}
+
+const FriendLeaderboard: React.FC<FriendLeaderboardProps> = ({ selectedStatistic }) => {
     const [leaderboardData, setLeaderboardData] = useState<FriendLeaderboardUser[]>([]);
     const [selectedUser, setSelectedUser] = useState<FriendLeaderboardUser | null>(null);
     const { friends, loading, getStatusColor } = useFriends();
 
-    // Transform friends data into leaderboard format when friends data changes
     useEffect(() => {
         if (friends && friends.length > 0) {
-            // Convert friends to leaderboard format with random scores for now
-            // In the future, this would use actual user scores from the API
-            const friendsWithScores = friends.map((friend, index) => ({
+            const friendLeaderboardUsers: FriendLeaderboardUser[] = friends.map((friend, index) => ({
                 id: friend.id || `friend-${index}`,
                 username: friend.username || `Friend ${index}`,
-                score: Math.floor(Math.random() * 1000), // Random score for now
-                rank: 0, // Will be calculated below
-                status: friend.status
+                rank: 0, // Will be calculated after sorting
+                status: friend.status,
+                // Add mock data for new stats, replace with actual data later
+                gamesPlayed: Math.floor(Math.random() * 100),
+                roundsPlayed: Math.floor(Math.random() * 500),
+                bbPer100: parseFloat((Math.random() * 20).toFixed(2)),
+                bbWon: Math.floor(Math.random() * 10000),
+                bankrupts: Math.floor(Math.random() * 5),
             }));
 
-            // Sort by score (highest first)
-            friendsWithScores.sort((a, b) => b.score - a.score);
+            // Sort by the selected statistic (highest first)
+            friendLeaderboardUsers.sort((a, b) => (b[selectedStatistic] || 0) - (a[selectedStatistic] || 0));
 
             // Update rank based on sorted order
-            friendsWithScores.forEach((friend, index) => {
-                friend.rank = index + 1;
+            friendLeaderboardUsers.forEach((user, index) => {
+                user.rank = index + 1;
             });
 
-            setLeaderboardData(friendsWithScores);
+            setLeaderboardData(friendLeaderboardUsers);
         } else {
             setLeaderboardData([]);
         }
-    }, [friends]);
+    }, [friends, selectedStatistic]); // Added selectedStatistic to dependency array
 
     const columns = [
         {
@@ -88,9 +99,9 @@ const FriendLeaderboard: React.FC = () => {
             ),
         },
         {
-            title: "Score",
-            dataIndex: "score",
-            key: "score",
+            title: statisticDisplayNames[selectedStatistic], // Dynamic title
+            dataIndex: selectedStatistic, // Dynamic data index
+            key: selectedStatistic, // Dynamic key
         },
     ];
 
@@ -130,7 +141,7 @@ const FriendLeaderboard: React.FC = () => {
                     }}
                     components={{
                         header: {
-                            cell: (props) => (
+                            cell: (props: React.HTMLAttributes<HTMLElement>) => (
                                 <th
                                     {...props}
                                     style={{
@@ -145,7 +156,7 @@ const FriendLeaderboard: React.FC = () => {
                             ),
                         },
                         body: {
-                            row: (props) => (
+                            row: (props: React.HTMLAttributes<HTMLElement>) => (
                                 <tr
                                     {...props}
                                     style={{
@@ -153,7 +164,7 @@ const FriendLeaderboard: React.FC = () => {
                                     }}
                                 />
                             ),
-                            cell: (props) => (
+                            cell: (props: React.HTMLAttributes<HTMLElement>) => (
                                 <td
                                     {...props}
                                     style={{
@@ -180,7 +191,7 @@ const FriendLeaderboard: React.FC = () => {
                 />}
                 title="User Profile"
                 open={!!selectedUser}
-                onOpenChange={(visible) => !visible && setSelectedUser(null)}
+                onOpenChange={(visible: boolean) => !visible && setSelectedUser(null)}
                 trigger="click"
                 placement="right"
             />

@@ -1,30 +1,31 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Table, Spin, Button, Popover, App } from "antd";
-import { UserOutlined, TrophyOutlined, UserAddOutlined } from "@ant-design/icons";
+import { Table, Spin, Popover, App } from "antd";
+import { UserOutlined, TrophyOutlined } from "@ant-design/icons";
 import { useApi } from "@/hooks/useApi";
-import { useFriends } from "@/hooks/useFriends";
 import { User } from "@/types/user";
 import "@ant-design/v5-patch-for-react-19";
 import UserProfileCard from "@/components/friends/UserProfileCard";
+import { LeaderboardStatistic, statisticDisplayNames } from "./leaderboard";
 
 interface LeaderboardUser extends User {
-    score: number; 
     rank: number;
+    gamesPlayed?: number;
+    roundsPlayed?: number;
+    bbPer100?: number;
+    bbWon?: number;
+    bankrupts?: number;
 }
 
-const GlobalLeaderboard: React.FC = () => {
+interface GlobalLeaderboardProps {
+    selectedStatistic: LeaderboardStatistic;
+}
+
+const GlobalLeaderboard: React.FC<GlobalLeaderboardProps> = ({ selectedStatistic }) => {
     const [loading, setLoading] = useState(true);
     const [leaderboardData, setLeaderboardData] = useState<LeaderboardUser[]>([]);
     const [selectedUser, setSelectedUser] = useState<LeaderboardUser | null>(null);
     const apiService = useApi();
-    const { 
-        friends, 
-        availableUsers, 
-        pendingRequests, 
-        addFriend,
-        refreshFriendsData
-    } = useFriends();
     const { message } = App.useApp();
 
     // Get current user from localStorage
@@ -47,19 +48,21 @@ const GlobalLeaderboard: React.FC = () => {
             try {
                 // Fetch users from API
                 const users = await apiService.get<User[]>("/users");
-                
-                // Refresh friends data to know relationships
-                await refreshFriendsData();
 
                 // For now, we'll add a random score to each user since the backend doesn't have a scoring system yet
                 const leaderboardUsers: LeaderboardUser[] = users.map((user, index) => ({
                     ...user,
-                    score: Math.floor(Math.random() * 1000), // TODO: Currently only random score for demonstration
-                    rank: index + 1,
+                    rank: index + 1, // Initial rank, will be updated after sorting
+                    // Add mock data for new stats, replace with actual data later
+                    gamesPlayed: Math.floor(Math.random() * 100),
+                    roundsPlayed: Math.floor(Math.random() * 500),
+                    bbPer100: parseFloat((Math.random() * 20).toFixed(2)),
+                    bbWon: Math.floor(Math.random() * 10000),
+                    bankrupts: Math.floor(Math.random() * 5),
                 }));
 
-                // Sort by score (highest first)
-                leaderboardUsers.sort((a, b) => b.score - a.score);
+                // Sort by the selected statistic (highest first)
+                leaderboardUsers.sort((a, b) => (b[selectedStatistic] || 0) - (a[selectedStatistic] || 0));
 
                 // Update rank based on sorted order
                 leaderboardUsers.forEach((user, index) => {
@@ -69,74 +72,14 @@ const GlobalLeaderboard: React.FC = () => {
                 setLeaderboardData(leaderboardUsers);
             } catch (error) {
                 console.error("Failed to fetch leaderboard data:", error);
+                message.error("Failed to load leaderboard data.");
             } finally {
                 setLoading(false);
             }
         };
 
         fetchLeaderboardData();
-    }, [apiService, refreshFriendsData]);
-
-    // Determine relationship with a user (for action button)
-    const getUserActionButton = (user: LeaderboardUser) => {
-        // Don't show anything for the current user
-        if (currentUser && user.id === currentUser.id) {
-            return null;
-        }
-        
-        // If no ID, can't take action
-        if (!user.id) {
-            return null;
-        }
-
-        // Check if they're already a friend
-        const isFriend = friends.some(friend => friend.id === user.id);
-        if (isFriend) {
-            return <span className="text-green-500 text-xs">Friend</span>;
-        }
-        
-        // Check if there's a pending request
-        const isPending = pendingRequests.some(request => request.id === user.id);
-        if (isPending) {
-            return <span className="text-orange-500 text-xs">Request Pending</span>;
-        }
-        
-        // Check if they're available to add
-        const isAvailable = availableUsers.some(availUser => availUser.id === user.id);
-        if (isAvailable) {
-            return (
-                <Button
-                    type="text"
-                    size="small"
-                    icon={<UserAddOutlined />}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        handleSendRequest(user);
-                    }}
-                >
-                    Add
-                </Button>
-            );
-        }
-        
-        return null;
-    };
-
-    // Handle sending a friend request
-    const handleSendRequest = async (user: LeaderboardUser) => {
-        if (!user.id) {
-            message.error("Cannot send friend request: Invalid user ID");
-            return;
-        }
-        
-        const result = await addFriend(user.id);
-        if (result.success) {
-            message.success(result.message);
-            await refreshFriendsData();
-        } else {
-            message.error(result.message);
-        }
-    };
+    }, [apiService, selectedStatistic, message]);
 
     const columns = [
         {
@@ -172,16 +115,11 @@ const GlobalLeaderboard: React.FC = () => {
             ),
         },
         {
-            title: "Score",
-            dataIndex: "score",
-            key: "score",
+            title: statisticDisplayNames[selectedStatistic],
+            dataIndex: selectedStatistic,
+            key: selectedStatistic,
         },
-        {
-            title: "Action",
-            key: "action",
-            width: "100px",
-            render: (_: any, record: LeaderboardUser) => getUserActionButton(record),
-        }
+        // Action column removed
     ];
 
     if (loading) {
@@ -208,7 +146,7 @@ const GlobalLeaderboard: React.FC = () => {
                     }}
                     components={{
                         header: {
-                            cell: (props) => (
+                            cell: (props: React.HTMLAttributes<HTMLElement>) => (
                                 <th
                                     {...props}
                                     style={{
@@ -223,7 +161,7 @@ const GlobalLeaderboard: React.FC = () => {
                             ),
                         },
                         body: {
-                            row: (props) => (
+                            row: (props: React.HTMLAttributes<HTMLElement>) => (
                                 <tr
                                     {...props}
                                     style={{
@@ -231,7 +169,7 @@ const GlobalLeaderboard: React.FC = () => {
                                     }}
                                 />
                             ),
-                            cell: (props) => (
+                            cell: (props: React.HTMLAttributes<HTMLElement>) => (
                                 <td
                                     {...props}
                                     style={{
@@ -258,7 +196,7 @@ const GlobalLeaderboard: React.FC = () => {
                 />}
                 title="User Profile"
                 open={!!selectedUser}
-                onOpenChange={(visible) => !visible && setSelectedUser(null)}
+                onOpenChange={(visible: boolean) => !visible && setSelectedUser(null)}
                 trigger="click"
                 placement="right"
             />
