@@ -1,4 +1,3 @@
-//lobby/[id]/page.tsx
 'use client';
 import { message } from "antd";
 import { useEffect, useState } from 'react';
@@ -10,10 +9,10 @@ import { GameState } from '@/types/gameState';
 import PreGameLayout from '@/components/game/preGameLayout';
 import InGameLayout from '@/components/game/inGameLayout';
 import { WinningModel } from '@/types/winning';
-import { RoundModel, Card, GameSettings } from '@/types/round'; // Ensure Card is imported if BluffModel uses it directly
+import { RoundModel, Card, GameSettings } from '@/types/round';
 import "@ant-design/v5-patch-for-react-19";
 
-// Define BluffModel interface if not already defined globally or imported
+// Define BluffModel interface
 interface BluffModel {
     userId: number;
     bluffCard: Card;
@@ -27,27 +26,22 @@ const LobbyPage = () => {
 
     const [showVoteOverlay, setShowVoteOverlay] = useState(false);
     const [playerCount, setPlayerCount] = useState(0);
-    const [currentUser, setCurrentUser] = useState<{
-        id: number;
-        username: string;
-        token: string;
-    } | null>(null);
-
+    const [currentUser, setCurrentUser] = useState<{ id: number; username: string; token: string; } | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [winningModel, setWinningModel] = useState<WinningModel | null>(null);
     const [roundModel, setRoundModel] = useState<RoundModel | null>(null);
-    const [settings, setSettings] = useState<GameSettings>()
+    const [settings, setSettings] = useState<GameSettings>();
     const [gameState, setGameState] = useState<GameState>(GameState.PRE_GAME);
     const [weatherType, setWeatherType] = useState<"SUNNY" | "RAINY" | "SNOWY" | "CLOUDY" | undefined>();
     const [customRuleText, setCustomRuleText] = useState<string>("");
-    const [bluffModel, setBluffModel] = useState<BluffModel | null>(null); // Add state for bluff model
+    const [bluffModel, setBluffModel] = useState<BluffModel | null>(null);
     const [specialRuleText, setSpecialRuleText] = useState<string>("");
-    const allowedWeatherTypes = ["SUNNY", "RAINY", "SNOWY", "CLOUDY"] as const;
-    const [messageApi, contextHolder] = message.useMessage();
     const [showVoteMapButton, setShowVoteMapButton] = useState(false);
     const [pendingWeatherType, setPendingWeatherType] = useState<"SUNNY" | "RAINY" | "SNOWY" | "CLOUDY" | null>(null);
     const [isWeatherModalOpen, setIsWeatherModalOpen] = useState(false);
     const [authChecked, setAuthChecked] = useState(false);
+
+    const allowedWeatherTypes = ["SUNNY", "RAINY", "SNOWY", "CLOUDY"] as const;
     type WeatherLiteral = typeof allowedWeatherTypes[number];
 
     function isValidWeatherType(value: any): value is WeatherLiteral {
@@ -56,6 +50,7 @@ const LobbyPage = () => {
 
     const safeWeatherType = isValidWeatherType(weatherType) ? weatherType : undefined;
 
+    const [messageApi, contextHolder] = message.useMessage();
 
     useEffect(() => {
         const localStorageToken = localStorage.getItem("token");
@@ -83,8 +78,6 @@ const LobbyPage = () => {
 
         setAuthChecked(true);
     }, [router, messageApi]);
-
-    if (!authChecked) return null;
 
     useEffect(() => {
         if (specialRuleText) {
@@ -116,10 +109,7 @@ const LobbyPage = () => {
                 if (!response.ok) throw new Error('Failed to fetch game list');
 
                 const games = await response.json();
-
-                const currentGame = games.find(
-                    (game: any) => String(game.sessionId) === String(lobbyId)
-                );
+                const currentGame = games.find((game: any) => String(game.sessionId) === String(lobbyId));
 
                 if (!currentGame?.settings?.order) {
                     setCustomRuleText("Rule: Unknown");
@@ -127,16 +117,8 @@ const LobbyPage = () => {
                 }
 
                 const defaultOrder = [
-                    "ROYALFLUSH",
-                    "STRAIGHTFLUSH",
-                    "FOUROFKIND",
-                    "FULLHOUSE",
-                    "FLUSH",
-                    "STRAIGHT",
-                    "THREEOFKIND",
-                    "TWOPAIR",
-                    "ONEPAIR",
-                    "HIGHCARD",
+                    "ROYALFLUSH", "STRAIGHTFLUSH", "FOUROFKIND", "FULLHOUSE", "FLUSH",
+                    "STRAIGHT", "THREEOFKIND", "TWOPAIR", "ONEPAIR", "HIGHCARD"
                 ];
 
                 const reverseOrder = [...defaultOrder].reverse();
@@ -173,7 +155,7 @@ const LobbyPage = () => {
         winningModel,
         setWinningModel,
         setGameState,
-        setBluffModel, // Pass setBluffModel to the hook
+        setBluffModel,
         setWeatherType,
         setSpecialRuleText,
         setShowVoteMapButton,
@@ -181,65 +163,33 @@ const LobbyPage = () => {
         setIsWeatherModalOpen,
     });
 
-    // if currentUser and lobbyId exist,
-    const actionHandlers = currentUser && lobbyId ? useActionHandlers({
+    const actionHandlers = useActionHandlers({
         currentUser,
         lobbyId: lobbyId as string,
         setError,
-    }) : { // if not,
-        handleFold: () => console.warn('You cannot do this yet'),
-        handleCall: () => console.warn('You cannot do this yet'),
-        handleRaise: () => console.warn('You cannot do this yet'),
-        handleCheck: () => console.warn('You cannot do this yet'),
-    };
+    });
 
     const { handleFold, handleCall, handleRaise, handleCheck } = actionHandlers;
-
 
     const handleExitGame = async () => {
         if (!lobbyId || !currentUser) return;
 
         try {
-            //request to quit endpoint
             const quitResponse = await fetch(`${baseURL}/game/leave`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${currentUser.token}`,
                 },
-                body: JSON.stringify({
-                    sessionId: lobbyId,
-                    userId: currentUser.id,
-                }),
+                body: JSON.stringify({ sessionId: lobbyId, userId: currentUser.id }),
             });
 
             if (!quitResponse.ok) {
                 const errorText = await quitResponse.text();
                 console.error('Failed to leave the game room:', quitResponse.status, errorText);
                 throw new Error('Failed to leave the game room');
+            }
 
-
-
-                // automatically delete lobby when nobody is there
-                // setTimeout(async () => {
-                //     if (playerCount <= 1 && isHost && gameState === GameState.PRE_GAME) {
-                //         const deleteResponse = await fetch(`${baseURL}/game/delete?sessionId=${lobbyId}&userId=${currentUser.id}`, {
-                //             method: 'POST',
-                //             headers: {
-                //                 Authorization: `Bearer ${currentUser.token}`,
-                //             },
-                //         });
-
-                //         if (!deleteResponse.ok) {
-                //             const errorText = await deleteResponse.text();
-                //             console.warn('Failed to delete the lobby:', deleteResponse.status, errorText);
-                //         } else {
-                //             console.log('Lobby deleted');
-                //         }
-                //     }
-
-
-            };
             router.push('/main');
         } catch (error) {
             console.error('Error leaving the game room:', error);
@@ -247,7 +197,6 @@ const LobbyPage = () => {
         }
     };
 
-    // mannually delete lobby(only owner can delete it)
     const handleDeleteLobby = async () => {
         if (!lobbyId || !currentUser) return;
 
@@ -275,7 +224,6 @@ const LobbyPage = () => {
 
     const startGameAndSetState = async () => {
         await startGame();
-
     };
 
     const handleInvitePlayer = async (inviteeUserId: number) => {
@@ -306,14 +254,13 @@ const LobbyPage = () => {
             console.error(err);
             alert('Failed to invite player');
         }
-
     };
 
-    const triggerVoteMapButton = () => {
-        setShowVoteMapButton(true);
-    };
+    const triggerVoteMapButton = () => setShowVoteMapButton(true);
 
     const renderLayout = () => {
+        if (!authChecked) return null;
+
         switch (gameState) {
             case GameState.PRE_GAME:
                 return (
@@ -338,8 +285,6 @@ const LobbyPage = () => {
                         setIsWeatherModalOpen={setIsWeatherModalOpen}
                         gameSettings={settings}
                         handleDeleteLobby={handleDeleteLobby}
-
-
                     />
                 );
             case GameState.IN_GAME:
@@ -352,7 +297,6 @@ const LobbyPage = () => {
                         lobbyId={lobbyId as string}
                         showVoteOverlay={showVoteOverlay}
                         setShowVoteOverlay={setShowVoteOverlay}
-                        // handleExitGame={handleExitGame}
                         handleFold={handleFold}
                         handleCall={handleCall}
                         handleRaise={handleRaise}
@@ -366,7 +310,7 @@ const LobbyPage = () => {
                         currentUser={currentUser}
                         customRuleText={customRuleText}
                         weatherType={safeWeatherType}
-                        bluffModel={bluffModel} // Pass bluffModel here
+                        bluffModel={bluffModel}
                         isInGame={gameState === GameState.IN_GAME}
                     />
                 );
