@@ -66,7 +66,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
   const [isLoadingUserData, setIsLoadingUserData] = useState<boolean>(false);
 
   const apiService = new ApiService();
-  
+
   // Refresh friends data when component mounts
   useEffect(() => {
     refreshFriendsData();
@@ -119,8 +119,8 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     const fetchStats = async () => {
       try {
         const statData = await apiService.get<UserStats>(`/game/stats/${user.id}`);
-
         setStats(statData);
+        console.log(statData)
       } catch (error) {
 
       }
@@ -140,7 +140,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     }
 
     // Check if they're already friends
-    const isFriend = friends.some(friend => 
+    const isFriend = friends.some(friend =>
       // Compare as strings to avoid type mismatches
       String(friend.id) === String(user.id)
     );
@@ -240,10 +240,10 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     if (userRelationship === 'self') {
       return <Tag color="blue">This is you</Tag>;
     }
-    
+
     // Double-check friends status right at render time
     const isFriendAtRenderTime = friends.some(friend => String(friend.id) === String(user.id));
-    
+
     // If user is a friend (either from state or current check), show remove button
     if (userRelationship === 'friend' || isFriendAtRenderTime) {
       return (
@@ -256,7 +256,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
         </Button>
       );
     }
-    
+
     // Show accept/deny buttons for pending requests
     if (userRelationship === 'pending') {
       return (
@@ -278,7 +278,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
         </div>
       );
     }
-    
+
     // Show add friend button for non-friends who aren't yourself
     if (userRelationship === 'none') {
       return (
@@ -291,13 +291,16 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
         </Button>
       );
     }
-    
+
     // Default case if none of the above apply
     return null;
   };
 
-  const formatter = (value: string | number) => <CountUp end={Number(value)} separator="," />;
+  const formatterInt = (value: string | number) => <CountUp end={Number(value)} separator="," />;
 
+  const formatterDecimal = (value: string | number) => (
+    <CountUp end={Number(value)} decimals={1} separator="," />
+  );
   if (!user || !user.username) {
     return (
       <div className="p-4 text-center">
@@ -331,10 +334,10 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
             <h3 className="text-lg font-semibold mb-2">Poker Statistics</h3>
             <Row gutter={16}>
               <Col span={12}>
-                <Statistic title={<span className="text-amber-300 italic">Games Played</span>} value={stats.gamesPlayed} formatter={formatter} />
+                <Statistic title={<span className="text-amber-300 italic">Games Played</span>} value={stats.gamesPlayed} formatter={formatterInt} />
               </Col>
               <Col span={12}>
-                <Statistic title={<span className="text-amber-300 italic">Rounds Played</span>} value={stats.roundsPlayed} formatter={formatter} />
+                <Statistic title={<span className="text-amber-300 italic">Rounds Played</span>} value={stats.roundsPlayed} formatter={formatterInt} />
               </Col>
               <Col span={12}>
                 <Statistic
@@ -345,7 +348,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
                   }
                   value={stats.bb100}
                   precision={2}
-                  formatter={formatter}
+                  formatter={formatterDecimal}
                 />
               </Col>
 
@@ -358,11 +361,11 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
                   }
                   value={stats.bbWon}
                   precision={2}
-                  formatter={formatter}
+                  formatter={formatterDecimal}
                 />
               </Col>
               <Col span={12}>
-                <Statistic title={<span className="text-amber-300 italic">Bankrupts</span>} value={stats.bankrupts} formatter={formatter} />
+                <Statistic title={<span className="text-amber-300 italic">Bankrupts</span>} value={stats.bankrupts} formatter={formatterInt} />
               </Col>
             </Row>
           </div>
