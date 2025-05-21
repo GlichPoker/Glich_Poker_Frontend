@@ -123,9 +123,8 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
       try {
         const statData = await apiService.get<UserStats>(`/game/stats/${user.id}`);
         setStats(statData);
-        console.log(statData)
       } catch (error) {
-
+        // Silent fail - stats are optional
       }
     };
 
@@ -152,7 +151,6 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
       // Compare as strings to avoid type mismatches
       String(friend.id) === String(user.id)
     );
-    console.log('Is friend?', isFriend, 'Friend IDs:', friends.map(f => f.id), 'User ID:', user.id);
     if (isFriend) {
       setUserRelationship('friend');
       return;
