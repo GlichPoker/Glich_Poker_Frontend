@@ -86,8 +86,14 @@ const Leaderboard = () => {
                     id: String(stat.userId),
                     username: stat.username,
                     rank: index + 1, // Assign rank based on the sorted order
-                    bb100: Number(stat.bb100?.toFixed(1)),
-                    totalBBWon: Number(stat.totalBBWon?.toFixed(1)),
+                    bb100:
+                        typeof stat.bb100 === "number" && isFinite(stat.bb100)
+                            ? Number(stat.bb100.toFixed(1))
+                            : 0,
+                    totalBBWon:
+                        typeof stat.totalBBWon === "number" && isFinite(stat.totalBBWon)
+                            ? Number(stat.totalBBWon.toFixed(1))
+                            : 0,
                     totalRoundsPlayed: stat.totalRoundsPlayed,
                     totalGamesPlayed: stat.totalGamesPlayed,
                     bankrupts: stat.bankrupts,
