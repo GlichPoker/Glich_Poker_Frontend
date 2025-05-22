@@ -1,21 +1,18 @@
 # Glitch Poker Frontend
 
----
-
 ## Introduction
 
 **Glitch Poker** is an online poker application focused on delivering a **customizable and social poker experience**. Our goal is to provide a platform where users can enjoy classic poker with the flexibility to add custom rules, weather-based effects, and social features like friends and chat.
 
 Only **authenticated users** can join games, create lobbies, and challenge friends directly. Lobby creators have the power to define custom rules, adjust hand rankings, and even apply special rules based on real-world weather. We built Glitch Poker to offer a more diverse and enjoyable poker experience than existing platforms.
 
----
 
 ## Technologies Used
 
 * **Frontend:** React (Next.js), TypeScript, Ant Design
 * **State & Data:** REST API, WebSockets
 
----
+
 
 ## High-Level Components
 
@@ -34,7 +31,7 @@ Only **authenticated users** can join games, create lobbies, and challenge frien
 * **Custom Rules & Special Actions:** Supports custom winner rules, hand rankings, and weather-based special actions.
     * [Create Lobby Page](app/main/create-lobby/page.tsx)
 
----
+
 
 ## Launch & Deployment
 
@@ -44,8 +41,7 @@ Only **authenticated users** can join games, create lobbies, and challenge frien
 * Deno (for lockfile)
 * Docker (optional)
 * Nix (optional)
-* Backend server running (see backend repo)
-
+* Backend server running (see [backend repo](https://github.com/GlichPoker/Glich_Poker_Backend))
 ### Setup Steps
 
 1.  **Install dependencies:**
@@ -63,7 +59,7 @@ Only **authenticated users** can join games, create lobbies, and challenge frien
     ```
 4.  **External Dependencies:** Requires the backend API and WebSocket server to be running.
 
----
+
 ## Illustrations
 1. Landing Page
    * Players should register or login to enjoy the game.
@@ -74,7 +70,6 @@ Only **authenticated users** can join games, create lobbies, and challenge frien
    * **Friends Scetion & Chat**: Players can view their friends’ online status and chat via text.
    * **Lobby List**: PPlayers can join existing lobbies or create their own. 
    * **Leaderboard** : Displays the scores of all players, including friends.
-
 ![mainPage](public/images/screenshot/mainPage.png)
 
 3. Create Lobby
@@ -90,21 +85,24 @@ Only **authenticated users** can join games, create lobbies, and challenge frien
 ![inGame](public/images/screenshot/inGame_sunny.png)
 
 
----
+
 
 ## Roadmap
 
 * **In-game Text Chat:** Add chat functions within each lobby so players can communicate during the game.
 * **Mobile Support:** Improve UI/UX for mobile devices.
 
----
+
 
 ## Authors & Acknowledgement
 
-* @arden333: Frontend
-* @RealBlueSwan: Frontend
-* @elio42: Backend
-* BeCre11how: Backend
+
+| Contributors | Main Focus |
+|------|--------|
+| [Ahreum Oh](https://github.com/arden333) | Frontend |
+| [Noé Brunner](https://github.com/RealBluSwan) | Frontend |
+| [Elio Kuster](https://github.com/elio42) | Backend |
+| [Gian Gerber	](https://github.com/BeCre11how) | Backend |
 
 We'd like to thank our TA, Timon Leupp for guidance and support throughout the development of this project as part of the Software Engineering Lab course at the University of Zurich.
 
