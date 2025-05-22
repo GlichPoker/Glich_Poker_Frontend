@@ -42,10 +42,6 @@ Only **authenticated users** can join games, create lobbies and challange friend
 ## Launch & Deployment
 
 ### Prerequisites
-* Node.js (v18+)
-* Deno (for lockfile)
-* Docker (optional)
-* Nix (optional)
 * Backend server running (see [backend repo](https://github.com/GlichPoker/Glich_Poker_Backend))
 * Postgres db for data storage
 
