@@ -48,7 +48,7 @@ const UnifiedNotificationCenter: React.FC = () => {
       message.success(result.message);
       refreshFriendsData?.();
     } else {
-      message.error(result?.message || "Failed to accept friend request");
+      message.error("Failed to accept friend request");
     }
   };
 
@@ -62,7 +62,7 @@ const UnifiedNotificationCenter: React.FC = () => {
       message.success(result.message);
       refreshFriendsData?.();
     } else {
-      message.error(result?.message || "Failed to deny friend request");
+      message.error("Failed to deny friend request");
     }
   };
 
@@ -76,7 +76,7 @@ const UnifiedNotificationCenter: React.FC = () => {
       message.success(result.message);
       refreshInvitationsData?.();
     } else {
-      message.error(result?.message || "Failed to accept invitation");
+      message.error("Failed to accept invitation");
     }
   };
 
@@ -90,7 +90,7 @@ const UnifiedNotificationCenter: React.FC = () => {
       message.success(result.message);
       refreshInvitationsData?.();
     } else {
-      message.error(result?.message || "Failed to decline invitation");
+      message.error("Failed to decline invitation");
     }
   };
 

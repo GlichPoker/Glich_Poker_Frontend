@@ -191,7 +191,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
       return;
     }
     } else {
-      message.error(result.message);
+      message.error("Friend request could not be sent");
     }
   };
 
@@ -206,7 +206,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
       message.success(result.message);
       setUserRelationship('friend');
     } else {
-      message.error(result.message);
+      message.error("Friend request could not be accepted");
     }
   };
 
@@ -221,7 +221,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
       message.success(result.message);
       setUserRelationship('none');
     } else {
-      message.error(result.message);
+      message.error("Friend request could not be denied");
     }
   };
 
@@ -236,7 +236,7 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
       message.success(result.message);
       setUserRelationship('none');
     } else {
-      message.error(result.message);
+      message.error("Friend could not be removed");
     }
   };
 

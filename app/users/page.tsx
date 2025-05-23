@@ -126,7 +126,7 @@ const DashboardContent: React.FC = () => {
       message.success(result.message);
       refreshFriendsData();
     } else {
-      message.error(result.message);
+      message.error(`Failed to send friend request`);
     }
   };
 
