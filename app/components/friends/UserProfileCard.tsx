@@ -186,6 +186,10 @@ const UserProfileCard: React.FC<UserProfileCardProps> = ({
     if (result.success) {
       message.success(result.message);
       setUserRelationship('pending');
+    if (userRelationship === 'pending') {
+      message.error("Friend request is already pending");
+      return;
+    }
     } else {
       message.error(result.message);
     }

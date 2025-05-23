@@ -49,7 +49,7 @@ const Profile: React.FC = () => {
       await apiService.put<User>(`/users/${userid}`, payload);
     } catch (error) {
       if (error instanceof Error) {
-        alert(`Something went wrong during while editing:\n${error.message}`);
+        message.error(`Something went wrong during while editing:\n${error.message}`);
       } else {
         console.error("An unknown error occurred during login.");
       }
