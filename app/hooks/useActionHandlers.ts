@@ -10,7 +10,17 @@ type ActionHandlerParams = {
 
 export const useActionHandlers = ({ lobbyId, currentUser, setError }: ActionHandlerParams) => {
     if (!lobbyId || !currentUser) {
-        throw new Error("useActionHandlers: Missing lobbyId or currentUser");
+
+        const warn = (action: string) => () =>
+            console.warn(`Cannot perform '${action}' — missing lobbyId or currentUser`);
+
+        return {
+            handleFold: warn('fold'),
+            handleCheck: warn('check'),
+            handleCall: warn('call'),
+            handleRaise: warn('raise'),
+            handleBluff: warn('bluff'),
+        };
     }
 
     const commonHeaders = {
@@ -48,9 +58,7 @@ export const useActionHandlers = ({ lobbyId, currentUser, setError }: ActionHand
                     console.warn('Failed to parse error response:', parseError);
                 }
 
-                // console.error(`Error in ${endpoint}:`, readableMessage);
                 setError(readableMessage);
-
                 return null;
             }
 
@@ -63,7 +71,6 @@ export const useActionHandlers = ({ lobbyId, currentUser, setError }: ActionHand
 
         } catch (err: any) {
             const fallbackMessage = err?.message || "Unknown error occurred.";
-            // console.error(`Error in ${endpoint}:`, err);
             setError(fallbackMessage);
             return null;
         }

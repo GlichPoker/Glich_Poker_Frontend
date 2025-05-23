@@ -79,7 +79,7 @@ Note: If a team member fails to show continuous progress after using their Joker
 
 ---
 
-## Contributions Week 5 - [08.05.2025] to [14.05.2025]
+## Contributions M4 Week 2 - [08.05.2025] to [14.05.2025]
 
 | **Student**         | **Date**     | **Link to Commit**          | **Description**                                                                                                                                                                       | **Relevance**                                                                            |
 |---------------------|--------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
@@ -94,6 +94,18 @@ Note: If a team member fails to show continuous progress after using their Joker
 
 ---
 
-## Contributions Week 6 - [Begin Date] to [End Date]
+## Contributions Week 6 - [15.05.2025] to [22.05.2025]
+
+| **Student**         | **Date**     | **Link to Commit**          | **Description**                                                                                                                                                                       | **Relevance**                                                                            |
+|---------------------|--------------|-----------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------|
+| **[@RealBlueSwan]** | [15.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/4c7782149c32025830053c1ca930d2f00a6bd773, https://github.com/GlichPoker/Glich_Poker_Frontend/commit/e4f4f6c0c5f6ac23534b065501d37130a5bf0336, https://github.com/GlichPoker/Glich_Poker_Frontend/commit/f467f4c3bcbd700cc6ee4617aff11475f5885236] | [Changed main page layout and made component colors more uniform] | [UI improvements for hopefully better experience and more userfriendly] |
+|  | [18.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/f16cc0e5fea84773c4140abfe2cd9a88eeeb8fef, https://github.com/GlichPoker/Glich_Poker_Frontend/commit/2b857d556d253946c04b81a1f3af457eb214207d] | [Invite fetching and leaderboard stuff] | [Leaderboard to compare yourself to others or friends, invites and friend requests now merged in one component] |
+| **[@ardeen333]**    | [15.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/44743871db3b8f729df0c30d8b067ccd572573f9] | [add stats to userprofile] |[users can check their game history]|
+|                     | [17.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/663abd526fb13d48ecb9c302adad9e0271ceb2b2] | [automatically fold for inactive players] | [Prevent inactive players from disrupting the game] |
+| **[@elio42]**       | [.05.2025] | [] | [] | [] |
+|                     | [.05.2025] | [] | [] | [] |
+| **[@BeCre11how]**   | [.05.2025] | [] | [] |
+|                     | [.05.2025] | [] | [] | [] |
+
 
 *Continue with the same table format as above.*
