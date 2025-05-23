@@ -270,7 +270,7 @@ const PreGameLayout = ({
                             <OtherPlayerSeat
                                 key={1}
                                 player={otherPlayers[1]}
-                                positionLabel="Top Left"
+                                // positionLabel="Top Left"
                                 weatherType={weatherType}
                             />
                         )}
@@ -278,7 +278,7 @@ const PreGameLayout = ({
                             <OtherPlayerSeat
                                 key={0}
                                 player={otherPlayers[0]}
-                                positionLabel="Bottom Left"
+                                // positionLabel="Bottom Left"
                                 weatherType={weatherType}
                             />
                         )}
@@ -318,7 +318,7 @@ const PreGameLayout = ({
                             <OtherPlayerSeat
                                 key={2}
                                 player={otherPlayers[2]}
-                                positionLabel="Top Right"
+                                // positionLabel="Top Right"
                                 weatherType={weatherType}
                             />
                         )}
@@ -326,7 +326,7 @@ const PreGameLayout = ({
                             <OtherPlayerSeat
                                 key={3}
                                 player={otherPlayers[3]}
-                                positionLabel="Bottom Right"
+                                // positionLabel="Bottom Right"
                                 weatherType={weatherType}
                             />
                         )}
