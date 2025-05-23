@@ -104,8 +104,8 @@ Note: If a team member fails to show continuous progress after using their Joker
 |                     | [17.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/663abd526fb13d48ecb9c302adad9e0271ceb2b2] | [automatically fold for inactive players] | [Prevent inactive players from disrupting the game] |
 | **[@elio42]**       | [.05.2025] | [] | [] | [] |
 |                     | [.05.2025] | [] | [] | [] |
-| **[@BeCre11how]**   | [.05.2025] | [] | [] |
-|                     | [.05.2025] | [] | [] | [] |
+| **[@BeCre11how]**   | [23.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Backend/commit/9248649a977e38e6a855c72554cab9f4e4fdad1f] | [several tests for rest endpoints ] |[added the remaining rest endpoint test to increase coverage and to cover all methods] |
+|                     | [throughout this week] | [multiple commits] | [-] | [bugfixes] |
 
 
 *Continue with the same table format as above.*
