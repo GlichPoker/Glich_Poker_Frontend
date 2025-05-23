@@ -5,7 +5,8 @@ import { GameState } from '@/types/gameState';
 import { RoundModel, Card } from '@/types/round';
 import { WinningModel } from '@/types/winning';
 import { getApiDomain } from '@/utils/domain';
-import { message } from "antd";
+import {  useRouter } from 'next/navigation';
+
 
 const baseURL = getApiDomain();
 
@@ -58,6 +59,7 @@ export const useGameSocket = ({
 }: UseGameSocketParams) => {
     const [gameModel, setGameModel] = useState<GameModel | null>(null);
     const [players, setPlayers] = useState<Player[]>([]);
+    const router = useRouter();
 
     const listenerRef = useRef<((data: unknown) => void) | null>(null);
 
@@ -166,6 +168,9 @@ export const useGameSocket = ({
                             setIsWeatherModalOpen(true);
                         }
                         break;
+                    case "LEAVE":
+                        router.push('/main');
+                        break;
 
                     case "WEATHER_UPDATED":
                         if (message.weatherType) {
@@ -175,6 +180,7 @@ export const useGameSocket = ({
                             console.warn("Received WEATHER_UPDATED event without valid weatherType");
                         }
                         break;
+
 
                     default:
                         console.warn("Unknown WebSocket event:", message.event);
