@@ -135,7 +135,7 @@ const MainContent: React.FC = () => {
                             router.push("/main/game-rule");
                         }}
                     >
-                        Game rule
+                        Game rules
                     </Button>
                     <Button type="primary" onClick={() => {
                         router.push("/main/create-lobby");
