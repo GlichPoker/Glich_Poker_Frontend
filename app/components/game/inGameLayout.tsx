@@ -162,6 +162,23 @@ const InGameLayout = ({
         isMyTurn,
         timeoutMs: 30000,
         onTimeout: () => {
+            const sessionId = parseInt(lobbyId);
+            const userId = currentUser?.id;
+
+            if (!userId || isNaN(sessionId)) {
+                console.warn("[AUTO-FOLD] Skipped: Missing userId or invalid sessionId", {
+                    userId,
+                    sessionId,
+                });
+                return;
+            }
+
+            const payload = {
+                sessionId,
+                userId,
+            };
+
+            console.log("[AUTO-FOLD] Sending forceFold request:", payload);
 
             fetch(`${baseURL}/game/forceFold`, {
                 method: "POST",
@@ -169,14 +186,14 @@ const InGameLayout = ({
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify({
-                    sessionId: parseInt(lobbyId),
-                    userId: currentUser?.id,
-                }),
+                body: JSON.stringify(payload),
             })
-                .then((res) => {
+                .then(async (res) => {
                     if (!res.ok) {
-                        console.warn("[AUTO-FOLD] forceFold failed:", res.statusText);
+                        const responseText = await res.text();
+                        console.warn("[AUTO-FOLD] forceFold failed:", res.status, responseText);
+                    } else {
+                        console.log("[AUTO-FOLD] forceFold succeeded");
                     }
                 })
                 .catch((err) => {
