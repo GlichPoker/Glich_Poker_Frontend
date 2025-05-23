@@ -102,8 +102,8 @@ Note: If a team member fails to show continuous progress after using their Joker
 |  | [18.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/f16cc0e5fea84773c4140abfe2cd9a88eeeb8fef, https://github.com/GlichPoker/Glich_Poker_Frontend/commit/2b857d556d253946c04b81a1f3af457eb214207d] | [Invite fetching and leaderboard stuff] | [Leaderboard to compare yourself to others or friends, invites and friend requests now merged in one component] |
 | **[@ardeen333]**    | [15.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/44743871db3b8f729df0c30d8b067ccd572573f9] | [add stats to userprofile] |[users can check their game history]|
 |                     | [17.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Frontend/commit/663abd526fb13d48ecb9c302adad9e0271ceb2b2] | [automatically fold for inactive players] | [Prevent inactive players from disrupting the game] |
-| **[@elio42]**       | [.05.2025] | [] | [] | [] |
-|                     | [.05.2025] | [] | [] | [] |
+| **[@elio42]**       | [21.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Backend/commit/968a0c5196c181c486be24cdbe93c755fa330e21] | [Added a function to send out a list of player stats for the leaderboard.] | [This is relevant as it is completing a non optional userstory.] |
+|                     | [19.05.2025] | [https://github.com/GlichPoker/Glich_Poker_Backend/commit/f2ec760c3060d9493f45b2e784500e8de2a6fd35] | [Updated Stats system - The stats system now also considers active rounds - For this the stats service does the necessary calculates when getting the stats.] | [This makes the statistics more meaningfull than before as only the historical data is not as meaningfull.] |
 | **[@BeCre11how]**   | [.05.2025] | [] | [] |
 |                     | [.05.2025] | [] | [] | [] |
 
