@@ -61,7 +61,6 @@ const Leaderboard = () => {
             setLoadingData(true);
             try {
                 const data = await apiService.get<BackendPlayerStat[]>("/game/stats/all");
-                console.log("Raw leaderboard data from server:", data);
 
                 const currentSortStat = selectedStatistic || 'bb100'; // Fallback if selectedStatistic isn't ready
 

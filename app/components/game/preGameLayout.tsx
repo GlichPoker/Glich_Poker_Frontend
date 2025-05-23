@@ -97,7 +97,7 @@ const PreGameLayout = ({
     };
 
     return (
-        <div className="flex flex-col w-full h-auto">
+        <div className="flex flex-col w-full h-screen overflow-hidden">
             {/* NAVBAR */}
             <nav className="flex flex-row h-14 justify-between items-center bg-[#181818]">
                 {/* left: logo */}

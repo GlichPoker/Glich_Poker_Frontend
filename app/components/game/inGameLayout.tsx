@@ -293,7 +293,7 @@ const InGameLayout = ({
         consumeSwap();
     };
     return (
-        <div className="flex flex-col w-full h-auto">
+        <div className="flex flex-col w-full h-screen overflow-hidden">
             {contextHolder}
             <nav className="flex flex-row h-14 justify-between items-center bg-[#181818] px-4">
                 {/* Left: Logo */}
