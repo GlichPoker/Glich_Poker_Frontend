@@ -193,7 +193,7 @@ const LobbyPage = () => {
             router.push('/main');
         } catch (error) {
             console.error('Error leaving the game room:', error);
-            messageApi.success('Failed to leave the game room');
+            messageApi.error('Failed to leave the game room');
         }
     };
 
@@ -211,14 +211,14 @@ const LobbyPage = () => {
             if (!deleteResponse.ok) {
                 const errorText = await deleteResponse.text();
                 console.warn('Failed to delete the lobby:', deleteResponse.status, errorText);
-                messageApi.success('Failed to delete the lobby');
+                messageApi.error('Failed to delete the lobby');
             } else {
                 console.log('Lobby deleted');
                 router.push('/main');
             }
         } catch (error) {
             console.error('Error deleting the lobby:', error);
-            messageApi.success('Error deleting the lobby');
+            messageApi.error('Error deleting the lobby');
         }
     };
 
@@ -252,7 +252,7 @@ const LobbyPage = () => {
             messageApi.success('Player invited successfully');
         } catch (err) {
             console.error(err);
-            messageApi.success('Failed to invite player');
+            messageApi.error('Failed to invite player');
         }
     };
 
