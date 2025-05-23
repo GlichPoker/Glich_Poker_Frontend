@@ -21,9 +21,25 @@ const WinnerModal: React.FC<WinnerModalProps> = ({
             const winner = [winningModel.player, ...winningModel.otherPlayers].find(
                 (p) => p.userId === parseInt(userId)
             );
-            return winner?.name || `Player ${userId}`;
-        })
-        .join(", ");
+            const winnerName = winner?.name || `Player ${userId}`;
+            const winnerEvaluationResult = winner?.evaluationResult;
+            return {winnerName, winnerEvaluationResult}
+        });
+    const secondResult = winners[0].winnerName != winningModel.player.name ? <><p className="text-base">
+        My Hand: {winningModel.player.evaluationResult?.handRank ?? "Unknown"}
+    </p>
+
+    <div className="flex justify-center gap-2">
+        {winningModel.player.evaluationResult.highCards.filter((card) => card !== null)
+            .map((card, i) => (
+                <img
+                    key={i}
+                    src={`https://deckofcardsapi.com/static/img/${card.cardCode}.png`}
+                    alt={card.cardCode}
+                    className="h-20 w-auto rounded"
+                />
+            ))}
+    </div></> : <></>;
 
     return (
         <Modal
@@ -39,25 +55,32 @@ const WinnerModal: React.FC<WinnerModalProps> = ({
         >
             <div className="text-center space-y-4">
                 <p className="text-lg font-semibold">
-                    {winners} won the pot of ${winningModel.potSize}!
+                    {winners[0].winnerName == winningModel.player.name ? "You" : winners[0].winnerName} won the pot of
+                    ${winningModel.potSize}!
                 </p>
 
                 <p className="text-base">
-                    My Hand: {winningModel.player.evaluationResult?.handRank ?? "Unknown"}
+                    {winners[0].winnerName == winningModel.player.name ? "Your" : "Winning"} Hand: {winners[0].winnerEvaluationResult?.handRank ?? "Unknown"}
                 </p>
 
                 <div className="flex justify-center gap-2">
-                    {winningModel.player.hand
-                        .filter((card) => card !== null)
-                        .map((card, i) => (
-                            <img
-                                key={i}
-                                src={`https://deckofcardsapi.com/static/img/${card.cardCode}.png`}
-                                alt={card.cardCode}
-                                className="h-20 w-auto rounded"
-                            />
-                        ))}
+                    {typeof winners[0].winnerEvaluationResult !== "undefined" ? (
+                        winners[0].winnerEvaluationResult?.highCards
+                            ?.filter((card) => card !== null)
+                            .map((card, i) => (
+                                <img
+                                    key={i}
+                                    src={`https://deckofcardsapi.com/static/img/${card.cardCode}.png`}
+                                    alt={card.cardCode}
+                                    className="h-20 w-auto rounded"
+                                />
+                            ))
+                    ) : (
+                        "Unknown"
+                    )}
                 </div>
+
+                {secondResult}
             </div>
         </Modal>
     );
