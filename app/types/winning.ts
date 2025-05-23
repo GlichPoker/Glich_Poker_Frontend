@@ -9,6 +9,7 @@ export interface Card {
 export interface EvaluationResult {
     handRank: string;
     highCards: Card[];
+    actualHand:Card[];
 }
 
 export interface Player {

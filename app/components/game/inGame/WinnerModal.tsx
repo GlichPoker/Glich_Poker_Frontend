@@ -30,7 +30,7 @@ const WinnerModal: React.FC<WinnerModalProps> = ({
     </p>
 
     <div className="flex justify-center gap-2">
-        {winningModel.player.evaluationResult.highCards.filter((card) => card !== null)
+        {winningModel.player.evaluationResult.actualHand.filter((card) => card !== null)
             .map((card, i) => (
                 <img
                     key={i}
@@ -65,7 +65,7 @@ const WinnerModal: React.FC<WinnerModalProps> = ({
 
                 <div className="flex justify-center gap-2">
                     {typeof winners[0].winnerEvaluationResult !== "undefined" ? (
-                        winners[0].winnerEvaluationResult?.highCards
+                        winners[0].winnerEvaluationResult?.actualHand
                             ?.filter((card) => card !== null)
                             .map((card, i) => (
                                 <img
