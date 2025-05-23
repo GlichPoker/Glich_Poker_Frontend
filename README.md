@@ -108,4 +108,6 @@ We'd like to thank our TA, Timon Leupp for guidance and support throughout the d
 ---
 
 ## License
-Apache 2.0
+GNU General Public License v3.0 (GPL-3.0)
+
+This project is licensed under the GNU General Public License v3.0 - see the [GPL-3.0-LICENSE.md](GPL-3.0-LICENSE.md) file for details.
